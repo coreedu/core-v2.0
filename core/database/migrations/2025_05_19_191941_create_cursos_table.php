@@ -21,6 +21,7 @@ return new class extends Migration
             $table->unsignedInteger('horas');
             $table->unsignedInteger('horasEstagio')->nullable();
             $table->unsignedInteger('horasTg')->nullable();
+            $table->timestamps();
         });
     }
 
