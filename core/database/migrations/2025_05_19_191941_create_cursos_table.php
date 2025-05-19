@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('nome', 150);
             $table->char('abreviacao', 10);
             $table->unsignedInteger('qtdModulos');
-            $table->unsignedInteger('modalidade');
+            $table->unsignedInteger('modalidade')->nullable();
             $table->unsignedInteger('horas');
             $table->unsignedInteger('horasEstagio')->nullable();
             $table->unsignedInteger('horasTg')->nullable();
