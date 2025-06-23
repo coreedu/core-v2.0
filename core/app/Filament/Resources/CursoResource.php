@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Database\Eloquent\Model;
 
 class CursoResource extends Resource
 {
@@ -94,5 +95,41 @@ class CursoResource extends Resource
         return [
             'index' => Pages\ManageCursos::route('/'),
         ];
+    }
+
+    // Controle de permissões
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('ver cursos');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('criar cursos');
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return auth()->user()->can('ver cursos');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->user()->can('editar cursos');
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->user()->can('deletar cursos');
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return auth()->user()->can('deletar cursos');
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->user()->can('ver cursos');
     }
 }
