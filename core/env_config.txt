@@ -63,3 +63,13 @@ AWS_BUCKET=
 AWS_USE_PATH_STYLE_ENDPOINT=false
 
 VITE_APP_NAME="${APP_NAME}"
+
+
+// Packages
+
+-> Controle de permissões
+composer require spatie/laravel-permission 
+composer require bezhansalleh/filament-shield
+
+> php artisan shield:generate (criar novas permissões)
+
