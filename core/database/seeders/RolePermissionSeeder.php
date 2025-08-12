@@ -24,7 +24,10 @@ class RolePermissionSeeder extends Seeder
             'criar usuários',
             'editar usuários',
             'deletar usuários',
-            'ver cursos'
+            'ver cursos',
+            'criar cursos',
+            'editar cursos',
+            'deletar cursos',
         ];
 
         // Cria permissões
