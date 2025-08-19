@@ -24,23 +24,33 @@ class UserResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->label('Nome Completo')
                     ->required()
-                    ->maxLength(191),
+                    ->maxLength(191)
+                    ->placeholder('Digite o nome completo'),
+
                 Forms\Components\TextInput::make('email')
+                    ->label('Email de Acesso')
                     ->email()
                     ->required()
-                    ->maxLength(191),
-                Forms\Components\DateTimePicker::make('email_verified_at'),
+                    ->maxLength(191)
+                    ->placeholder('Digite o email'),
+
+                Forms\Components\DateTimePicker::make('email_verified_at')
+                    ->label('Data de Verificação do Email'),
+
                 Forms\Components\TextInput::make('password')
-                ->password()
-                ->dehydrateStateUsing(fn ($state) => \Hash::make($state))
-                ->required(fn (string $context) => $context === 'create')
-                ->label('Senha'),
+                    ->password()
+                    ->dehydrateStateUsing(fn($state) => \Hash::make($state))
+                    ->required(fn(string $context) => $context === 'create')
+                    ->label('Senha de Acesso')
+                    ->placeholder('Digite a senha'),
+
                 Forms\Components\Select::make('roles')
-                    ->relationship('roles', 'name') // requer HasRoles no modelo
+                    ->relationship('roles', 'name')
                     ->multiple()
                     ->preload()
-                    ->label('Papéis'),
+                    ->label('Papéis do Usuário'),
             ]);
     }
 
