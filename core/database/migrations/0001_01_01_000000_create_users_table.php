@@ -17,6 +17,12 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('photo')->nullable();
+            $table->foreignId('course')->nullable();
+            $table->unsignedInteger('semester')->nullable();
+            $table->string('shift', 20)->nullable();
+            $table->boolean('is_determined')->default(false);
+            $table->date('contract_end_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

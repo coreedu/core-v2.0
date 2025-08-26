@@ -25,28 +25,29 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'photo',
+        'course',
+        'semester',
+        'shift',
+        'is_determined',
+        'contract_end_at',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'is_determined' => 'boolean',
+        'contract_end_at' => 'date',
+    ];
+
+    // Relacionamento com curso
+    public function curso()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->belongsTo(Curso::class);
     }
 }
