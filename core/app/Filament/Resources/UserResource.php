@@ -166,7 +166,7 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Stack::make([
-                    TextColumn::make('rm')
+                    TextColumn::make('id')
                         ->label('RM')
                         ->weight('bold')
                         ->size('sm'),
