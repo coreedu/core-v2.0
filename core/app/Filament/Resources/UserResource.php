@@ -166,26 +166,25 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Stack::make([
+                    ImageColumn::make('photo')
+                        ->label('Foto')
+                        ->circular()
+                        ->size(75)
+                        ->getStateUsing(function ($record) {
+                            return asset('storage/' . $record->photo);
+                        }),
+
                     TextColumn::make('id')
                         ->label('RM')
                         ->weight('bold')
-                        ->size('sm'),
-
-                    TextColumn::make('name')
-                        ->label('Nome')
-                        ->weight('medium')
-                        ->size('sm'),
+                        ->size('sm')
+                        ->formatStateUsing(function ($state, $record) {
+                            return $record->id . ' - ' . $record->name;
+                        }),
 
                     TextColumn::make('roles.name')
                         ->label('Função')
                         ->size('sm'),
-
-                    ImageColumn::make('photo')
-                        ->label('Foto')
-                        ->circular()
-                        ->getStateUsing(function ($record) {
-                            return asset('storage/' . $record->photo);
-                        }),
                 ]),
             ])
             ->contentGrid([
