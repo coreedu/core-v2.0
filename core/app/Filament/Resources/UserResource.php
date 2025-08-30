@@ -143,10 +143,10 @@ class UserResource extends Resource
                         Select::make('shift')
                             ->label('Turno')
                             ->options([
-                                'Matutino'   => 'Matutino',
-                                'Vespertino' => 'Vespertino',
-                                'Noturno'    => 'Noturno',
-                                'Integral'   => 'Integral',
+                                1 => 'Matutino',
+                                2 => 'Vespertino',
+                                3 => 'Noturno',
+                                4 => 'Integral',
                             ])
                             ->native(false)
                             ->columnSpan(4),
@@ -182,13 +182,14 @@ class UserResource extends Resource
                     ImageColumn::make('photo')
                         ->label('Foto')
                         ->circular()
-                        ->size(75)
                         ->getStateUsing(function ($record) {
                             return asset('storage/' . $record->photo);
                         }),
 
                     TextColumn::make('id')
                         ->label('RM')
+                        ->sortable()
+                        ->searchable()
                         ->weight('bold')
                         ->size('sm')
                         ->formatStateUsing(function ($state, $record) {
