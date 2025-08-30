@@ -13,6 +13,8 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\Section;
+use Filament\Tables\Columns\Layout\Stack;
 
 class CursoResource extends Resource
 {
@@ -24,28 +26,87 @@ class CursoResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('turno')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('nome')
-                    ->required()
-                    ->maxLength(150),
-                Forms\Components\TextInput::make('abreviacao')
-                    ->required()
-                    ->maxLength(10),
-                Forms\Components\TextInput::make('qtdModulos')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('modalidade')
-                    // ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('horas')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('horasEstagio')
-                    ->numeric(),
-                Forms\Components\TextInput::make('horasTg')
-                    ->numeric(),
+                Section::make('Curso')
+                    ->columns(12)
+                    ->schema([
+                        Forms\Components\TextInput::make('nome')
+                            ->label('Nome do Curso')
+                            ->placeholder('Digite o nome do curso')
+                            ->required()
+                            ->maxLength(150)
+                            ->columnSpan(8),
+
+                        Forms\Components\TextInput::make('abreviacao')
+                            ->label('Abreviação')
+                            ->placeholder('Ex.: BCC')
+                            ->required()
+                            ->maxLength(10)
+                            ->columnSpan(4),
+                    ]),
+
+                Section::make('Modalidade e Módulos')
+                    ->columns(12)
+                    ->schema([
+                        Forms\Components\Select::make('modalidade')
+                            ->label('Modalidade')
+                            ->options([
+                                1 => 'Presencial',
+                                2 => 'EAD',
+                                3 => 'Semipresencial',
+                            ])
+                            ->required()
+                            ->placeholder('Selecione a modalidade')
+                            ->columnSpan(6),
+
+                        Forms\Components\TextInput::make('qtdModulos')
+                            ->label('Quantidade de Módulos')
+                            ->placeholder('Número de módulos')
+                            ->required()
+                            ->numeric()
+                            ->columnSpan(6),
+                    ]),
+
+                Section::make('Carga Horária')
+                    ->columns(12)
+                    ->schema([
+                        Forms\Components\TextInput::make('horas')
+                            ->label('Carga Horária Total')
+                            ->placeholder('Digite a carga horária total do curso')
+                            ->required()
+                            ->numeric()
+                            ->columnSpan(6)
+                            ->helperText('Exemplo: 3200 horas'),
+
+                        Forms\Components\TextInput::make('horasEstagio')
+                            ->label('Carga Horária do Estágio')
+                            ->placeholder('Digite a carga horária do estágio')
+                            ->numeric()
+                            ->columnSpan(6)
+                            ->helperText('Exemplo: 400 horas'),
+
+                        Forms\Components\TextInput::make('horasTg')
+                            ->label('Carga Horária do TCC/TG')
+                            ->placeholder('Digite a carga horária do TCC/TG')
+                            ->numeric()
+                            ->columnSpan(6)
+                            ->helperText('Exemplo: 200 horas'),
+                    ]),
+
+                Section::make('Turno')
+                    ->columns(12)
+                    ->schema([
+                        Forms\Components\Select::make('turno')
+                            ->label('Turno')
+                            ->options([
+                                1 => 'Matutino',
+                                2 => 'Vespertino',
+                                3 => 'Noturno',
+                                4 => 'Integral',
+                            ])
+                            ->required()
+                            ->placeholder('Selecione o turno')
+                            ->columnSpan(6),
+                    ]),
             ]);
     }
 
@@ -53,28 +114,20 @@ class CursoResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('turno')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('nome')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('abreviacao')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('qtdModulos')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('modalidade')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('horas')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('horasEstagio')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('horasTg')
-                    ->numeric()
-                    ->sortable(),
+                Stack::make([
+                    Tables\Columns\TextColumn::make('nome')
+                        ->label('Nome do Curso')
+                        ->searchable()
+                        ->sortable()
+                        ->formatStateUsing(fn($state, $record) => "{$state} - {$record->abreviacao}"),
+
+                    Tables\Columns\TextColumn::make('qtdModulos')
+                        ->label('Quantidade de Semestres')
+                        ->formatStateUsing(fn($state) => "{$state} semestre(s)"),
+                ]),
+            ])
+            ->contentGrid([
+                'md' => 2,
             ])
             ->filters([
                 //
