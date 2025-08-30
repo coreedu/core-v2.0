@@ -36,26 +36,32 @@ class UserResource extends Resource
         return $form
             ->schema([
                 Section::make('Dados Pessoais')
-                    ->columns(3)
+                    ->columns(12)
                     ->schema([
                         TextInput::make('id')
                             ->label('RM')
                             ->placeholder('Ex.: 202500123')
                             ->maxLength(20)
-                            ->required(),
+                            ->required()
+                            ->numeric()
+                            ->columnSpan(4)
+                            ->prefixIcon('heroicon-s-identification'),
 
                         TextInput::make('name')
                             ->label('Nome Completo')
                             ->placeholder('Digite o nome completo')
                             ->required()
-                            ->maxLength(191),
+                            ->maxLength(191)
+                            ->columnSpan(8),
 
                         DatePicker::make('birthdate')
                             ->label('Nascimento')
                             ->displayFormat('d/m/Y')
                             ->native(false)
                             ->required()
-                            ->closeOnDateSelection(),
+                            ->closeOnDateSelection()
+                            ->columnSpan(4)
+                            ->prefixIcon('heroicon-s-calendar'),
 
                         FileUpload::make('photo')
                             ->label('Foto do Usuário')
@@ -66,21 +72,24 @@ class UserResource extends Resource
                             ->required()
                             ->avatar()
                             ->placeholder('Clique ou arraste para selecionar')
-                            ->helperText('Formatos: jpg ou png, até 1MB')
+                            ->helperText('JPG ou PNG, até 1MB')
                             ->imageCropAspectRatio('1:1')
                             ->imageResizeTargetWidth(300)
-                            ->imageResizeTargetHeight(300),
+                            ->imageResizeTargetHeight(300)
+                            ->columnSpan(8),
                     ]),
 
                 Section::make('Acesso')
-                    ->columns(2)
+                    ->columns(12)
                     ->schema([
                         TextInput::make('email')
                             ->label('Email de Acesso')
                             ->placeholder('exemplo@email.com')
                             ->email()
                             ->required()
-                            ->maxLength(191),
+                            ->maxLength(191)
+                            ->columnSpan(6)
+                            ->prefixIcon('heroicon-m-envelope'),
 
                         TextInput::make('password')
                             ->label('Senha de Acesso')
@@ -88,7 +97,9 @@ class UserResource extends Resource
                             ->password()
                             ->dehydrated(fn($state) => filled($state))
                             ->dehydrateStateUsing(fn($state) => filled($state) ? Hash::make($state) : null)
-                            ->required(fn(string $context) => $context === 'create'),
+                            ->required(fn(string $context) => $context === 'create')
+                            ->columnSpan(6)
+                            ->prefixIcon('heroicon-s-lock-closed'),
                     ]),
 
                 Section::make('Papéis / Funções')
@@ -105,14 +116,14 @@ class UserResource extends Resource
                     ]),
 
                 Section::make('Dados Acadêmicos')
-                    ->columns(3)
+                    ->columns(12)
                     ->visible(fn(Get $get) => $get('roles') == 3)
                     ->schema([
                         Select::make('course')
                             ->label('Curso')
                             ->relationship('curso', 'nome')
                             ->native(false)
-                            ->columnSpan(2),
+                            ->columnSpan(4),
 
                         Select::make('semester')
                             ->label('Semestre')
@@ -127,7 +138,7 @@ class UserResource extends Resource
                                 8 => '8º'
                             ])
                             ->native(false)
-                            ->columnSpan(1),
+                            ->columnSpan(4),
 
                         Select::make('shift')
                             ->label('Turno')
@@ -138,25 +149,27 @@ class UserResource extends Resource
                                 'Integral'   => 'Integral',
                             ])
                             ->native(false)
-                            ->columnSpan(1),
+                            ->columnSpan(4),
                     ]),
 
                 Section::make('Vínculo / Contrato')
-                    ->columns(3)
+                    ->columns(12)
                     ->visible(fn(Get $get) => !empty($get('roles')) && $get('roles') != 3)
                     ->schema([
                         Toggle::make('is_determined')
                             ->label('Contrato determinado?')
                             ->inline(false)
-                            ->reactive(),
+                            ->reactive()
+                            ->columnSpan(4),
 
                         DatePicker::make('contract_end_at')
                             ->label('Data fim de contrato')
                             ->displayFormat('d/m/Y')
                             ->native(false)
                             ->closeOnDateSelection()
-                            ->columnSpan(1)
-                            ->visible(fn(Get $get) => $get('is_determined')),
+                            ->columnSpan(4)
+                            ->visible(fn(Get $get) => $get('is_determined'))
+                            ->prefixIcon('heroicon-s-calendar'),
                     ]),
             ]);
     }
