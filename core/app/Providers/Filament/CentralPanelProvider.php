@@ -2,8 +2,11 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Profile;
+use App\Http\Middleware\FilamentSettings;
 use Filament\Http\Middleware\Authenticate;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+use Filament\Facades\Filament;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -28,6 +31,7 @@ class CentralPanelProvider extends PanelProvider
             ->id('central')
             ->path('central')
             ->login()
+            ->profile(Profile::class)
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -51,6 +55,7 @@ class CentralPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                FilamentSettings::class
             ])
             ->plugins([
                 FilamentShieldPlugin::make(),

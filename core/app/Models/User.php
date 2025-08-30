@@ -33,6 +33,7 @@ class User extends Authenticatable
         'shift',
         'is_determined',
         'contract_end_at',
+        'settings',
     ];
 
     protected $hidden = [
@@ -45,6 +46,7 @@ class User extends Authenticatable
         'password' => 'hashed',
         'is_determined' => 'boolean',
         'contract_end_at' => 'date',
+        'settings' => 'array',
     ];
 
     // Relacionamento com curso
