@@ -119,7 +119,7 @@ class CursoResource extends Resource
                         ->label('Nome do Curso')
                         ->searchable()
                         ->sortable()
-                        ->formatStateUsing(fn($state, $record) => "{$state} - {$record->abreviacao}"),
+                        ->formatStateUsing(fn($state, $record) => "{$record->abreviacao} - {$state}"),
 
                     Tables\Columns\TextColumn::make('qtdModulos')
                         ->label('Quantidade de Semestres')
