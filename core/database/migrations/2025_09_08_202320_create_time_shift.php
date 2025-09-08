@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('time_shift', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('time');
-            $table->undignedInteger('shift');
+            $table->unsignedInteger('shift');
             $table->timestamps();
         });
     }

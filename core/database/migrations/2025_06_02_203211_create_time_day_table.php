@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('hora_dia', function (Blueprint $table) {
+        Schema::create('time_day', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('codHorario');
-            $table->unsignedInteger('codDia');
+            $table->unsignedInteger('time');
+            $table->unsignedInteger('day');
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('hora_dia');
+        Schema::dropIfExists('time_day');
     }
 };

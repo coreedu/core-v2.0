@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('funcoes', function (Blueprint $table) {
+        Schema::create('availability_instructor', function (Blueprint $table) {
             $table->id();
-            $table->string('nome', 100);
-            $table->string('descricao', 100);
+            $table->unsignedInteger('time');
+            $table->unsignedInteger('user');
+            $table->unsignedInteger('day');
             $table->timestamps();
         });
     }
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('funcoes');
+        Schema::dropIfExists('availability_instructor');
     }
 };

@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('acessos', function (Blueprint $table) {
+        Schema::create('day', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('funcao');
-            $table->unsignedInteger('status');
+            $table->unsignedInteger('cod');
+            $table->string('name', 100);
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('acessos');
+        Schema::dropIfExists('day');
     }
 };

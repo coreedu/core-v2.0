@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('componentes', function (Blueprint $table) {
+        Schema::create('component', function (Blueprint $table) {
             $table->id();
-            $table->string('nome', 100);
-            $table->char('abreviacao', 10);
-            $table->float('horasSemanais')->nullable();
-            $table->float('horasTotais')->nullable();
+            $table->string('name', 100);
+            $table->char('abbreviation', 10);
+            $table->float('weekHours')->nullable();
+            $table->float('totalHours')->nullable();
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('componentes');
+        Schema::dropIfExists('component');
     }
 };
