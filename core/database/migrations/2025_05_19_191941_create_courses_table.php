@@ -11,16 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('course', function (Blueprint $table) {
+        Schema::create('cursos', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('shift');
-            $table->string('name', 150);
-            $table->char('abbreviation', 10);
-            $table->unsignedInteger('count_modules');
-            $table->unsignedInteger('modality')->nullable();
-            $table->unsignedInteger('hours');
-            $table->unsignedInteger('internshipHours')->nullable();
-            $table->unsignedInteger('tgHours')->nullable();
+            $table->unsignedInteger('turno');
+            $table->string('nome', 150);
+            $table->char('abreviacao', 10);
+            $table->unsignedInteger('qtdModulos');
+            $table->unsignedInteger('modalidade')->nullable();
+            $table->unsignedInteger('horas');
+            $table->unsignedInteger('horasEstagio')->nullable();
+            $table->unsignedInteger('horasTg')->nullable();
             $table->timestamps();
         });
     }
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('course');
+        Schema::dropIfExists('cursos');
     }
 };

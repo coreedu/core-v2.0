@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('component', function (Blueprint $table) {
+        Schema::create('componentes', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 100);
-            $table->char('abbreviation', 10);
-            $table->float('weekHours')->nullable();
-            $table->float('totalHours')->nullable();
+            $table->string('nome', 100);
+            $table->char('abreviacao', 10);
+            $table->float('horasSemanais')->nullable();
+            $table->float('horasTotais')->nullable();
             $table->timestamps();
         });
     }
