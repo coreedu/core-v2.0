@@ -29,7 +29,7 @@ Antes de começar, certifique-se de que você tem o seguinte instalado:
 
 ### 3. **Copie o Arquivo de Ambiente**
 
-   O arquivo de ambiente `.env.example` contém as variáveis de configuração padrão para o projeto. Copie esse arquivo para criar seu próprio `.env`:
+   O arquivo de ambiente `env.example` contém as variáveis de configuração padrão para o projeto. Copie esse arquivo para criar seu próprio `.env`:
 
    ```bash
    cp .env.example .env
