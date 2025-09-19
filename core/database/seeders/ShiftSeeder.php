@@ -13,34 +13,14 @@ class ShiftSeeder extends Seeder
      */
     public function run(): void
     {
-        Shift::create([
-            'cod' => 1,
-            'name' => 'Matutino',
-            'description' => ''
-        ]);
-
-        Shift::create([
-            'cod' => 12,
-            'name' => 'Matutino/Vespertino',
-            'description' => ''
-        ]);
-
-        Shift::create([
-            'cod' => 2,
-            'name' => 'Vespertino',
-            'description' => ''
-        ]);
-
-        Shift::create([
-            'cod' => 23,
-            'name' => 'Vespertino/Noturno',
-            'description' => ''
-        ]);
+        $shifts = [
+            ['cod' => 1, 'name' => 'Matutino', 'description' => ''],
+            ['cod' => 12, 'name' => 'Matutino/Vespertino', 'description' => ''],
+            ['cod' => 2, 'name' => 'Vespertino', 'description' => ''],
+            ['cod' => 23, 'name' => 'Vespertino/Noturno', 'description' => ''],
+            ['cod' => 3, 'name' => 'Noturno', 'description' => '']
+        ];
         
-        Shift::create([
-            'cod' => 3,
-            'name' => 'Noturno',
-            'description' => ''
-        ]);
+        Shift::create($shifts);
     }
 }
