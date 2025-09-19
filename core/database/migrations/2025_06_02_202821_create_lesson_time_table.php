@@ -13,9 +13,8 @@ return new class extends Migration
     {
         Schema::create('lesson_time', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('shift');
-            $table->date('start');
-            $table->date('end');
+            $table->time('start');
+            $table->time('end');
             $table->timestamps();
         });
     }
