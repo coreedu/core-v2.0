@@ -19,7 +19,7 @@ class ShiftResource extends Resource
 {
     protected static ?string $model = Shift::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-clock';
+    protected static ?string $navigationIcon = 'heroicon-o-briefcase';
 
     protected static ?string $cluster = Time::class;
 
