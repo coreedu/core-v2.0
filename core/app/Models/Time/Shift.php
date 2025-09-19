@@ -9,5 +9,5 @@ class Shift extends Model
     protected $table = 'shift';
 
     // Campos que podem ser preenchidos em mass-assignment
-    protected $fillable = ['name', 'description']; 
+    protected $fillable = ['cod', 'name', 'description']; 
 }

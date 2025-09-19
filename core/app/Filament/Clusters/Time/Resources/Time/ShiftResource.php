@@ -23,15 +23,19 @@ class ShiftResource extends Resource
 
     protected static ?string $cluster = Time::class;
 
-    // protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
+    protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
+                Forms\Components\TextInput::make('cod')
+                    ->label('Código')
+                    ->required()
+                    ->columnSpan(4),
+
                 Forms\Components\TextInput::make('name')
                     ->label('Nome do Turno')
-                    ->placeholder('Digite o nome do curso')
                     ->required()
                     ->maxLength(30)
                     ->columnSpan(4),
@@ -48,6 +52,11 @@ class ShiftResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('cod')
+                    ->label('Código')
+                    ->searchable()
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nome')
                     ->searchable()
