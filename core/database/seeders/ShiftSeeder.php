@@ -21,6 +21,8 @@ class ShiftSeeder extends Seeder
             ['cod' => 3, 'name' => 'Noturno', 'description' => '']
         ];
         
-        Shift::create($shifts);
+        foreach ($shifts as $shift) {
+            Shift::create($shift);
+        }
     }
 }
