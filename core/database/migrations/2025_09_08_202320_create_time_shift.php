@@ -13,9 +13,12 @@ return new class extends Migration
     {
         Schema::create('time_shift', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('time');
-            $table->unsignedInteger('shift');
+            $table->unsignedInteger('lesson_time_id');
+            $table->unsignedInteger('shift_cod');
             $table->timestamps();
+
+            $table->foreign('lesson_time_id')->references('id')->on('lesson_time');
+            $table->foreign('shift_cod')->references('cod')->on('shift');
         });
     }
 

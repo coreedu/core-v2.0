@@ -5,15 +5,18 @@ namespace App\Filament\Clusters\Time\Resources\Time;
 use App\Filament\Clusters\Time;
 use App\Filament\Clusters\Time\Resources\Time\LessonTimeResource\Pages;
 use App\Filament\Clusters\Time\Resources\Time\LessonTimeResource\RelationManagers;
+use Filament\Resources\Resource;
 use App\Models\Time\LessonTime;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Pages\SubNavigationPosition;
+use Filament\Tables\Columns\Layout\Stack;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TimePicker;
 
 class LessonTimeResource extends Resource
@@ -41,6 +44,16 @@ class LessonTimeResource extends Resource
                     ->required()
                     ->default('01:00:00')
                     ->columnSpan(4),
+                
+                Select::make('shift')
+                            ->label('Turnos')
+                            ->relationship('shift', 'name')
+                            ->multiple()
+                            ->preload()
+                            ->searchable()
+                            ->required()
+                            ->columnSpanFull()
+                            ->live()
             ]);
     }
 
@@ -48,13 +61,21 @@ class LessonTimeResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('start')
+                TextColumn::make('start')
                     ->label('Início')
+                    ->searchable()
+                    ->sortable()
                     ->date('H:i'),
 
-                Tables\Columns\TextColumn::make('end')
+                TextColumn::make('end')
                     ->label('Término')
+                    ->searchable()
                     ->date('H:i'),
+
+                TextColumn::make('shift.name')
+                    ->label('Turnos')
+                    ->separator(', ')
+                    ->searchable()
             ])
             ->filters([
                 //

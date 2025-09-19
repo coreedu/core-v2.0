@@ -10,4 +10,16 @@ class Shift extends Model
 
     // Campos que podem ser preenchidos em mass-assignment
     protected $fillable = ['cod', 'name', 'description']; 
+
+    public function lessonTimes()
+{
+    return $this->belongsToMany(
+        \App\Models\Time\LessonTime::class,
+        'time_shift',
+        'shift_cod',
+        'lesson_time_id',
+        'cod',
+        'id'
+    );
+}
 }
