@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             RolePermissionSeeder::class,
             ShiftSeeder::class,
             DaySeeder::class,
+            LessonTimeSeeder::class,
         ]);
 
         // Gera permissões automaticamente para o painel "central"
