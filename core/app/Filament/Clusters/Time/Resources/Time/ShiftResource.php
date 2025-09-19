@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Clusters\Time\Resources\Time;
 
-use App\Filament\Resources\ShiftResource\Pages;
-use App\Filament\Resources\ShiftResource\RelationManagers;
-use App\Models\Shift;
+use App\Filament\Clusters\Time;
+use App\Filament\Clusters\Time\Resources\Time\ShiftResource\Pages;
+use App\Filament\Clusters\Time\Resources\Time\ShiftResource\RelationManagers;
+use App\Models\Time\Shift;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -12,13 +13,17 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Tables\Columns\Layout\Stack;
+use Filament\Pages\SubNavigationPosition;
 
 class ShiftResource extends Resource
 {
     protected static ?string $model = Shift::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-clock';
+
+    protected static ?string $cluster = Time::class;
+
+    // protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
     public static function form(Form $form): Form
     {
@@ -43,22 +48,21 @@ class ShiftResource extends Resource
     {
         return $table
             ->columns([
-                Stack::make([
-                    Tables\Columns\TextColumn::make('name')
+                Tables\Columns\TextColumn::make('name')
                     ->label('Nome')
                     ->searchable()
                     ->sortable(),
 
-                    Tables\Columns\TextColumn::make('description')
+                Tables\Columns\TextColumn::make('description')
                     ->label('Descrição')
                     ->searchable()
-                ]),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -67,19 +71,10 @@ class ShiftResource extends Resource
             ]);
     }
 
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
-
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListShifts::route('/'),
-            'create' => Pages\CreateShift::route('/create'),
-            'edit' => Pages\EditShift::route('/{record}/edit'),
+            'index' => Pages\ManageShifts::route('/'),
         ];
     }
 }

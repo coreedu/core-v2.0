@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Filament\Resources\ShiftResource\Pages;
+namespace App\Filament\Clusters\Time\Resources\Time\ShiftResource\Pages;
 
-use App\Filament\Resources\ShiftResource;
+use App\Filament\Clusters\Time\Resources\Time\ShiftResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ListRecords;
+use Filament\Resources\Pages\ManageRecords;
 
-class ListShifts extends ListRecords
+class ManageShifts extends ManageRecords
 {
     protected static string $resource = ShiftResource::class;
 
