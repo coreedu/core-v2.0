@@ -61,6 +61,24 @@ class DayResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\Action::make('view')
+                    ->label('')
+                    ->icon('heroicon-o-eye')
+                    ->modalHeading(fn ($record) => "Horários {$record->name}")
+                    ->form([
+                        Forms\Components\CheckboxList::make('times')
+                            ->label('Horários')
+                            ->relationship('times', 'start')
+                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->getLabelAttribute())
+                            ->columns(2)
+                            ->bulkToggleable()
+                    ])
+                    ->mountUsing(function (Forms\Form $form, Day $record) {
+                        $form->fill([
+                            'times' => $record->times()->pluck('lesson_time.id')->all(),
+                        ]);
+                    })
+                    ->modalSubmitActionLabel('Salvar'),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])

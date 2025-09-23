@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('time_day', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('time');
-            $table->unsignedInteger('day');
+            $table->unsignedInteger('time_id');
+            $table->unsignedInteger('day_id');
             $table->timestamps();
         });
     }

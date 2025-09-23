@@ -22,4 +22,14 @@ class LessonTime extends Model
             'cod'
         );
     }
+
+    public function days()
+    {
+        return $this->belongsToMany(Day::class, 'time_day', 'time_id', 'day_id');
+    }
+
+    public function getLabelAttribute(): string
+    {
+        return $this->start . ' - ' . $this->end;
+    }
 }
