@@ -26,6 +26,9 @@ class LessonTimeResource extends Resource
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
     protected static ?string $navigationIcon = 'heroicon-o-clock';
+    protected static ?string $navigationLabel = 'Horários';
+    protected static ?string $pluralModelLabel = 'Horários';
+    protected static ?string $modelLabel = 'Horário';
 
     protected static ?string $cluster = Time::class;
 
@@ -34,26 +37,27 @@ class LessonTimeResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TimePicker::make('start')
-                    ->label('Hora de Início')
+                    ->label('Início')
+                    ->seconds(false)
+                    ->native(false)
                     ->required()
-                    ->default('01:00:00')
-                    ->columnSpan(4),
+                    ->columnSpan(1),
 
                 Forms\Components\TimePicker::make('end')
-                    ->label('Hora de Término')
+                    ->label('Término')
+                    ->seconds(false)
+                    ->native(false)
                     ->required()
-                    ->default('01:00:00')
-                    ->columnSpan(4),
-                
+                    ->columnSpan(1),
+
                 Select::make('shift')
-                            ->label('Turnos')
-                            ->relationship('shift', 'name')
-                            ->multiple()
-                            ->preload()
-                            ->searchable()
-                            ->required()
-                            ->columnSpanFull()
-                            ->live()
+                    ->label('Turnos')
+                    ->relationship('shift', 'name')
+                    ->multiple()
+                    ->preload()
+                    ->searchable()
+                    ->required()
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -61,21 +65,27 @@ class LessonTimeResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('start')
-                    ->label('Início')
-                    ->searchable()
-                    ->sortable()
-                    ->date('H:i'),
+                Stack::make([
+                    TextColumn::make('range')
+                        ->label('Horário')
+                        ->getStateUsing(function ($record) {
+                            $s = is_string($record->start) ? substr($record->start, 0, 5) : $record->start?->format('H:i');
+                            $e = is_string($record->end) ? substr($record->end, 0, 5) : $record->end?->format('H:i');
+                            return "{$s} — {$e}";
+                        })
+                        ->weight('bold')
+                        ->size('lg')
+                        ->sortable(query: fn($query, string $direction) => $query->orderBy('start', $direction)),
 
-                TextColumn::make('end')
-                    ->label('Término')
-                    ->searchable()
-                    ->date('H:i'),
-
-                TextColumn::make('shift.name')
-                    ->label('Turnos')
-                    ->separator(', ')
-                    ->searchable()
+                    TextColumn::make('shift.name')
+                        ->label('Turnos')
+                        ->separator(', ')
+                        ->limit(40),
+                ])->space(1),
+            ])
+            ->contentGrid([
+                'md' => 2,
+                'lg' => 3,
             ])
             ->filters([
                 //

@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Pages\SubNavigationPosition;
 
+
 class DayResource extends Resource
 {
     protected static ?string $model = Day::class;
@@ -24,6 +25,11 @@ class DayResource extends Resource
     protected static ?string $cluster = Time::class;
 
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
+
+    protected static ?string $navigationLabel = 'Dias';
+    protected static ?string $pluralModelLabel = 'Dias';
+    protected static ?string $modelLabel = 'Dia';
+    protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Form $form): Form
     {
