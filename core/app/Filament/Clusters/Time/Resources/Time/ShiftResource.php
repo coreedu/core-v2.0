@@ -4,22 +4,25 @@ namespace App\Filament\Clusters\Time\Resources\Time;
 
 use App\Filament\Clusters\Time;
 use App\Filament\Clusters\Time\Resources\Time\ShiftResource\Pages;
-use App\Filament\Clusters\Time\Resources\Time\ShiftResource\RelationManagers;
 use App\Models\Time\Shift;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Pages\SubNavigationPosition;
+use Filament\Tables\Columns\Layout\Stack;
+use Filament\Tables\Columns\TextColumn;
 
 class ShiftResource extends Resource
 {
     protected static ?string $model = Shift::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-briefcase';
+    protected static ?string $navigationLabel = 'Turnos';
+    protected static ?string $pluralModelLabel = 'Turnos';
+    protected static ?string $modelLabel = 'Turno';
+    protected static ?string $recordTitleAttribute = 'name';
 
     protected static ?string $cluster = Time::class;
 
@@ -31,51 +34,61 @@ class ShiftResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('cod')
                     ->label('Código')
+                    ->numeric()
+                    ->minValue(1)
+                    ->maxValue(99)
+                    ->placeholder('01')
                     ->required()
-                    ->columnSpan(4),
+                    ->columnSpan(1),
 
                 Forms\Components\TextInput::make('name')
                     ->label('Nome do Turno')
+                    ->placeholder('Ex.: Noturno')
                     ->required()
                     ->maxLength(30)
-                    ->columnSpan(4),
+                    ->columnSpan(3),
 
                 Forms\Components\TextInput::make('description')
                     ->label('Descrição')
-                    ->placeholder('')
-                    ->maxLength(50)
-                    ->columnSpan(6),
-            ]);
+                    ->placeholder('Breve descrição do turno')
+                    ->maxLength(100)
+                    ->columnSpanFull(),
+            ])
+            ->columns(4);
     }
 
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('cod')
             ->columns([
-                Tables\Columns\TextColumn::make('cod')
-                    ->label('Código')
-                    ->searchable()
-                    ->sortable(),
+                Stack::make([
+                    TextColumn::make('name')
+                        ->label('Turno')
+                        ->weight('bold')
+                        ->size('lg')
+                        ->sortable()
+                        ->searchable(),
 
-                Tables\Columns\TextColumn::make('name')
-                    ->label('Nome')
-                    ->searchable()
-                    ->sortable(),
-
-                Tables\Columns\TextColumn::make('description')
-                    ->label('Descrição')
-                    ->searchable()
+                    TextColumn::make('description')
+                        ->label('Descrição')
+                        ->limit(40),
+                ])->space(1),
+            ])
+            ->contentGrid([
+                'md' => 2,
+                'lg' => 3,
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()->label('Editar')->icon('heroicon-o-pencil-square'),
+                Tables\Actions\DeleteAction::make()->label('Excluir')->icon('heroicon-o-trash'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()->label('Excluir selecionados'),
                 ]),
             ]);
     }
