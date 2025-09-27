@@ -29,18 +29,26 @@ class DayResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('cod')
-                ->label('Código')
-                ->integer()
-                ->maxlength(2)
-                ->placeholder(1)
-                ->required()
-                ->columnSpan(4),
+                Forms\Components\Section::make('Informações do Dia')
+                    ->description('Defina o código e o nome do dia.')
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\TextInput::make('cod')
+                            ->label('Código')
+                            ->numeric()
+                            ->minValue(1)
+                            ->maxValue(99)
+                            ->placeholder('01')
+                            ->required()
+                            ->columnSpan(1),
 
-                Forms\Components\TextInput::make('name')
-                ->label('Nome')
-                ->required()
-                ->columnSpan(4)
+                        Forms\Components\TextInput::make('name')
+                            ->label('Nome do Dia')
+                            ->placeholder('Ex.: Segunda-feira')
+                            ->required()
+                            ->maxLength(20)
+                            ->columnSpan(1),
+                    ]),
             ]);
     }
 
@@ -48,43 +56,60 @@ class DayResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('cod')
-                    ->label('Código')
-                    ->searchable()
-                    ->sortable(),
-
-                Tables\Columns\TextColumn::make('name')
-                    ->label('Nome')
-                    ->searchable()
+                Tables\Columns\Layout\Stack::make([
+                    Tables\Columns\TextColumn::make('name')
+                        ->label('Dia')
+                        ->weight('bold')
+                        ->size('lg')
+                        ->searchable()
+                        ->sortable(),
+                ])
+            ])
+            ->contentGrid([
+                'md' => 2,
+                'lg' => 3,
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\Action::make('view')
-                    ->label('')
+                    ->label('Ver horários')
                     ->icon('heroicon-o-eye')
-                    ->modalHeading(fn ($record) => "Horários {$record->name}")
+                    ->button()
+                    ->color('primary')
+                    ->modalHeading(fn($record) => "Horários — {$record->name}")
+                    ->modalSubmitActionLabel('Salvar')
+                    ->modalCancelActionLabel('Fechar')
+                    ->modalWidth('3xl')
                     ->form([
                         Forms\Components\CheckboxList::make('times')
-                            ->label('Horários')
+                            ->label('Horários disponíveis')
                             ->relationship('times', 'start')
-                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->getLabelAttribute())
+                            ->getOptionLabelFromRecordUsing(fn($record) => method_exists($record, 'getLabelAttribute') ? $record->getLabelAttribute() : ($record->start ?? ''))
                             ->columns(2)
                             ->bulkToggleable()
+                            ->searchable()
+                            ->helperText('Selecione os horários que pertencem a este dia.'),
                     ])
                     ->mountUsing(function (Forms\Form $form, Day $record) {
                         $form->fill([
                             'times' => $record->times()->pluck('lesson_time.id')->all(),
                         ]);
-                    })
-                    ->modalSubmitActionLabel('Salvar'),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                    }),
+
+                Tables\Actions\EditAction::make()
+                    ->label('Editar')
+                    ->icon('heroicon-o-pencil-square'),
+
+                Tables\Actions\DeleteAction::make()
+                    ->label('Excluir')
+                    ->icon('heroicon-o-trash'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->label('Excluir selecionados'),
                 ]),
             ]);
     }
