@@ -3,7 +3,6 @@
 namespace App\Filament\Clusters;
 
 use Filament\Clusters\Cluster;
-// use Filament\Navigation\NavigationItem;
 
 class Time extends Cluster
 {
@@ -11,4 +10,5 @@ class Time extends Cluster
 
     protected static ?string $slug = 'time';
 
+    protected static ?string $navigationGroup = 'Calendário';
 }
