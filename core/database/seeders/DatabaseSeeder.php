@@ -20,11 +20,10 @@ class DatabaseSeeder extends Seeder
             DaySeeder::class,
             LessonTimeSeeder::class,
             TimeDaySeeder::class,
+            CategorySeeder::class,
         ]);
 
         // Gera permissões automaticamente para o painel "central"
         Artisan::call('shield:generate --all --panel=central');
     }
-
-    
 }
