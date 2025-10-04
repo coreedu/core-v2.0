@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             TimeDaySeeder::class,
             TimeShiftSeeder::class,
             CategorySeeder::class,
+            CursoSeeder::class,
         ]);
 
         // Gera permissões automaticamente para o painel "central"
