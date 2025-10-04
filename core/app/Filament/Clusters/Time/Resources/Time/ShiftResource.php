@@ -83,6 +83,31 @@ class ShiftResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\Action::make('view')
+                    ->label('Ver horários')
+                    ->icon('heroicon-o-eye')
+                    ->button()
+                    ->color('primary')
+                    ->modalHeading(fn($record) => "Horários — {$record->name}")
+                    ->modalSubmitActionLabel('Salvar')
+                    ->modalCancelActionLabel('Fechar')
+                    ->modalWidth('3xl')
+                    ->form([
+                        Forms\Components\CheckboxList::make('lessonTimes')
+                            ->label('Horários disponíveis')
+                            ->relationship('lessonTimes', 'start')
+                            ->getOptionLabelFromRecordUsing(fn($record) => method_exists($record, 'getLabelAttribute') ? $record->getLabelAttribute() : ($record->start ?? ''))
+                            ->columns(2)
+                            ->bulkToggleable()
+                            ->searchable()
+                            ->helperText('Selecione os horários que pertencem a este turno.'),
+                    ])
+                    ->mountUsing(function (Forms\Form $form, Shift $record) {
+                        $form->fill([
+                            'times' => $record->lessonTimes()->pluck('lesson_time.id')->all(),
+                        ]);
+                    }),
+
                 Tables\Actions\EditAction::make()->label('Editar')->icon('heroicon-o-pencil-square'),
                 Tables\Actions\DeleteAction::make()->label('Excluir')->icon('heroicon-o-trash'),
             ])

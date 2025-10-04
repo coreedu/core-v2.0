@@ -12,14 +12,14 @@ class Shift extends Model
     protected $fillable = ['cod', 'name', 'description']; 
 
     public function lessonTimes()
-{
-    return $this->belongsToMany(
-        \App\Models\Time\LessonTime::class,
-        'time_shift',
-        'shift_cod',
-        'lesson_time_id',
-        'cod',
-        'id'
-    );
-}
+    {
+        return $this->belongsToMany(
+            \App\Models\Time\LessonTime::class,
+            'time_shift',
+            'shift_cod',
+            'lesson_time_id',
+            'cod',
+            'id'
+        );
+    }
 }
