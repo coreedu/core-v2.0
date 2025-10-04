@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             DaySeeder::class,
             LessonTimeSeeder::class,
             TimeDaySeeder::class,
+            TimeShiftSeeder::class,
             CategorySeeder::class,
         ]);
 
