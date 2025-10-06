@@ -53,14 +53,20 @@ class ModalityResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\Layout\Stack::make([
-                    Tables\Columns\TextColumn::make('name')
+                Stack::make([
+                    TextColumn::make('name')
                         ->label('Modalidade')
                         ->weight('bold')
                         ->size('lg')
                         ->searchable()
                         ->sortable(),
-                ])
+                    TextColumn::make('description')
+                        ->label('Descrição')
+                        ->color('gray')
+                        ->wrap()
+                        ->limit(160)
+                        ->placeholder('Sem descrição'),
+                ]),
             ])
             ->contentGrid([
                 'md' => 2,
