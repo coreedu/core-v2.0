@@ -21,4 +21,9 @@ class Curso extends Model
     {
         return $this->belongsTo(\App\Models\Modality::class, 'modalidade');
     }
+
+    public function shift()
+    {
+        return $this->belongsTo(\App\Models\Time\Shift::class, 'turno', 'cod');
+    }
 }

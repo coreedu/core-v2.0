@@ -102,13 +102,9 @@ class CursoResource extends Resource
                     ->schema([
                         Forms\Components\Select::make('turno')
                             ->label('Turno')
-                            ->options([
-                                1 => 'Matutino',
-                                2 => 'Vespertino',
-                                3 => 'Noturno',
-                                4 => 'Integral',
-                            ])
+                            ->relationship('shift', 'name')
                             ->required()
+                            ->preload()
                             ->placeholder('Selecione o turno')
                             ->columnSpan(6),
                     ]),
@@ -121,15 +117,24 @@ class CursoResource extends Resource
             ->columns([
                 Stack::make([
                     Tables\Columns\TextColumn::make('nome')
-                        ->label('Nome do Curso')
+                        ->label('Curso')
+                        ->weight('bold')
+                        ->size('lg')
                         ->searchable()
                         ->sortable()
-                        ->formatStateUsing(fn($state, $record) => "{$record->abreviacao} - {$state}"),
+                        ->formatStateUsing(fn($state, $record) => "{$record->abreviacao} — {$state}"),
+
+                    Tables\Columns\TextColumn::make('shift.name')
+                        ->label('Turno')
+                        ->badge()
+                        ->color('info')
+                        ->placeholder('Sem turno'),
 
                     Tables\Columns\TextColumn::make('qtdModulos')
-                        ->label('Quantidade de Semestres')
-                        ->formatStateUsing(fn($state) => "{$state} semestre(s)"),
-                ]),
+                        ->label('Módulos')
+                        ->formatStateUsing(fn($state) => "{$state} semestre(s)")
+                        ->color('gray'),
+                ])->space(1),
             ])
             ->contentGrid([
                 'md' => 2,
