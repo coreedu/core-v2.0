@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             TimeShiftSeeder::class,
             CategorySeeder::class,
             CursoSeeder::class,
+            ModalitySeeder::class,
         ]);
 
         // Gera permissões automaticamente para o painel "central"
