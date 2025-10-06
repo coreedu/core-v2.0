@@ -55,12 +55,11 @@ class CursoResource extends Resource
                     ->schema([
                         Forms\Components\Select::make('modalidade')
                             ->label('Modalidade')
-                            ->options([
-                                1 => 'Presencial',
-                                2 => 'EAD',
-                                3 => 'Semipresencial',
-                            ])
+                            ->relationship('modality', 'name')
+                            ->searchable()
+                            ->preload()
                             ->required()
+                            ->native(false)
                             ->placeholder('Selecione a modalidade')
                             ->columnSpan(6),
 
