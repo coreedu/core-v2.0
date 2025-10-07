@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\Layout\Stack;
+use Filament\Tables\Actions\Action;
 
 class CursoResource extends Resource
 {
@@ -143,6 +144,15 @@ class CursoResource extends Resource
                 //
             ])
             ->actions([
+                Action::make('componentes')
+                    ->label('Componentes')
+                    ->icon('heroicon-o-puzzle-piece')
+                    ->button()
+                    ->modalHeading(fn(Curso $record) => "Componentes — {$record->abreviacao}")
+                    ->modalWidth('xl')
+                    ->form([])
+                    ->action(fn() => null),
+
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
