@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('room', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
-            $table->string('number')->nullable();
+            $table->string('number');
             $table->string('img')->nullable();
             $table->unsignedInteger('type');
             $table->boolean('active');

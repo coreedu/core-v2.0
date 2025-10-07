@@ -38,7 +38,8 @@ class RoomResource extends Resource
                     ->label('Número')
                     ->placeholder('Ex.: 101')
                     ->maxLength(10)
-                    ->columnSpan(4),
+                    ->columnSpan(4)
+                    ->required(),
 
                 Forms\Components\Select::make('type')
                     ->label('Categoria')
@@ -71,14 +72,19 @@ class RoomResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('img')
                     ->label('Imagem')
-                    ->square()
-                    ->size(48)
-                    ->toggleable(),
+                    ->circular()
+                    ->height(70),
 
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nome')
-                    ->formatStateUsing(fn($record) => "{$record->name} - {$record->number}")
-                    ->searchable(['name', 'number'])
+                    ->placeholder('—')
+                    ->searchable()
+                    ->sortable()
+                    ->wrap(),
+
+                Tables\Columns\TextColumn::make('number')
+                    ->label('Número')
+                    ->searchable()
                     ->sortable()
                     ->wrap(),
 
@@ -114,9 +120,6 @@ class RoomResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ])
-            ->emptyStateActions([
-                Tables\Actions\CreateAction::make()->label('Cadastrar Ambiente'),
             ]);
     }
 
