@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             CursoSeeder::class,
             ModalitySeeder::class,
+            ComponenteSeeder::class,
         ]);
 
         // Gera permissões automaticamente para o painel "central"
