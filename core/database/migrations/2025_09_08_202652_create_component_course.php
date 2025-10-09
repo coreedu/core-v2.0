@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->unsignedInteger('course');
             $table->unsignedInteger('component');
-            $table->unsignedInteger('lesson_count');
             $table->unsignedInteger('module');
             $table->timestamps();
         });

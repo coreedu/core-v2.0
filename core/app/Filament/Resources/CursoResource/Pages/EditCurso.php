@@ -4,16 +4,16 @@ namespace App\Filament\Resources\CursoResource\Pages;
 
 use App\Filament\Resources\CursoResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ManageRecords;
+use Filament\Resources\Pages\EditRecord;
 
-class ManageCursos extends ManageRecords
+class EditCurso extends EditRecord
 {
     protected static string $resource = CursoResource::class;
 
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\DeleteAction::make(),
         ];
     }
 }
