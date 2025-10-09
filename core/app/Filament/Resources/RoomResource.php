@@ -27,40 +27,43 @@ class RoomResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Informações do Ambiente')
-                    ->description('Defina nome, categoria, imagem e status.')
-                    ->schema([
-                        Forms\Components\TextInput::make('name')
-                            ->label('Nome')
-                            ->placeholder('Ex.: Sala de Aula 101')
-                            ->required()
-                            ->maxLength(100)
-                            ->unique(ignoreRecord: true),
+                Forms\Components\TextInput::make('name')
+                    ->label('Nome (opcional)')
+                    ->placeholder('Ex.: Sala Maker, Auditório Principal...')
+                    ->maxLength(100)
+                    ->unique(ignoreRecord: true)
+                    ->columnSpan(8),
 
-                        Forms\Components\Select::make('type')
-                            ->label('Categoria')
-                            ->relationship(
-                                name: 'category',
-                                titleAttribute: 'name'
-                            )
-                            ->searchable()
-                            ->preload()
-                            ->required(),
+                Forms\Components\TextInput::make('number')
+                    ->label('Número')
+                    ->placeholder('Ex.: 101')
+                    ->maxLength(10)
+                    ->columnSpan(4)
+                    ->required(),
 
-                        Forms\Components\FileUpload::make('img')
-                            ->label('Imagem')
-                            ->image()
-                            ->directory('rooms')
-                            ->imageEditor(),
+                Forms\Components\Select::make('type')
+                    ->label('Categoria')
+                    ->relationship('category', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->required()
+                    ->columnSpan(6),
 
-                        Forms\Components\Toggle::make('active')
-                            ->label('Ativo')
-                            ->default(true)
-                            ->inline(false)
-                            ->required(),
-                    ])
-                    ->columns(2),
-            ]);
+                Forms\Components\FileUpload::make('img')
+                    ->label('Imagem')
+                    ->image()
+                    ->directory('rooms')
+                    ->imageEditor()
+                    ->columnSpan(6),
+
+                Forms\Components\Toggle::make('active')
+                    ->label('Ativo')
+                    ->default(true)
+                    ->inline(false)
+                    ->required()
+                    ->columnSpan(3),
+            ])
+            ->columns(12);
     }
 
     public static function table(Table $table): Table
@@ -69,12 +72,18 @@ class RoomResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('img')
                     ->label('Imagem')
-                    ->square()
-                    ->size(48)
-                    ->toggleable(),
+                    ->circular()
+                    ->height(70),
 
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nome')
+                    ->placeholder('—')
+                    ->searchable()
+                    ->sortable()
+                    ->wrap(),
+
+                Tables\Columns\TextColumn::make('number')
+                    ->label('Número')
                     ->searchable()
                     ->sortable()
                     ->wrap(),
@@ -104,7 +113,6 @@ class RoomResource extends Resource
                     ->searchable(),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
@@ -112,9 +120,6 @@ class RoomResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ])
-            ->emptyStateActions([
-                Tables\Actions\CreateAction::make()->label('Cadastrar Ambiente'),
             ]);
     }
 
