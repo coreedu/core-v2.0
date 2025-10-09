@@ -128,7 +128,10 @@ class UserResource extends Resource
 
                 Section::make('Dados Acadêmicos')
                     ->columns(12)
-                    ->visible(fn(Get $get) => $get('roles') == 3)
+                    ->visible(function (Get $get) {
+                        $roleName = \Spatie\Permission\Models\Role::where('id', $get('roles'))->value('name');
+                        return $roleName === 'Aluno';
+                    })
                     ->schema([
                         Select::make('course')
                             ->label('Curso')
@@ -165,7 +168,10 @@ class UserResource extends Resource
 
                 Section::make('Vínculo / Contrato')
                     ->columns(12)
-                    ->visible(fn(Get $get) => !empty($get('roles')) && $get('roles') != 3)
+                    ->visible(function (Get $get) {
+                        $roleName = \Spatie\Permission\Models\Role::where('id', $get('roles'))->value('name');
+                        return  !is_null($roleName) && $roleName != 'Aluno';
+                    })
                     ->schema([
                         Toggle::make('is_determined')
                             ->label('Contrato determinado?')
