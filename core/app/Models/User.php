@@ -54,4 +54,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Curso::class);
     }
+
+    public function components()
+    {
+        return $this->belongsToMany(Componente::class, 'component_instructor', 'instructor', 'component');
+    }   
 }

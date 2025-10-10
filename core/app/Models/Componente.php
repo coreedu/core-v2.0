@@ -12,4 +12,9 @@ class Componente extends Model
         'horasSemanais',
         'horasTotais',
     ];
+
+    public function users()
+    {
+        return $this->belongsToMany(Users::class, 'component_instructor', 'component', 'instructor');
+    }
 }
