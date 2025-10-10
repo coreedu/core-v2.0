@@ -26,6 +26,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use App\Models\Componente;
 use Filament\Forms\Components\ViewField;
+use App\Filament\Resources\ComponentUserResource\RelationManagers\ComponentsRelationManager;
 
 class UserResource extends Resource
 {
@@ -190,78 +191,6 @@ class UserResource extends Resource
                             ->visible(fn(Get $get) => $get('is_determined'))
                             ->prefixIcon('heroicon-s-calendar'),
                     ]),
-                
-                Section::make('Componentes')
-                    ->columns(12)
-                    // ->visible(function (Get $get) {
-                    //     $roleName = \Spatie\Permission\Models\Role::where('id', $get('roles'))->value('name');
-                    //     return  !is_null($roleName) && $roleName != 'Aluno';
-                    // })
-                    ->schema([
-                        Select::make('components')
-                            ->label('Componentes')
-                            ->options(Componente::pluck('nome', 'id'))
-                            // ->relationship('components', 'nome')
-                            // ->multiple()
-                            // ->preload()
-                            ->searchable()
-                            ->columnSpan(10)
-                            ->live(),
-                        
-                        // Forms\Components\Actions\Action::make('adicionar')
-                        //     ->label('Adicionar')
-                        //     ->icon('heroicon-o-plus-circle')
-                        //     ->action(function ($get, $set, $record) {
-                        //         if (! $record || ! $get('components')) {
-                        //             return;
-                        //         }
-
-                        //         $componenteId = $get('components');
-
-                        //         // Evita duplicar
-                        //         if ($record->components()->where('componentes.id', $componenteId)->exists()) {
-                        //             \Filament\Notifications\Notification::make()
-                        //                 ->title('Componente já vinculado')
-                        //                 ->warning()
-                        //                 ->send();
-                        //             return;
-                        //         }
-
-                        //         $record->components()->attach($componenteId);
-
-                        //         // Limpa o select
-                        //         $set('components', null);
-
-                        //         \Filament\Notifications\Notification::make()
-                        //             ->title('Componente adicionado!')
-                        //             ->success()
-                        //             ->send();
-                        //     }),
-                            // ->columnSpan(2),
-
-                        // ViewField::make('tabela_componentes')
-                        //     ->label(false)
-                        //     ->view('filament.tables.instructor-component')
-                        //     // ->viewData(fn () => [
-                        //     //     'components' => $this->getRecord?->components ?? [],
-                        //     //     // 'components' => function ($record) { logger('DEBUG RECORD:', [$record]); }//$record?->components() ?? [],
-                        //     // ])
-                        //     // ->viewData([
-                        //     //     'components' => [],
-                        //     // ])
-                        //     ->viewData(fn ($record) => [
-                        //         'components' => $record?->components ?? [],
-                        //     ])
-                        //     // ->viewData(function() {
-                        //     //     $record = $this->getRecord();
-                        //     //     return [
-                        //     //         'components' => [],
-                        //     //         // 'components' => $record?->components ?? [],
-                        //     //         // 'components' => $record?->componentes ?? collect(), fn($data) => logger($data),
-                        //     //     ];
-                        //     // })
-                        //     // ->columnSpanFull()
-                    ]),
             ]);
     }
 
@@ -312,7 +241,7 @@ class UserResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            ComponentsRelationManager::class,
         ];
     }
 

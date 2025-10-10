@@ -15,6 +15,6 @@ class Componente extends Model
 
     public function users()
     {
-        return $this->belongsToMany(Users::class, 'component_instructor', 'component', 'instructor');
+        return $this->belongsToMany(User::class, 'component_instructor', 'component', 'instructor');
     }
 }
