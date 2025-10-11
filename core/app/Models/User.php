@@ -59,4 +59,11 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Componente::class, 'component_instructor', 'instructor', 'component');
     }   
+
+    public function availabilities()
+    {
+        return $this->belongsToMany(\App\Models\Time\LessonTime::class, 'availability_instructor', 'user_id', 'time_id')
+            ->withPivot('day_id')
+            ->withTimestamps();
+    }
 }

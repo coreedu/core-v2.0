@@ -14,6 +14,10 @@ class EditUser extends EditRecord
     {
         return [
             Actions\DeleteAction::make(),
+            Actions\Action::make('availability')
+                ->label('Gerenciar Disponibilidade')
+                ->icon('heroicon-o-calendar')
+                ->url(fn () => static::getResource()::getUrl('manage-availability', ['record' => $this->record])),
         ];
     }
 }
