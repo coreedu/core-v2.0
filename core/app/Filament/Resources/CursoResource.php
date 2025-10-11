@@ -137,6 +137,11 @@ class CursoResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\Action::make('componentes')
+                    ->label('Componentes')
+                    ->icon('heroicon-o-puzzle-piece')
+                    ->url(fn($record) => Pages\EditCurso::getUrl(['record' => $record]))
+                    ->color('info'),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
@@ -145,6 +150,13 @@ class CursoResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            \App\Filament\Resources\CursoResource\RelationManagers\ComponentesRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

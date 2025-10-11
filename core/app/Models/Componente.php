@@ -12,4 +12,11 @@ class Componente extends Model
         'horasSemanais',
         'horasTotais',
     ];
+
+    public function cursos()
+    {
+        return $this->belongsToMany(\App\Models\Curso::class, 'component_course', 'component', 'course')
+            ->withPivot('module')
+            ->withTimestamps();
+    }
 }
