@@ -13,6 +13,9 @@ use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\Layout\Stack;
 use App\Filament\Imports\CursoImporter;
 use Filament\Tables\Actions\ImportAction;
+use App\Filament\Exports\CursoExporter;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 
 class CursoResource extends Resource
 {
@@ -111,8 +114,13 @@ class CursoResource extends Resource
     {
         return $table
             ->headerActions([
-                ImportAction::make()
-                    ->importer(CursoImporter::class)
+                ImportAction::make()->importer(CursoImporter::class),
+                ExportAction::make()
+                    ->exporter(CursoExporter::class)
+                    ->formats([
+                        ExportFormat::Csv,
+                        ExportFormat::Xlsx,
+                    ])
             ])
             ->columns([
                 Stack::make([
