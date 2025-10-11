@@ -26,4 +26,11 @@ class Curso extends Model
     {
         return $this->belongsTo(\App\Models\Time\Shift::class, 'turno', 'cod');
     }
+
+    public function componentes()
+    {
+        return $this->belongsToMany(\App\Models\Componente::class, 'component_course', 'course', 'component')
+            ->withPivot('module')
+            ->withTimestamps();
+    }
 }

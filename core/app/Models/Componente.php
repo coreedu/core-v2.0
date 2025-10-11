@@ -17,4 +17,11 @@ class Componente extends Model
     {
         return $this->belongsToMany(User::class, 'component_instructor', 'component', 'instructor');
     }
+
+    public function cursos()
+    {
+        return $this->belongsToMany(\App\Models\Curso::class, 'component_course', 'component', 'course')
+            ->withPivot('module')
+            ->withTimestamps();
+    }
 }
