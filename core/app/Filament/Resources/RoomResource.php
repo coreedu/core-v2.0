@@ -31,7 +31,6 @@ class RoomResource extends Resource
                     ->label('Nome (opcional)')
                     ->placeholder('Ex.: Sala Maker, Auditório Principal...')
                     ->maxLength(100)
-                    ->unique(ignoreRecord: true)
                     ->columnSpan(8),
 
                 Forms\Components\TextInput::make('number')
@@ -70,36 +69,37 @@ class RoomResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('img')
-                    ->label('Imagem')
-                    ->circular()
-                    ->height(70),
+                Tables\Columns\Layout\Stack::make([
+                    Tables\Columns\ImageColumn::make('img')
+                        ->label('Imagem')
+                        ->height(120)
+                        ->extraImgAttributes([
+                            'style' => 'width: 100%; object-fit: cover; border-radius: 8px;'
+                        ])
+                        ->defaultImageUrl(asset('images/ambiente-padrao.jpg')),
 
-                Tables\Columns\TextColumn::make('name')
-                    ->label('Nome')
-                    ->placeholder('—')
-                    ->searchable()
-                    ->sortable()
-                    ->wrap(),
+                    Tables\Columns\TextColumn::make('full_name')
+                        ->label('Nome / Número')
+                        ->getStateUsing(
+                            fn($record) =>
+                            $record->name
+                                ? "{$record->name} - {$record->number}"
+                                : $record->number
+                        )
+                        ->weight('bold')
+                        ->size('lg')
+                        ->wrap(),
 
-                Tables\Columns\TextColumn::make('number')
-                    ->label('Número')
-                    ->searchable()
-                    ->sortable()
-                    ->wrap(),
-
-                Tables\Columns\TextColumn::make('category.name')
-                    ->label('Categoria')
-                    ->badge()
-                    ->sortable()
-                    ->searchable(),
-
-                Tables\Columns\IconColumn::make('active')
-                    ->label('Ativo')
-                    ->boolean()
-                    ->sortable(),
+                    Tables\Columns\TextColumn::make('category.name')
+                        ->label('Categoria')
+                        ->badge()
+                        ->color('info'),
+                ])->space(2),
             ])
-            ->defaultSort('created_at', 'desc')
+            ->contentGrid([
+                'md' => 3,
+                'xl' => 4,
+            ])
             ->filters([
                 Tables\Filters\TernaryFilter::make('active')
                     ->label('Ativo')
