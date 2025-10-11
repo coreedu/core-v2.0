@@ -30,6 +30,7 @@ class CentralPanelProvider extends PanelProvider
             ->default()
             ->id('central')
             ->path('central')
+            ->databaseNotifications()
             ->login()
             ->profile(Profile::class)
             ->colors([

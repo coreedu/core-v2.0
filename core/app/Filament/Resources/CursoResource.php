@@ -11,6 +11,8 @@ use Filament\Tables\Table;
 use App\Filament\Resources\CursoResource\Pages;
 use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\Layout\Stack;
+use App\Filament\Imports\CursoImporter;
+use Filament\Tables\Actions\ImportAction;
 
 class CursoResource extends Resource
 {
@@ -54,7 +56,7 @@ class CursoResource extends Resource
                             ->relationship('modality', 'name')
                             ->searchable()
                             ->preload()
-                            ->required()
+                            ->required(fn($livewire) => $livewire instanceof \App\Filament\Resources\CursoResource\Pages\CreateCurso)
                             ->native(false)
                             ->placeholder('Selecione a modalidade')
                             ->columnSpan(6),
@@ -97,7 +99,7 @@ class CursoResource extends Resource
                         Forms\Components\Select::make('turno')
                             ->label('Turno')
                             ->relationship('shift', 'name')
-                            ->required()
+                            ->required(fn($livewire) => $livewire instanceof \App\Filament\Resources\CursoResource\Pages\CreateCurso)
                             ->preload()
                             ->placeholder('Selecione o turno')
                             ->columnSpan(6),
@@ -108,6 +110,10 @@ class CursoResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->headerActions([
+                ImportAction::make()
+                    ->importer(CursoImporter::class)
+            ])
             ->columns([
                 Stack::make([
                     Tables\Columns\TextColumn::make('nome')
