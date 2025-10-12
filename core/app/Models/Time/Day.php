@@ -13,6 +13,6 @@ class Day extends Model
 
     public function times()
     {
-        return $this->belongsToMany(LessonTime::class, 'time_day', 'day_id', 'time_id');
+        return $this->belongsToMany(LessonTime::class, 'time_day', 'day_id', 'time_id')->orderBy('start');
     }
 }

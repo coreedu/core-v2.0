@@ -24,6 +24,9 @@ use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use App\Models\Componente;
+use Filament\Forms\Components\ViewField;
+use App\Filament\Resources\ComponentUserResource\RelationManagers\ComponentsRelationManager;
 
 class UserResource extends Resource
 {
@@ -128,7 +131,10 @@ class UserResource extends Resource
 
                 Section::make('Dados Acadêmicos')
                     ->columns(12)
-                    ->visible(fn(Get $get) => $get('roles') == 3)
+                    ->visible(function (Get $get) {
+                        $roleName = \Spatie\Permission\Models\Role::where('id', $get('roles'))->value('name');
+                        return $roleName === 'Aluno';
+                    })
                     ->schema([
                         Select::make('course')
                             ->label('Curso')
@@ -165,7 +171,10 @@ class UserResource extends Resource
 
                 Section::make('Vínculo / Contrato')
                     ->columns(12)
-                    ->visible(fn(Get $get) => !empty($get('roles')) && $get('roles') != 3)
+                    ->visible(function (Get $get) {
+                        $roleName = \Spatie\Permission\Models\Role::where('id', $get('roles'))->value('name');
+                        return  !is_null($roleName) && $roleName != 'Aluno';
+                    })
                     ->schema([
                         Toggle::make('is_determined')
                             ->label('Contrato determinado?')
@@ -232,7 +241,7 @@ class UserResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            ComponentsRelationManager::class,
         ];
     }
 
@@ -242,6 +251,7 @@ class UserResource extends Resource
             'index' => Pages\ListUsers::route('/'),
             'create' => Pages\CreateUser::route('/create'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
+            'manage-availability' => Pages\ManageAvailability::route('/{record}/availability'),
         ];
     }
 }
