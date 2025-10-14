@@ -39,15 +39,6 @@ class DayResource extends Resource
                     ->description('Defina o código e o nome do dia.')
                     ->columns(2)
                     ->schema([
-                        Forms\Components\TextInput::make('cod')
-                            ->label('Código')
-                            ->numeric()
-                            ->minValue(1)
-                            ->maxValue(99)
-                            ->placeholder('01')
-                            ->required()
-                            ->columnSpan(1),
-
                         Forms\Components\TextInput::make('name')
                             ->label('Nome do Dia')
                             ->placeholder('Ex.: Segunda-feira')
@@ -118,6 +109,21 @@ class DayResource extends Resource
                         ->label('Excluir selecionados'),
                 ]),
             ]);
+    }
+    
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+    
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return false;
+    }
+
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return false;
     }
 
     public static function getPages(): array
