@@ -19,6 +19,7 @@ use Filament\Forms\Components\Button;
 use Filament\Actions as PageActions;
 use Filament\Forms\Components\Actions as FormActions;
 use Filament\Forms\Components\Actions\Action as FormAction;
+use Illuminate\Support\HtmlString;
 
 class ManageAvailability extends Page
 {
@@ -181,21 +182,25 @@ class ManageAvailability extends Page
                 ->color('primary') // azul padrão do Filament
                 ->icon('heroicon-o-question-mark-circle')
                 ->button()
-                ->modalHeading('Como preencher a disponibilidade')
-                ->modalSubheading('Siga as instruções abaixo para configurar sua agenda corretamente:')
-                // ->modalContent(fn () => new \Filament\Forms\Components\ViewField(view: '
-                //     <div class="space-y-3">
-                //         <p>Use esta página para indicar os horários em que você está disponível para aulas.</p>
-                //         <ul class="list-disc pl-5 text-sm text-gray-700">
-                //             <li>Marque as caixas de seleção para os horários disponíveis.</li>
-                //             <li>Use o botão “Selecionar todos” para marcar todos os horários de um dia.</li>
-                //             <li>As alterações serão salvas automaticamente ao enviar o formulário.</li>
-                //         </ul>
-                //         <p class="text-sm text-gray-600 mt-2">
-                //             Dica: mantenha seu calendário sempre atualizado para evitar conflitos de agendamento.
-                //         </p>
-                //     </div>
-                // '))
+                ->modalHeading('Como preencher a disponibilidade ?')
+                ->modalContent(fn () => new HtmlString('
+                    <div class="space-y-4 text-gray-700 dark:text-gray-200">
+
+                        <p class="text-sm leading-relaxed">
+                            Use esta página para indicar os horários em que você está disponível para aulas.
+                        </p>
+
+                        <ul class="list-disc pl-6 text-sm leading-relaxed space-y-1">
+                            <li> Marque as caixas de seleção para os horários disponíveis.</li>
+                            <li> Use o botão <strong>“Selecionar todos”</strong> para marcar todos os horários de um dia.</li>
+                            <li> As alterações são salvas automaticamente ao enviar o formulário.</li>
+                        </ul>
+
+                        <div class="border-l-4 border-primary-500 pl-3 mt-3 text-sm italic text-gray-600 dark:text-gray-400">
+                            <span class="font-medium">Dica:</span> mantenha seu calendário sempre atualizado para evitar conflitos de agendamento.
+                        </div>
+                    </div>
+                '))
                 ->modalSubmitAction(false)
                 ->modalCancelActionLabel('Fechar'),
         ];
