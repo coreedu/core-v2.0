@@ -13,14 +13,18 @@ return new class extends Migration
     {
         Schema::create('availability_instructor', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('time_id');
-            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('time_id')
+                ->references('id')
+                ->on('lesson_time')
+                ->onDelete('cascade');
+                
+            $table->unsignedInteger('user_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
+
             $table->unsignedInteger('day_id');
             $table->timestamps();
-
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('day_id')->references('cod')->on('day')->onDelete('cascade');
-            $table->foreign('time_id')->references('id')->on('lesson_time')->onDelete('cascade');
         });
     }
 
