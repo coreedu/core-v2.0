@@ -50,7 +50,14 @@ class ManageAvailability extends Page
             })
             ->toArray();
 
-        $timeDay = \DB::table('time_day')->get()->groupBy('day_id');
+        $this->timeDay = \DB::table('time_day')
+            ->select('day_id', 'time_id')
+            ->get()
+            ->groupBy('day_id')
+            ->map(fn ($records) =>
+                $records->pluck('time_id')->mapWithKeys(fn ($timeId) => [$timeId => true])
+            )
+            ->toArray();
 
         $this->form->fill([
             'matrix' => $this->availabilities,
@@ -59,7 +66,7 @@ class ManageAvailability extends Page
 
     public function form(Form $form): Form
     {
-        $days = Day::all();
+        $days = Day::orderBy('cod')->get();
         $times = LessonTime::orderBy('start')->get();
 
         $dayNames = $days->pluck('name', 'id');
@@ -81,11 +88,23 @@ class ManageAvailability extends Page
                             ->content("{$start} - {$end}");
 
                         foreach ($days as $day) {
-                            $columns[] = Checkbox::make("matrix.{$day->id}.{$time->id}")
+                            
+                            // $isRelated = $this->timeDay[$day->cod][$time->id] ?? false;
+
+                            $columns[] = Checkbox::make("matrix.{$day->cod}.{$time->id}")
                                 ->label('')
                                 ->inline(false)
                                 ->columnSpan(1)
                                 ->extraAttributes(['class' => 'mx-auto block']);
+                                // ->extraAttributes(fn() => [
+                                //     'class' => $isRelated
+                                //         ? 'mx-auto block'
+                                //         // : 'mx-auto block opacity-40 pointer-events-none',
+                                //         : 'mx-auto block opacity-40 pointer-events-none cursor-not-allowed accent-gray-400',
+                                //     'style' => $isRelated
+                                //         ? ''
+                                //         : '--tw-ring-color: #9e0a2c;background-color: #af5469ff;',
+                                // ]);
                         }
 
                         $rows[] = Grid::make(count($columns))
