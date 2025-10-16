@@ -1,0 +1,14 @@
+{
+  "equipment": {
+    "title": "Equipamento",
+    "text": "Nesta tela, você pode gerenciar os equipamentos do inventário. Use o botão acima para adicionar novos itens, editar ou remover os existentes."
+  },
+  "brand": {
+    "title": "Marca",
+    "text": "Aqui você pode cadastrar as marcas de equipamentos, como Dell, HP, Epson e outras."
+  },
+  "type": {
+    "title": "Tipo",
+    "text": "Nesta área ficam os tipos de equipamentos, como Computadores, Projetores, Câmeras e demais categorias."
+  }
+}

@@ -5,6 +5,7 @@ namespace App\Filament\Clusters\Inventory\Resources\EquipmentResource\Pages;
 use App\Filament\Clusters\Inventory\Resources\EquipmentResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ManageRecords;
+use App\Filament\Components\HelpButton;
 
 class ManageEquipment extends ManageRecords
 {
@@ -14,6 +15,7 @@ class ManageEquipment extends ManageRecords
     {
         return [
             Actions\CreateAction::make(),
+            HelpButton::make('equipment'),
         ];
     }
 }
