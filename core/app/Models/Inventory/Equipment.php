@@ -13,8 +13,8 @@ class Equipment extends Model
 
     protected $fillable = [
         'name',
-        'brand',
-        'type',
+        'brand_id',
+        'type_id',
         'patrimony',
         'status',
         'observation',
@@ -27,11 +27,11 @@ class Equipment extends Model
 
     public function brand()
     {
-        return $this->belongsTo(\App\Models\Inventory\Brand::class);
+        return $this->belongsTo(Brand::class);
     }
 
     public function type()
     {
-        return $this->belongsTo(\App\Models\Inventory\Type::class);
+        return $this->belongsTo(Type::class);
     }
 }

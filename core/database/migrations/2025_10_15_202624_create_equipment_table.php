@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('equipment', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('brand')->nullable();
-            $table->string('type')->nullable();
+            $table->foreignId('brand_id')->nullable()->constrained('brands')->nullOnDelete();
+            $table->foreignId('type_id')->nullable()->constrained('types')->nullOnDelete();
             $table->string('patrimony')->nullable();
             $table->string('status')->default('available');
             $table->text('observation')->nullable();
