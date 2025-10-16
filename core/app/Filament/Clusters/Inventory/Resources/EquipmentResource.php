@@ -43,17 +43,17 @@ class EquipmentResource extends Resource
             ]),
 
             Forms\Components\Grid::make(2)->schema([
-                Forms\Components\TextInput::make('brand')
+                Forms\Components\Select::make('brand_id')
                     ->label('Marca')
-                    ->placeholder('Ex.: Dell, HP, Sony...')
-                    ->maxLength(255)
-                    ->nullable(),
+                    ->relationship('brand', 'name')
+                    ->searchable()
+                    ->preload(),
 
-                Forms\Components\TextInput::make('type')
+                Forms\Components\Select::make('type_id')
                     ->label('Tipo')
-                    ->placeholder('Ex.: Computador, Câmera, Projetor...')
-                    ->maxLength(255)
-                    ->nullable(),
+                    ->relationship('type', 'name')
+                    ->searchable()
+                    ->preload(),
             ]),
 
             Forms\Components\Select::make('status')

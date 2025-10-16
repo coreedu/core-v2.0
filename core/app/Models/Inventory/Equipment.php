@@ -24,4 +24,14 @@ class Equipment extends Model
     protected $casts = [
         'photos' => 'array',
     ];
+
+    public function brand()
+    {
+        return $this->belongsTo(\App\Models\Inventory\Brand::class);
+    }
+
+    public function type()
+    {
+        return $this->belongsTo(\App\Models\Inventory\Type::class);
+    }
 }
