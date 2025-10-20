@@ -1,18 +1,22 @@
 {
   "equipment": {
-    "title": "Equipamento",
-    "text": "Nesta tela, você pode gerenciar os equipamentos do inventário. Use o botão acima para adicionar novos itens, editar ou remover os existentes."
+    "title": "Equipamentos",
+    "text": "<p>Gerencie todos os equipamentos da instituição, como computadores, projetores e periféricos.</p><br><p><strong>Como usar:</strong><br>• Cadastre novos itens informando nome, patrimônio, marca e tipo.<br>• Use o botão de disponibilidade para indicar se o equipamento está em uso ou não.<br>• Adicione fotos e observações para manter o inventário atualizado.</p>"
   },
   "brand": {
-    "title": "Marca",
-    "text": "Aqui você pode cadastrar as marcas de equipamentos, como Dell, HP, Epson e outras."
+    "title": "Marcas",
+    "text": "<p>Cadastre as marcas dos equipamentos, como Dell, HP, Epson, entre outras.</p><br><p><strong>Como usar:</strong><br>• Informe o nome da marca.<br>• Utilize nomes consistentes para facilitar buscas e vínculos em outros cadastros.</p>"
   },
   "type": {
-    "title": "Tipo",
-    "text": "Nesta área ficam os tipos de equipamentos, como Computadores, Projetores, Câmeras e demais categorias."
+    "title": "Tipos de Equipamento",
+    "text": "<p>Organize os equipamentos por tipo, como Computadores, Projetores, Câmeras e outros.</p><br><p><strong>Como usar:</strong><br>• Crie tipos de equipamento claros e específicos para facilitar o vínculo nos cadastros.</p>"
+  },
+  "category": {
+    "title": "Categorias de Ambiente",
+    "text": "<p>As categorias servem para classificar os ambientes da instituição, como Salas de Aula, Laboratórios e Auditórios.</p><br><p><strong>Como usar:</strong><br>• Informe um nome e uma descrição curta para identificar facilmente o tipo de espaço.</p>"
   },
   "room": {
-      "title": "Ambientes",
-      "text": "<p>Gerencie aqui os ambientes físicos da instituição, como salas de aula, laboratórios e auditórios.</p><br><p><strong>Como usar:</strong><br>• Informe o nome e o número do ambiente.<br>• Escolha a categoria e adicione uma imagem ilustrativa.<br>• Defina se o ambiente está ativo.</p><br><p><strong>Equipamentos:</strong><br>Após criar o ambiente, é possível vincular equipamentos existentes ou cadastrar novos diretamente por aqui. Durante o cadastro, também é possível criar novas marcas e tipos de equipamento.</p><br><p><strong>Dica:</strong><br>Use o campo <em>Disponível</em> para indicar se o equipamento está em uso e mantenha o inventário sempre atualizado.</p>"
+    "title": "Ambientes",
+    "text": "<p>Gerencie os ambientes físicos da instituição, como salas de aula, laboratórios e auditórios.</p><br><p><strong>Como usar:</strong><br>• Informe o nome e o número do ambiente.<br>• Escolha a categoria e adicione uma imagem ilustrativa.<br>• Defina se o ambiente está ativo.<br>• Após salvar, vincule equipamentos existentes ou cadastre novos diretamente.</p><br><p><strong>Dica:</strong><br>Use o campo <em>Disponível</em> dos equipamentos para indicar uso e mantenha o inventário sempre atualizado.</p>"
   }
 }
