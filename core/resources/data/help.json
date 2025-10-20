@@ -10,5 +10,9 @@
   "type": {
     "title": "Tipo",
     "text": "Nesta área ficam os tipos de equipamentos, como Computadores, Projetores, Câmeras e demais categorias."
+  },
+  "room": {
+      "title": "Ambientes",
+      "text": "<p>Gerencie aqui os ambientes físicos da instituição, como salas de aula, laboratórios e auditórios.</p><br><p><strong>Como usar:</strong><br>• Informe o nome e o número do ambiente.<br>• Escolha a categoria e adicione uma imagem ilustrativa.<br>• Defina se o ambiente está ativo.</p><br><p><strong>Equipamentos:</strong><br>Após criar o ambiente, é possível vincular equipamentos existentes ou cadastrar novos diretamente por aqui. Durante o cadastro, também é possível criar novas marcas e tipos de equipamento.</p><br><p><strong>Dica:</strong><br>Use o campo <em>Disponível</em> para indicar se o equipamento está em uso e mantenha o inventário sempre atualizado.</p>"
   }
 }

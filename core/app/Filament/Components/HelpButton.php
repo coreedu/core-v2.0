@@ -4,6 +4,7 @@ namespace App\Filament\Components;
 
 use Filament\Actions\Action;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\HtmlString;
 
 class HelpButton
 {
@@ -23,7 +24,7 @@ class HelpButton
             ->modalWidth('lg')
             ->modalSubmitAction(false)
             ->modalCancelActionLabel('Fechar')
-            ->modalDescription($text);
+            ->modalDescription(new HtmlString($text));
     }
 
     protected static function getHelpData(string $key): array
