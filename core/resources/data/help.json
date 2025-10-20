@@ -18,5 +18,17 @@
   "room": {
     "title": "Ambientes",
     "text": "<p>Gerencie os ambientes físicos da instituição, como salas de aula, laboratórios e auditórios.</p><br><p><strong>Como usar:</strong><br>• Informe o nome e o número do ambiente.<br>• Escolha a categoria e adicione uma imagem ilustrativa.<br>• Defina se o ambiente está ativo.<br>• Após salvar, vincule equipamentos existentes ou cadastre novos diretamente.</p><br><p><strong>Dica:</strong><br>Use o campo <em>Disponível</em> dos equipamentos para indicar uso e mantenha o inventário sempre atualizado.</p>"
+  },
+  "curso": {
+    "title": "Cursos",
+    "text": "<p>Gerencie aqui os cursos oferecidos pela instituição.</p><br><p><strong>Como usar:</strong><br>• Informe o nome completo e a abreviação do curso.<br>• Escolha a modalidade e o turno.<br>• Defina a quantidade de módulos e as cargas horárias totais, de estágio e de TCC/TG.</p><br><p><strong>Dica:</strong><br>Após criar o curso, você pode gerenciar os componentes curriculares vinculados diretamente nesta tela.</p>"
+  },
+  "modality": {
+    "title": "Modalidades",
+    "text": "<p>As modalidades representam o formato de ensino do curso, como Presencial, EAD ou Semipresencial.</p><br><p><strong>Como usar:</strong><br>• Informe o nome da modalidade.<br>• Adicione uma descrição curta para referência.</p><br><p><strong>Dica:</strong><br>Essas modalidades poderão ser selecionadas ao criar ou editar cursos.</p>"
+  },
+  "componente": {
+    "title": "Componentes Curriculares",
+    "text": "<p>Os componentes representam as disciplinas ou unidades curriculares que compõem cada curso.</p><br><p><strong>Como usar:</strong><br>• Informe o nome do componente e sua abreviação.<br>• Defina as horas semanais e totais.<br>• Utilize nomes claros e abreviações consistentes para facilitar a identificação.</p><br><p><strong>Dica:</strong><br>Os componentes podem ser associados a cursos já cadastrados para compor suas matrizes curriculares.</p>"
   }
 }

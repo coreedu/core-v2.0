@@ -5,6 +5,7 @@ namespace App\Filament\Resources\CursoResource\Pages;
 use App\Filament\Resources\CursoResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use App\Filament\Components\HelpButton;
 
 class ListCursos extends ListRecords
 {
@@ -14,6 +15,7 @@ class ListCursos extends ListRecords
     {
         return [
             Actions\CreateAction::make(),
+            HelpButton::make('curso'),
         ];
     }
 }
