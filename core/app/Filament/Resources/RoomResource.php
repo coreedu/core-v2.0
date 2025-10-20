@@ -95,7 +95,8 @@ class RoomResource extends Resource
 
                     Tables\Columns\TextColumn::make('equipments_count')
                         ->counts('equipments')
-                        ->label('Qtd. Equipamentos')
+                        ->label('Equipamentos')
+                        ->formatStateUsing(fn($state) => "{$state} equipamento" . ($state != 1 ? 's' : ''))
                         ->badge()
                         ->color('gray'),
                 ])->space(2),
