@@ -7,6 +7,9 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Notifications\Notification;
+use App\Models\Inventory\Brand;
+use App\Models\Inventory\Type;
+use App\Models\Inventory\Equipment;
 
 class EquipmentsRelationManager extends RelationManager
 {
@@ -31,28 +34,32 @@ class EquipmentsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nome')
                     ->sortable()
-                    ->searchable(),
-
-                Tables\Columns\TextColumn::make('brand.name')
-                    ->label('Marca')
-                    ->sortable(),
-
-                Tables\Columns\TextColumn::make('type.name')
-                    ->label('Tipo')
-                    ->sortable(),
+                    ->searchable()
+                    ->wrap(),
 
                 Tables\Columns\TextColumn::make('patrimony')
                     ->label('Patrimônio')
-                    ->sortable(),
+                    ->sortable()
+                    ->color('gray'),
 
-                Tables\Columns\TextColumn::make('status')
-                    ->label('Status')
-                    ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        'available' => 'success',
-                        'in_use' => 'warning',
-                        'maintenance' => 'danger',
-                        default => 'gray',
+                Tables\Columns\TextColumn::make('observation')
+                    ->label('Observação')
+                    ->limit(60)
+                    ->wrap()
+                    ->placeholder('—'),
+
+                Tables\Columns\ToggleColumn::make('status')
+                    ->label('Disponível')
+                    ->onColor('success')
+                    ->offColor('danger')
+                    ->onIcon('heroicon-o-check-circle')
+                    ->offIcon('heroicon-o-x-circle')
+                    ->sortable()
+                    ->afterStateUpdated(function ($record, $state) {
+                        Notification::make()
+                            ->title($state ? 'Equipamento marcado como disponível' : 'Equipamento marcado como indisponível')
+                            ->success()
+                            ->send();
                     }),
             ])
             ->headerActions([
@@ -63,14 +70,15 @@ class EquipmentsRelationManager extends RelationManager
                     ->recordSelect(function (Forms\Components\Select $select) {
                         return $select
                             ->label('Equipamento')
+                            ->placeholder('Selecione um equipamento...')
                             ->searchable()
                             ->preload()
                             ->options(
-                                \App\Models\Inventory\Equipment::query()
+                                Equipment::query()
                                     ->orderBy('name')
                                     ->pluck('name', 'id')
                             )
-                            ->hint('Escolha um equipamento ou cadastre um novo.')
+                            ->hint('Escolha um equipamento existente ou cadastre um novo.')
                             ->createOptionForm([
                                 Forms\Components\Grid::make(2)->schema([
                                     Forms\Components\TextInput::make('name')
@@ -89,8 +97,9 @@ class EquipmentsRelationManager extends RelationManager
                                 Forms\Components\Grid::make(2)->schema([
                                     Forms\Components\Select::make('brand_id')
                                         ->label('Marca')
+                                        ->placeholder('Selecione uma marca...')
                                         ->options(
-                                            \App\Models\Inventory\Brand::query()
+                                            Brand::query()
                                                 ->orderBy('name')
                                                 ->pluck('name', 'id')
                                         )
@@ -99,14 +108,17 @@ class EquipmentsRelationManager extends RelationManager
                                         ->createOptionForm([
                                             Forms\Components\TextInput::make('name')
                                                 ->label('Nome da Marca')
+                                                ->placeholder('Ex.: Epson, Dell, HP...')
                                                 ->required()
                                                 ->maxLength(100),
-                                        ]),
+                                        ])
+                                        ->createOptionUsing(fn(array $data) => Brand::create($data)->getKey()),
 
                                     Forms\Components\Select::make('type_id')
                                         ->label('Tipo')
+                                        ->placeholder('Selecione um tipo...')
                                         ->options(
-                                            \App\Models\Inventory\Type::query()
+                                            Type::query()
                                                 ->orderBy('name')
                                                 ->pluck('name', 'id')
                                         )
@@ -115,21 +127,21 @@ class EquipmentsRelationManager extends RelationManager
                                         ->createOptionForm([
                                             Forms\Components\TextInput::make('name')
                                                 ->label('Nome do Tipo')
+                                                ->placeholder('Ex.: Projetor, Notebook, Impressora...')
                                                 ->required()
                                                 ->maxLength(100),
-                                        ]),
+                                        ])
+                                        ->createOptionUsing(fn(array $data) => Type::create($data)->getKey()),
                                 ]),
 
-                                Forms\Components\Select::make('status')
-                                    ->label('Status')
-                                    ->options([
-                                        'available' => 'Disponível',
-                                        'maintenance' => 'Em manutenção',
-                                        'broken' => 'Com defeito',
-                                        'unavailable' => 'Indisponível',
-                                    ])
-                                    ->default('available')
-                                    ->required(),
+                                Forms\Components\Toggle::make('status')
+                                    ->label('Disponível')
+                                    ->onColor('success')
+                                    ->offColor('danger')
+                                    ->onIcon('heroicon-o-check-circle')
+                                    ->offIcon('heroicon-o-x-circle')
+                                    ->default(true)
+                                    ->inline(false),
 
                                 Forms\Components\Textarea::make('observation')
                                     ->label('Observações')
@@ -144,14 +156,17 @@ class EquipmentsRelationManager extends RelationManager
                                     ->reorderable()
                                     ->directory('equipments')
                                     ->nullable(),
-                            ]);
+                            ])
+                            ->createOptionUsing(function (array $data) {
+                                return Equipment::create($data)->getKey();
+                            });
                     })
                     ->before(function (Tables\Actions\AttachAction $action, array $data) {
                         $room = $this->getOwnerRecord();
                         $equipmentId = $data['recordId'] ?? null;
 
                         if ($equipmentId && $room->equipments()->where('equipment_id', $equipmentId)->exists()) {
-                            \Filament\Notifications\Notification::make()
+                            Notification::make()
                                 ->title('Este equipamento já está vinculado a esta sala.')
                                 ->danger()
                                 ->send();
