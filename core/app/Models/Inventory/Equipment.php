@@ -34,4 +34,10 @@ class Equipment extends Model
     {
         return $this->belongsTo(Type::class);
     }
+
+    public function rooms()
+    {
+        return $this->belongsToMany(\App\Models\Room::class, 'equipment_room', 'equipment_id', 'room_id')
+            ->withTimestamps();
+    }
 }
