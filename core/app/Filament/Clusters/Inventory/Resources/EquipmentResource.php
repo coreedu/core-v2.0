@@ -56,16 +56,14 @@ class EquipmentResource extends Resource
                     ->preload(),
             ]),
 
-            Forms\Components\Select::make('status')
-                ->label('Status')
-                ->options([
-                    'available' => 'Disponível',
-                    'maintenance' => 'Em manutenção',
-                    'broken' => 'Com defeito',
-                    'unavailable' => 'Indisponível',
-                ])
-                ->default('available')
-                ->required(),
+            Forms\Components\Toggle::make('status')
+                ->label('Disponível')
+                ->onColor('success')
+                ->offColor('danger')
+                ->onIcon('heroicon-o-check-circle')
+                ->offIcon('heroicon-o-x-circle')
+                ->default(true)
+                ->inline(false),
 
             Forms\Components\Textarea::make('observation')
                 ->label('Observações')
@@ -102,23 +100,11 @@ class EquipmentResource extends Resource
                         ->formatStateUsing(fn(?string $state): string => $state ? "Patrimônio: {$state}" : 'Patrimônio: —'),
 
                     Tables\Columns\TextColumn::make('status')
-                        ->label('Status')
+                        ->label('Disponibilidade')
+                        ->formatStateUsing(fn(bool $state): string => $state ? 'Disponível' : 'Indisponível')
                         ->badge()
-                        ->colors([
-                            'success' => 'available',
-                            'warning' => 'maintenance',
-                            'danger' => 'broken',
-                            'gray' => 'unavailable',
-                        ])
-                        ->formatStateUsing(fn(string $state): string => match ($state) {
-                            'available' => 'Disponível',
-                            'maintenance' => 'Em manutenção',
-                            'broken' => 'Com defeito',
-                            'unavailable' => 'Indisponível',
-                            default => ucfirst($state),
-                        })
-                        ->sortable(),
-                ])->space(2)
+                        ->color(fn(bool $state): string => $state ? 'success' : 'danger'),
+                ])->space(2),
             ])
             ->contentGrid([
                 'md' => 2,
