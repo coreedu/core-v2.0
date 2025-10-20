@@ -3,15 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\RoomResource\Pages;
-use App\Filament\Resources\RoomResource\RelationManagers;
 use App\Models\Room;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class RoomResource extends Resource
 {
@@ -27,42 +24,58 @@ class RoomResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->label('Nome (opcional)')
-                    ->placeholder('Ex.: Sala Maker, Auditório Principal...')
-                    ->maxLength(100)
-                    ->columnSpan(8),
+                Forms\Components\Tabs::make('Room Tabs')
+                    ->tabs([
+                        Forms\Components\Tabs\Tab::make('Informações Gerais')
+                            ->icon('heroicon-o-building-office-2')
+                            ->schema([
+                                Forms\Components\TextInput::make('name')
+                                    ->label('Nome (opcional)')
+                                    ->placeholder('Ex.: Sala Maker, Auditório Principal...')
+                                    ->maxLength(100)
+                                    ->columnSpan(8),
 
-                Forms\Components\TextInput::make('number')
-                    ->label('Número')
-                    ->placeholder('Ex.: 101')
-                    ->maxLength(10)
-                    ->columnSpan(4)
-                    ->required(),
+                                Forms\Components\TextInput::make('number')
+                                    ->label('Número')
+                                    ->placeholder('Ex.: 101')
+                                    ->maxLength(10)
+                                    ->columnSpan(4)
+                                    ->required(),
 
-                Forms\Components\Select::make('type')
-                    ->label('Categoria')
-                    ->relationship('category', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->required()
-                    ->columnSpan(6),
+                                Forms\Components\Select::make('type')
+                                    ->label('Categoria')
+                                    ->relationship('category', 'name')
+                                    ->searchable()
+                                    ->preload()
+                                    ->required()
+                                    ->columnSpan(6),
 
-                Forms\Components\FileUpload::make('img')
-                    ->label('Imagem')
-                    ->image()
-                    ->directory('rooms')
-                    ->imageEditor()
-                    ->columnSpan(6),
+                                Forms\Components\FileUpload::make('img')
+                                    ->label('Imagem')
+                                    ->image()
+                                    ->directory('rooms')
+                                    ->imageEditor()
+                                    ->columnSpan(6),
 
-                Forms\Components\Toggle::make('active')
-                    ->label('Ativo')
-                    ->default(true)
-                    ->inline(false)
-                    ->required()
-                    ->columnSpan(3),
-            ])
-            ->columns(12);
+                                Forms\Components\Toggle::make('active')
+                                    ->label('Ativo')
+                                    ->default(true)
+                                    ->inline(false)
+                                    ->required()
+                                    ->columnSpan(3),
+                            ])
+                            ->columns(12),
+
+                        Forms\Components\Tabs\Tab::make('Equipamentos')
+                            ->icon('heroicon-o-cog-6-tooth')
+                            ->schema([
+                                Forms\Components\Placeholder::make('equipamentos_placeholder')
+                                    ->label('Equipamentos')
+                                    ->content('Aqui você poderá adicionar os equipamentos associados a esta sala.'),
+                            ]),
+                    ])
+                    ->columnSpanFull(),
+            ]);
     }
 
     public static function table(Table $table): Table
