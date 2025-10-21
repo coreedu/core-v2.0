@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('brand_id')->nullable()->constrained('brands')->nullOnDelete();
             $table->foreignId('type_id')->nullable()->constrained('types')->nullOnDelete();
             $table->string('patrimony')->nullable();
-            $table->string('status')->default('available');
+            $table->boolean('status')->default(true);
             $table->text('observation')->nullable();
             $table->json('photos')->nullable();
             $table->timestamps();

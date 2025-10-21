@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ComponenteResource\Pages;
 use App\Filament\Resources\ComponenteResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ManageRecords;
+use App\Filament\Components\HelpButton;
 
 class ManageComponentes extends ManageRecords
 {
@@ -14,6 +15,7 @@ class ManageComponentes extends ManageRecords
     {
         return [
             Actions\CreateAction::make(),
+            HelpButton::make('componente'),
         ];
     }
 }

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\CategoryResource\Pages;
 use App\Filament\Resources\CategoryResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ManageRecords;
+use App\Filament\Components\HelpButton;
 
 class ManageCategories extends ManageRecords
 {
@@ -14,6 +15,7 @@ class ManageCategories extends ManageRecords
     {
         return [
             Actions\CreateAction::make(),
+            HelpButton::make('category'),
         ];
     }
 }

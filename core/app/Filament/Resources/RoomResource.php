@@ -3,15 +3,13 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\RoomResource\Pages;
-use App\Filament\Resources\RoomResource\RelationManagers;
+use App\Filament\Resources\RoomResource\RelationManagers\EquipmentsRelationManager;
 use App\Models\Room;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class RoomResource extends Resource
 {
@@ -94,6 +92,13 @@ class RoomResource extends Resource
                         ->label('Categoria')
                         ->badge()
                         ->color('info'),
+
+                    Tables\Columns\TextColumn::make('equipments_count')
+                        ->counts('equipments')
+                        ->label('Equipamentos')
+                        ->formatStateUsing(fn($state) => "{$state} equipamento" . ($state != 1 ? 's' : ''))
+                        ->badge()
+                        ->color('gray'),
                 ])->space(2),
             ])
             ->contentGrid([
@@ -123,10 +128,19 @@ class RoomResource extends Resource
             ]);
     }
 
+    public static function getRelations(): array
+    {
+        return [
+            EquipmentsRelationManager::class,
+        ];
+    }
+
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ManageRooms::route('/'),
+            'index' => Pages\ListRooms::route('/'),
+            'create' => Pages\CreateRoom::route('/create'),
+            'edit' => Pages\EditRoom::route('/{record}/edit'),
         ];
     }
 }

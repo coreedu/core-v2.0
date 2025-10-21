@@ -4,9 +4,10 @@ namespace App\Filament\Resources\RoomResource\Pages;
 
 use App\Filament\Resources\RoomResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ManageRecords;
+use Filament\Resources\Pages\ListRecords;
+use App\Filament\Components\HelpButton;
 
-class ManageRooms extends ManageRecords
+class ListRooms extends ListRecords
 {
     protected static string $resource = RoomResource::class;
 
@@ -14,6 +15,7 @@ class ManageRooms extends ManageRecords
     {
         return [
             Actions\CreateAction::make(),
+            HelpButton::make('room'),
         ];
     }
 }

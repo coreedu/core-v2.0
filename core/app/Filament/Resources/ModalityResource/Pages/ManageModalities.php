@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ModalityResource\Pages;
 use App\Filament\Resources\ModalityResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ManageRecords;
+use App\Filament\Components\HelpButton;
 
 class ManageModalities extends ManageRecords
 {
@@ -14,6 +15,7 @@ class ManageModalities extends ManageRecords
     {
         return [
             Actions\CreateAction::make(),
+            HelpButton::make('modality'),
         ];
     }
 }
