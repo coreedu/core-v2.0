@@ -162,8 +162,8 @@ class ScheduleResource extends Resource
                 Tables\Filters\TernaryFilter::make('status')
                     ->label('Status')
                     ->placeholder('Todos')
-                    ->trueLabel('Ativo')
-                    ->falseLabel('Inativo'),
+                    ->trueLabel('Publicado')
+                    ->falseLabel('Não publicado'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
