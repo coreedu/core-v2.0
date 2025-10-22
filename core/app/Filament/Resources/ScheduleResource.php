@@ -55,20 +55,60 @@ class ScheduleResource extends Resource
                         ->live(),
                 Select::make('module_id')
                     ->label('Modulo')
-                    ->options([
-                        1 => '1º',
-                        2 => '2º',
-                        3 => '3º',
-                        4 => '4º',
-                        5 => '5º',
-                        6 => '6º',
-                    ]),
+                    ->options(function (Forms\Get $get) {
+                        $courseId = $get('course_id');
+                        if (!$courseId) {
+                            return [];
+                        }
+                        
+                        $course = \App\Models\Curso::find($courseId);
+                        if (!$course) {
+                            return [];
+                        }
+                        
+                        $qtdModulos = (int) $course->qtdModulos;
+                        return collect(range(1, max($qtdModulos, 1)))
+                            ->mapWithKeys(fn($n) => [$n => "{$n}º Módulo"]);
+                    })
+                    ->required()
+                    ->live(),
                 Select::make('modality_id')
                     ->label('Modalidade')
                     ->relationship('modality', 'name')
                     ->preload()
                     ->searchable()
                     ->live(),
+                Forms\Components\Toggle::make('status')
+                    ->label('Publicado')
+                    ->default(false)
+                    ->onColor('success')
+                    ->offColor('danger')
+                    ->onIcon('heroicon-o-check-circle')
+                    ->offIcon('heroicon-o-x-circle')
+                    ->beforeStateUpdated(function ($state, $record) {
+                        
+
+                        if ($state && $record) {
+                            // Check if there's already a published schedule for the same course and module
+                            $existingPublished = \App\Models\Schedule::where('course_id', $record->course_id)
+                                ->where('module_id', $record->module_id)
+                                ->where('status', true)
+                                ->where('id', '!=', $record->id)
+                                ->exists();
+                            
+                            if ($existingPublished) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Erro ao publicar')
+                                    ->body('Já existe uma grade horária publicada para este curso e módulo.')
+                                    ->danger()
+                                    ->send();
+                                
+                                return false; // Prevent the state change
+                            }
+                        }
+                        
+                        return $state;
+                    }),
             ]);
     }
 
@@ -83,17 +123,56 @@ class ScheduleResource extends Resource
                     Tables\Columns\TextColumn::make('course.nome')
                         ->label('Curso')
                         ->searchable(),
+                    Tables\Columns\TextColumn::make('module_id')
+                        ->label('Módulo')
+                        ->formatStateUsing(fn($state) => "{$state}º Módulo")
+                        ->sortable()
+                        ->searchable(),
                     Tables\Columns\TextColumn::make('shift.name')
                         ->label('Turno')
                         ->searchable()
                         ->sortable(),
                     Tables\Columns\TextColumn::make('modality.name')
                         ->label('Modalidade')
-                        ->searchable()
+                        ->searchable(),
+                    Tables\Columns\ToggleColumn::make('status')
+                        ->label('Status')
+                        ->onColor('success')
+                        ->offColor('danger')
+                        ->onIcon('heroicon-o-check-circle')
+                        ->offIcon('heroicon-o-x-circle')
+                        ->sortable()
+                        ->beforeStateUpdated(function ($record, $state) {
+                            
+                            if ($state) {
+                                // Check if there's already a published schedule for the same course and module
+                                $existingPublished = \App\Models\Schedule::where('course_id', $record->course_id)
+                                    ->where('module_id', $record->module_id)
+                                    ->where('status', true)
+                                    ->where('id', '!=', $record->id)
+                                    ->exists();
+                                
+                                if ($existingPublished) {
+                                    \Filament\Notifications\Notification::make()
+                                        ->title('Erro ao publicar')
+                                        ->body('Já existe uma grade horária publicada para este curso e módulo.')
+                                        ->danger()
+                                        ->send();
+                                    
+                                    return false; // Prevent the state change
+                                }
+                            }
+                            
+                            return $state;
+                        }),
             ])
             ->defaultSort('id', 'desc')
             ->filters([
-                //
+                Tables\Filters\TernaryFilter::make('status')
+                    ->label('Status')
+                    ->placeholder('Todos')
+                    ->trueLabel('Ativo')
+                    ->falseLabel('Inativo'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
