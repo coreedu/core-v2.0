@@ -12,7 +12,7 @@ class Schedule extends Model
 {
     protected $table = 'schedule';
 
-    protected $fillable = ['version', 'shift_cod', 'course_id', 'modality_id', 'module_id'];
+    protected $fillable = ['version', 'shift_cod', 'course_id', 'modality_id', 'module_id', 'status'];
 
     public function shift() {
         return $this->belongsTo(Shift::class, 'shift_cod', 'cod');
