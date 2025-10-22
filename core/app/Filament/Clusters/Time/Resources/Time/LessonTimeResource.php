@@ -49,15 +49,6 @@ class LessonTimeResource extends Resource
                     ->native(false)
                     ->required()
                     ->columnSpan(1),
-
-                Select::make('shift')
-                    ->label('Turnos')
-                    ->relationship('shift', 'name')
-                    ->multiple()
-                    ->preload()
-                    ->searchable()
-                    ->required()
-                    ->columnSpanFull(),
             ]);
     }
 
