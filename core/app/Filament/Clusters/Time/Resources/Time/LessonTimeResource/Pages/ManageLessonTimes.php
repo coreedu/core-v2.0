@@ -5,6 +5,7 @@ namespace App\Filament\Clusters\Time\Resources\Time\LessonTimeResource\Pages;
 use App\Filament\Clusters\Time\Resources\Time\LessonTimeResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ManageRecords;
+use App\Filament\Components\HelpButton;
 
 class ManageLessonTimes extends ManageRecords
 {
@@ -14,6 +15,7 @@ class ManageLessonTimes extends ManageRecords
     {
         return [
             Actions\CreateAction::make(),
+            HelpButton::make('lesson_time'),
         ];
     }
 }

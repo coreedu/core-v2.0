@@ -5,6 +5,7 @@ namespace App\Filament\Clusters\Time\Resources\Time\DayResource\Pages;
 use App\Filament\Clusters\Time\Resources\Time\DayResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ManageRecords;
+use App\Filament\Components\HelpButton;
 
 class ManageDays extends ManageRecords
 {
@@ -13,7 +14,7 @@ class ManageDays extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            HelpButton::make('day'),
         ];
     }
 }
