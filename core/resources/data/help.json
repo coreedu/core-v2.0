@@ -42,5 +42,9 @@
   "shift": {
     "title": "Turnos",
     "text": "<p>Configure os turnos disponíveis para  programação de aulas.</p><br><p><strong>Como usar:</strong><br>• Cadastre os turnos de aula que a instituição oferece (Manhã, Tarde, Noite, etc.).</p><br><p><strong>Dica:</strong><br>Estes turnos serão utilizados na criação de grades horárias.</p>"
+  },
+  "schedule": {
+    "title": "Grades Horárias",
+    "text": "<p>Configure as versões das grades horárias para os cursos.</p><br><p><strong>Como usar:</strong><br>• Cadastre as versões das grades horárias para os cursos.<br>• Publique a grade horária para que ela seja enviada para os alunos.</p>"
   }
 }
