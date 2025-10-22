@@ -85,11 +85,8 @@ class ScheduleResource extends Resource
                     ->offColor('danger')
                     ->onIcon('heroicon-o-check-circle')
                     ->offIcon('heroicon-o-x-circle')
-                    ->beforeStateUpdated(function ($state, $record) {
-                        
-
+                    ->afterStateUpdated(function ($state, $record, $component) {
                         if ($state && $record) {
-                            // Check if there's already a published schedule for the same course and module
                             $existingPublished = \App\Models\Schedule::where('course_id', $record->course_id)
                                 ->where('module_id', $record->module_id)
                                 ->where('status', true)
@@ -97,17 +94,15 @@ class ScheduleResource extends Resource
                                 ->exists();
                             
                             if ($existingPublished) {
+                                $component->state(false);
+                                
                                 \Filament\Notifications\Notification::make()
                                     ->title('Erro ao publicar')
                                     ->body('Já existe uma grade horária publicada para este curso e módulo.')
                                     ->danger()
                                     ->send();
-                                
-                                return false; // Prevent the state change
                             }
                         }
-                        
-                        return $state;
                     }),
             ]);
     }
@@ -136,16 +131,14 @@ class ScheduleResource extends Resource
                         ->label('Modalidade')
                         ->searchable(),
                     Tables\Columns\ToggleColumn::make('status')
-                        ->label('Status')
+                        ->label('Publicado')
                         ->onColor('success')
                         ->offColor('danger')
                         ->onIcon('heroicon-o-check-circle')
                         ->offIcon('heroicon-o-x-circle')
                         ->sortable()
-                        ->beforeStateUpdated(function ($record, $state) {
-                            
+                        ->afterStateUpdated(function ($record, $state) {
                             if ($state) {
-                                // Check if there's already a published schedule for the same course and module
                                 $existingPublished = \App\Models\Schedule::where('course_id', $record->course_id)
                                     ->where('module_id', $record->module_id)
                                     ->where('status', true)
@@ -153,17 +146,15 @@ class ScheduleResource extends Resource
                                     ->exists();
                                 
                                 if ($existingPublished) {
+                                    $record->updateQuietly(['status' => false]);
+                                    
                                     \Filament\Notifications\Notification::make()
                                         ->title('Erro ao publicar')
                                         ->body('Já existe uma grade horária publicada para este curso e módulo.')
                                         ->danger()
                                         ->send();
-                                    
-                                    return false; // Prevent the state change
                                 }
                             }
-                            
-                            return $state;
                         }),
             ])
             ->defaultSort('id', 'desc')
