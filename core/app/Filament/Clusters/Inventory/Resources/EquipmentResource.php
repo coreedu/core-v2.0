@@ -11,6 +11,11 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Pages\SubNavigationPosition;
+use App\Filament\Imports\EquipmentImporter;
+use App\Filament\Exports\EquipmentExporter;
+use Filament\Tables\Actions\ImportAction;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 
 class EquipmentResource extends Resource
 {
@@ -109,6 +114,21 @@ class EquipmentResource extends Resource
             ->contentGrid([
                 'md' => 2,
                 'lg' => 3,
+            ])
+            ->headerActions([
+                ImportAction::make()
+                    ->label('Importar')
+                    ->icon('heroicon-o-arrow-up-tray')
+                    ->importer(EquipmentImporter::class),
+
+                ExportAction::make()
+                    ->label('Exportar')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->exporter(EquipmentExporter::class)
+                    ->formats([
+                        ExportFormat::Csv,
+                        ExportFormat::Xlsx,
+                    ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
