@@ -9,6 +9,11 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use App\Filament\Imports\CategoryImporter;
+use App\Filament\Exports\CategoryExporter;
+use Filament\Tables\Actions\ImportAction;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 
 class CategoryResource extends Resource
 {
@@ -29,6 +34,7 @@ class CategoryResource extends Resource
                     ->required()
                     ->maxLength(50)
                     ->unique(ignoreRecord: true),
+
                 Forms\Components\TextInput::make('description')
                     ->label('Descrição')
                     ->required()
@@ -44,10 +50,12 @@ class CategoryResource extends Resource
                     ->label('ID')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nome')
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('description')
                     ->label('Descrição')
                     ->searchable()
@@ -55,6 +63,21 @@ class CategoryResource extends Resource
             ])
             ->defaultSort('id', 'desc')
             ->filters([])
+            ->headerActions([
+                ImportAction::make()
+                    ->label('Importar')
+                    ->icon('heroicon-o-arrow-up-tray')
+                    ->importer(CategoryImporter::class),
+
+                ExportAction::make()
+                    ->label('Exportar')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->exporter(CategoryExporter::class)
+                    ->formats([
+                        ExportFormat::Csv,
+                        ExportFormat::Xlsx,
+                    ]),
+            ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
