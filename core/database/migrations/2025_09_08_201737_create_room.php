@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('name')->nullable();
             $table->string('number');
             $table->string('img')->nullable();
-            $table->unsignedInteger('type');
-            $table->boolean('active');
+            $table->unsignedInteger('type')->nullable();
+            $table->boolean('active')->default(true);
             $table->timestamps();
         });
     }

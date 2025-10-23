@@ -10,6 +10,11 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use App\Filament\Imports\RoomImporter;
+use App\Filament\Exports\RoomExporter;
+use Filament\Tables\Actions\ImportAction;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 
 class RoomResource extends Resource
 {
@@ -43,7 +48,10 @@ class RoomResource extends Resource
                     ->relationship('category', 'name')
                     ->searchable()
                     ->preload()
-                    ->required()
+                    ->required(fn($livewire) => $livewire instanceof \App\Filament\Resources\RoomResource\Pages\CreateRoom) // ✅ obrigatório só ao criar manualmente
+                    ->nullable()
+                    ->native(false)
+                    ->placeholder('Selecione a categoria')
                     ->columnSpan(6),
 
                 Forms\Components\FileUpload::make('img')
@@ -57,7 +65,6 @@ class RoomResource extends Resource
                     ->label('Ativo')
                     ->default(true)
                     ->inline(false)
-                    ->required()
                     ->columnSpan(3),
             ])
             ->columns(12);
@@ -116,6 +123,21 @@ class RoomResource extends Resource
                     ->label('Categoria')
                     ->relationship('category', 'name')
                     ->searchable(),
+            ])
+            ->headerActions([
+                ImportAction::make()
+                    ->label('Importar')
+                    ->icon('heroicon-o-arrow-up-tray')
+                    ->importer(RoomImporter::class),
+
+                ExportAction::make()
+                    ->label('Exportar')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->exporter(RoomExporter::class)
+                    ->formats([
+                        ExportFormat::Csv,
+                        ExportFormat::Xlsx,
+                    ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
