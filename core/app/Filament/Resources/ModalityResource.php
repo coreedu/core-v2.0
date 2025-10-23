@@ -14,6 +14,11 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
+use App\Filament\Imports\ModalityImporter;
+use App\Filament\Exports\ModalityExporter;
+use Filament\Tables\Actions\ImportAction;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 
 class ModalityResource extends Resource
 {
@@ -52,6 +57,22 @@ class ModalityResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->headerActions([
+                ImportAction::make()
+                    ->icon('heroicon-o-arrow-up-tray')
+                    ->tooltip('Importar modalidades via CSV')
+                    ->importer(ModalityImporter::class)
+                    ->csvDelimiter(';'),
+
+                ExportAction::make()
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->tooltip('Exportar modalidades em CSV ou Excel')
+                    ->exporter(ModalityExporter::class)
+                    ->formats([
+                        ExportFormat::Csv,
+                        ExportFormat::Xlsx,
+                    ]),
+            ])
             ->columns([
                 Stack::make([
                     TextColumn::make('name')
