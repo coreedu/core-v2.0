@@ -11,6 +11,11 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Pages\SubNavigationPosition;
+use App\Filament\Imports\TypeImporter;
+use App\Filament\Exports\TypeExporter;
+use Filament\Tables\Actions\ImportAction;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 
 class TypeResource extends Resource
 {
@@ -55,6 +60,21 @@ class TypeResource extends Resource
             ->contentGrid([
                 'md' => 2,
                 'lg' => 3,
+            ])
+            ->headerActions([
+                ImportAction::make()
+                    ->label('Importar')
+                    ->icon('heroicon-o-arrow-up-tray')
+                    ->importer(TypeImporter::class),
+
+                ExportAction::make()
+                    ->label('Exportar')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->exporter(TypeExporter::class)
+                    ->formats([
+                        ExportFormat::Csv,
+                        ExportFormat::Xlsx,
+                    ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
