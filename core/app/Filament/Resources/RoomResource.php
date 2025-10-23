@@ -48,7 +48,7 @@ class RoomResource extends Resource
                     ->relationship('category', 'name')
                     ->searchable()
                     ->preload()
-                    ->required(fn($livewire) => $livewire instanceof \App\Filament\Resources\RoomResource\Pages\CreateRoom) // ✅ obrigatório só ao criar manualmente
+                    ->required(fn($livewire) => $livewire instanceof \App\Filament\Resources\RoomResource\Pages\CreateRoom)
                     ->nullable()
                     ->native(false)
                     ->placeholder('Selecione a categoria')
@@ -146,6 +146,31 @@ class RoomResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+
+                    Tables\Actions\BulkAction::make('editarCategoria')
+                        ->label('Alterar Categoria')
+                        ->icon('heroicon-o-pencil-square')
+                        ->form([
+                            Forms\Components\Select::make('nova_categoria')
+                                ->label('Nova Categoria')
+                                ->relationship('category', 'name')
+                                ->searchable()
+                                ->preload()
+                                ->required()
+                                ->placeholder('Selecione uma categoria'),
+                        ])
+                        ->action(function (array $data, $records): void {
+                            foreach ($records as $record) {
+                                $record->update([
+                                    'type' => $data['nova_categoria'],
+                                ]);
+                            }
+                        })
+                        ->deselectRecordsAfterCompletion()
+                        ->requiresConfirmation()
+                        ->modalHeading('Alterar Categoria')
+                        ->modalSubmitActionLabel('Salvar Alterações')
+                        ->successNotificationTitle('Categorias atualizadas com sucesso!'),
                 ]),
             ]);
     }
