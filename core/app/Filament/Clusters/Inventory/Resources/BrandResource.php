@@ -11,6 +11,11 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Pages\SubNavigationPosition;
+use App\Filament\Imports\BrandImporter;
+use App\Filament\Exports\BrandExporter;
+use Filament\Tables\Actions\ImportAction;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
 
 class BrandResource extends Resource
 {
@@ -55,10 +60,26 @@ class BrandResource extends Resource
                 'md' => 2,
                 'lg' => 3,
             ])
+            ->headerActions([
+                ImportAction::make()
+                    ->label('Importar')
+                    ->icon('heroicon-o-arrow-up-tray')
+                    ->importer(BrandImporter::class),
+
+                ExportAction::make()
+                    ->label('Exportar')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->exporter(BrandExporter::class)
+                    ->formats([
+                        ExportFormat::Csv,
+                        ExportFormat::Xlsx,
+                    ]),
+            ])
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->label('Editar')
                     ->icon('heroicon-o-pencil-square'),
+
                 Tables\Actions\DeleteAction::make()
                     ->label('Excluir')
                     ->icon('heroicon-o-trash'),
