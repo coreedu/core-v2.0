@@ -115,14 +115,13 @@ class CursoResource extends Resource
         return $table
             ->headerActions([
                 ImportAction::make()
+                    ->label('Importar')
                     ->icon('heroicon-o-arrow-up-tray')
-                    ->tooltip('Importar cursos via CSV')
-                    ->importer(CursoImporter::class)
-                    ->csvDelimiter(';'),
+                    ->importer(CursoImporter::class),
 
                 ExportAction::make()
+                    ->label('Exportar')
                     ->icon('heroicon-o-arrow-down-tray')
-                    ->tooltip('Exportar cursos em CSV ou Excel')
                     ->exporter(CursoExporter::class)
                     ->formats([
                         ExportFormat::Csv,

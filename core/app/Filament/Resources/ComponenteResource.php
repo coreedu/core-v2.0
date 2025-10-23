@@ -77,14 +77,13 @@ class ComponenteResource extends Resource
         return $table
             ->headerActions([
                 ImportAction::make()
+                    ->label('Importar')
                     ->icon('heroicon-o-arrow-up-tray')
-                    ->tooltip('Importar componentes via CSV')
-                    ->importer(ComponenteImporter::class)
-                    ->csvDelimiter(';'),
+                    ->importer(ComponenteImporter::class),
 
                 ExportAction::make()
+                    ->label('Exportar')
                     ->icon('heroicon-o-arrow-down-tray')
-                    ->tooltip('Exportar componentes em CSV ou Excel')
                     ->exporter(ComponenteExporter::class)
                     ->formats([
                         ExportFormat::Csv,

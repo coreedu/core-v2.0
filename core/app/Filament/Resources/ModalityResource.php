@@ -59,14 +59,13 @@ class ModalityResource extends Resource
         return $table
             ->headerActions([
                 ImportAction::make()
+                    ->label('Importar')
                     ->icon('heroicon-o-arrow-up-tray')
-                    ->tooltip('Importar modalidades via CSV')
-                    ->importer(ModalityImporter::class)
-                    ->csvDelimiter(';'),
+                    ->importer(ModalityImporter::class),
 
                 ExportAction::make()
+                    ->label('Exportar')
                     ->icon('heroicon-o-arrow-down-tray')
-                    ->tooltip('Exportar modalidades em CSV ou Excel')
                     ->exporter(ModalityExporter::class)
                     ->formats([
                         ExportFormat::Csv,
