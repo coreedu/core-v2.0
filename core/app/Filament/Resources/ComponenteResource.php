@@ -12,6 +12,11 @@ use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\Layout\Stack;
+use Filament\Tables\Actions\ImportAction;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Actions\Exports\Enums\ExportFormat;
+use App\Filament\Imports\ComponenteImporter;
+use App\Filament\Exports\ComponenteExporter;
 
 class ComponenteResource extends Resource
 {
@@ -70,6 +75,22 @@ class ComponenteResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->headerActions([
+                ImportAction::make()
+                    ->icon('heroicon-o-arrow-up-tray')
+                    ->tooltip('Importar componentes via CSV')
+                    ->importer(ComponenteImporter::class)
+                    ->csvDelimiter(';'),
+
+                ExportAction::make()
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->tooltip('Exportar componentes em CSV ou Excel')
+                    ->exporter(ComponenteExporter::class)
+                    ->formats([
+                        ExportFormat::Csv,
+                        ExportFormat::Xlsx,
+                    ]),
+            ])
             ->columns([
                 Stack::make([
                     TextColumn::make('abreviacao')
