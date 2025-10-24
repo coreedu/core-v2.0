@@ -53,6 +53,7 @@ class CentralPanelProvider extends PanelProvider
                 // Widgets\InfoChart::class,
                 Widgets\RoomInventoryChart::class,
                 Widgets\EquipmentUsageChart::class,
+                Widgets\TrendUsageChart::class,
             ])
             ->middleware([
                 EncryptCookies::class,
