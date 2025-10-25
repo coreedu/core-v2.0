@@ -114,13 +114,19 @@ class CursoResource extends Resource
     {
         return $table
             ->headerActions([
-                ImportAction::make()->importer(CursoImporter::class),
+                ImportAction::make()
+                    ->label('Importar')
+                    ->icon('heroicon-o-arrow-up-tray')
+                    ->importer(CursoImporter::class),
+
                 ExportAction::make()
+                    ->label('Exportar')
+                    ->icon('heroicon-o-arrow-down-tray')
                     ->exporter(CursoExporter::class)
                     ->formats([
                         ExportFormat::Csv,
                         ExportFormat::Xlsx,
-                    ])
+                    ]),
             ])
             ->columns([
                 Stack::make([
@@ -140,22 +146,15 @@ class CursoResource extends Resource
 
                     Tables\Columns\TextColumn::make('qtdModulos')
                         ->label('Módulos')
-                        ->formatStateUsing(fn($state) => "{$state} módulo(s) ")
+                        ->formatStateUsing(fn($state) => "{$state} módulo(s)")
                         ->color('gray'),
                 ])->space(1),
             ])
             ->contentGrid([
                 'md' => 2,
             ])
-            ->filters([
-                //
-            ])
+            ->filters([])
             ->actions([
-                Tables\Actions\Action::make('componentes')
-                    ->label('Componentes')
-                    ->icon('heroicon-o-puzzle-piece')
-                    ->url(fn($record) => Pages\EditCurso::getUrl(['record' => $record]))
-                    ->color('info'),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
