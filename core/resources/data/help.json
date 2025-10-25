@@ -46,5 +46,9 @@
   "schedule": {
     "title": "Grades Horárias",
     "text": "<p>Configure as versões das grades horárias para os cursos.</p><br><p><strong>Como usar:</strong><br>• Cadastre as versões das grades horárias para os cursos.<br>• Publique a grade horária para que ela seja enviada para os alunos.</p>"
+  },
+  "availability": {
+    "title": "Dispobilidade do usuário",
+    "text": "<p>Use esta página para indicar os horários em que você está disponível para aulas.</p><br><p><strong>Como usar:</strong><br>• Marque as caixas de seleção para os horários disponíveis.<br>• Use o botão <strong>“Selecionar todos”</strong> para marcar todos os horários de um dia.<br>• As alterações são salvas automaticamente ao enviar o formulário.</p>"
   }
 }
