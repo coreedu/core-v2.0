@@ -29,6 +29,7 @@ class EquipmentsRelationManager extends RelationManager
                     ->height(50)
                     ->width(50)
                     ->circular()
+                    ->disk('public')
                     ->defaultImageUrl(asset('images/ambiente-padrao.jpg')),
 
                 Tables\Columns\TextColumn::make('name')
@@ -154,6 +155,7 @@ class EquipmentsRelationManager extends RelationManager
                                     ->image()
                                     ->multiple()
                                     ->reorderable()
+                                    ->disk('public')
                                     ->directory('equipments')
                                     ->nullable(),
                             ])

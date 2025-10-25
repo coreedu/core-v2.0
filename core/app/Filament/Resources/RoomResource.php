@@ -57,6 +57,7 @@ class RoomResource extends Resource
                 Forms\Components\FileUpload::make('img')
                     ->label('Imagem')
                     ->image()
+                    ->disk('public')
                     ->directory('rooms')
                     ->imageEditor()
                     ->columnSpan(6),
@@ -78,6 +79,7 @@ class RoomResource extends Resource
                     Tables\Columns\ImageColumn::make('img')
                         ->label('Imagem')
                         ->height(120)
+                        ->disk('public')
                         ->extraImgAttributes([
                             'style' => 'width: 100%; object-fit: cover; border-radius: 8px;'
                         ])

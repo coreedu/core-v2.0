@@ -12,4 +12,9 @@ class Category extends Model
         'name',
         'description',
     ];
+
+    public static function categories()
+    {
+        return self::count();
+    }
 }

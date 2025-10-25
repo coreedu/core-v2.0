@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedInteger('course_id');
             $table->unsignedInteger('modality_id')->nullable();
             $table->unsignedInteger('module_id');
+            $table->boolean('status')->default(false);
             $table->timestamps();
         });
     }

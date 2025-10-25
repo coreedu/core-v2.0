@@ -30,5 +30,21 @@
   "componente": {
     "title": "Componentes Curriculares",
     "text": "<p>Os componentes representam as disciplinas ou unidades curriculares que compõem cada curso.</p><br><p><strong>Como usar:</strong><br>• Informe o nome do componente e sua abreviação.<br>• Defina as horas semanais e totais.<br>• Utilize nomes claros e abreviações consistentes para facilitar a identificação.</p><br><p><strong>Dica:</strong><br>Os componentes podem ser associados a cursos já cadastrados para compor suas matrizes curriculares.</p>"
+  },
+  "day": {
+    "title": "Dias da Semana",
+    "text": "<p>  Configure os horarios de funcionamento das aulas no dias da semana.</p><br><p>  <strong>Como usar:</strong>  <br>  • Clique em ver horários.  <br>  • Adicione os horarios em que acontecem aulas na universidade.</p><br><p>  <strong>Dica:</strong>  <br>  Estes dias e horários serão utilizados na criação de grades horárias.</p>"
+  },
+  "lesson_time": {
+    "title": "Horários de Aula",
+    "text": "<p><p>Configure os horários disponíveis para  programação de aulas.</p><br><p><strong>Como usar:</strong><br>• Cadastre os horários de aula que a instituição oferece (08:00-09:00, 09:00-10:00, etc.).</p><br><p><strong>Dica:</strong><br>Estes horários serão utilizados na criação de grades horárias.</p>"
+  },
+  "shift": {
+    "title": "Turnos",
+    "text": "<p>Configure os turnos disponíveis para  programação de aulas.</p><br><p><strong>Como usar:</strong><br>• Cadastre os turnos de aula que a instituição oferece (Manhã, Tarde, Noite, etc.).</p><br><p><strong>Dica:</strong><br>Estes turnos serão utilizados na criação de grades horárias.</p>"
+  },
+  "schedule": {
+    "title": "Grades Horárias",
+    "text": "<p>Configure as versões das grades horárias para os cursos.</p><br><p><strong>Como usar:</strong><br>• Cadastre as versões das grades horárias para os cursos.<br>• Publique a grade horária para que ela seja enviada para os alunos.</p>"
   }
 }

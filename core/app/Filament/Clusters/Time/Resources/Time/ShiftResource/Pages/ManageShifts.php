@@ -5,6 +5,7 @@ namespace App\Filament\Clusters\Time\Resources\Time\ShiftResource\Pages;
 use App\Filament\Clusters\Time\Resources\Time\ShiftResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ManageRecords;
+use App\Filament\Components\HelpButton;
 
 class ManageShifts extends ManageRecords
 {
@@ -14,6 +15,7 @@ class ManageShifts extends ManageRecords
     {
         return [
             Actions\CreateAction::make(),
+            HelpButton::make('shift'),
         ];
     }
 }

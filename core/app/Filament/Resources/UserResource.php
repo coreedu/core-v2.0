@@ -140,20 +140,26 @@ class UserResource extends Resource
                             ->label('Curso')
                             ->relationship('curso', 'nome')
                             ->native(false)
-                            ->columnSpan(4),
+                            ->columnSpan(4)
+                            ->live(),
 
                         Select::make('semester')
                             ->label('Semestre')
-                            ->options([
-                                1 => '1º',
-                                2 => '2º',
-                                3 => '3º',
-                                4 => '4º',
-                                5 => '5º',
-                                6 => '6º',
-                                7 => '7º',
-                                8 => '8º'
-                            ])
+                            ->options(function (Get $get) {
+                                $courseId = $get('course');
+                                if (!$courseId) {
+                                    return [];
+                                }
+                                
+                                $course = \App\Models\Curso::find($courseId);
+                                if (!$course) {
+                                    return [];
+                                }
+                                
+                                $qtdModulos = (int) $course->qtdModulos;
+                                return collect(range(1, max($qtdModulos, 1)))
+                                    ->mapWithKeys(fn($n) => [$n => "{$n}º Semestre"]);
+                            })
                             ->native(false)
                             ->columnSpan(4),
 

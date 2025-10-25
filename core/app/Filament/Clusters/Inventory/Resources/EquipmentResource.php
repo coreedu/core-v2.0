@@ -81,6 +81,7 @@ class EquipmentResource extends Resource
                 ->image()
                 ->multiple()
                 ->reorderable()
+                ->disk('public')
                 ->directory('equipments')
                 ->nullable(),
         ]);

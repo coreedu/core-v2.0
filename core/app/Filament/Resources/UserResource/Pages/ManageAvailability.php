@@ -19,6 +19,7 @@ use Filament\Forms\Components\Button;
 use Filament\Actions as PageActions;
 use Filament\Forms\Components\Actions as FormActions;
 use Filament\Forms\Components\Actions\Action as FormAction;
+use Illuminate\Support\HtmlString;
 
 class ManageAvailability extends Page
 {
@@ -40,25 +41,39 @@ class ManageAvailability extends Page
         $days = Day::all();
         $times = LessonTime::all();
 
-        $availabilities = \DB::table('availability_instructor')
+        $this->availabilities = \DB::table('availability_instructor')
             ->where('user_id', $user->id)
             ->get()
-            ->groupBy('day_id');
+            ->groupBy('day_id')
+            ->map(function ($times) {
+                return $times->pluck('time_id')->mapWithKeys(fn ($timeId) => [$timeId => true]);
+            })
+            ->toArray();
 
-        $timeDay = \DB::table('time_day')->get()->groupBy('day_id');
+        $this->timeDay = \DB::table('time_day')
+            ->select('day_id', 'time_id')
+            ->get()
+            ->groupBy('day_id')
+            ->map(fn ($records) =>
+                $records->pluck('time_id')->mapWithKeys(fn ($timeId) => [$timeId => true])
+            )
+            ->toArray();
+
+        $this->form->fill([
+            'matrix' => $this->availabilities,
+        ]);
     }
 
     public function form(Form $form): Form
     {
-        $days = Day::all();
+        $days = Day::orderBy('cod')->get();
         $times = LessonTime::orderBy('start')->get();
 
-        // Cabeçalhos das colunas (dias)
         $dayNames = $days->pluck('name', 'id');
 
         return $form->schema([
             Section::make('Disponibilidade Semanal')
-                ->description('Marque os horários disponíveis. Cada linha é um horário, cada coluna um dia.')
+                ->description('Marque os horários disponíveis.')
                 ->schema(function () use ($days, $times, $dayNames) {
                     $rows = [];
 
@@ -68,33 +83,44 @@ class ManageAvailability extends Page
                         $start = \Carbon\Carbon::createFromFormat('H:i:s', $time->start)->format('H:i');
                         $end = \Carbon\Carbon::createFromFormat('H:i:s', $time->end)->format('H:i');
 
-                        // Primeira célula: exibe o horário
                         $columns[] = Placeholder::make("hora_{$time->id}")
                             ->label('')
                             ->content("{$start} - {$end}");
 
-                        // Demais células: checkboxes para cada dia
                         foreach ($days as $day) {
-                            $columns[] = Checkbox::make("matrix.{$day->id}.{$time->id}")
+                            
+                            // $isRelated = $this->timeDay[$day->cod][$time->id] ?? false;
+
+                            $columns[] = Checkbox::make("matrix.{$day->cod}.{$time->id}")
                                 ->label('')
-                                ->inline(false);
+                                ->inline(false)
+                                ->columnSpan(1)
+                                ->extraAttributes(['class' => 'mx-auto block']);
+                                // ->extraAttributes(fn() => [
+                                //     'class' => $isRelated
+                                //         ? 'mx-auto block'
+                                //         // : 'mx-auto block opacity-40 pointer-events-none',
+                                //         : 'mx-auto block opacity-40 pointer-events-none cursor-not-allowed accent-gray-400',
+                                //     'style' => $isRelated
+                                //         ? ''
+                                //         : '--tw-ring-color: #9e0a2c;background-color: #af5469ff;',
+                                // ]);
                         }
 
-                        // Adiciona uma linha (Grid com 1 + qtd dias colunas)
                         $rows[] = Grid::make(count($columns))
                             ->schema($columns);
                     }
 
-                    // Cabeçalho de dias (linha superior)
                     $headerCells = [];
                     $headerCells[] = Placeholder::make('blank_header')->label('');
                     foreach ($dayNames as $name) {
                         $headerCells[] = Placeholder::make("day_header_{$name}")
                             ->label('')
-                            ->content($name);
+                            ->content($name)
+                            ->columnSpan(1)
+                            ->extraAttributes(['class' => 'mx-auto block']);
                     }
 
-                    // ✅ Rodapé com botões "Selecionar todos"
                     $footerCells = [];
                     $footerCells[] = \Filament\Forms\Components\Placeholder::make('footer_blank')->label('');
                     foreach ($days as $day) {
@@ -105,21 +131,21 @@ class ManageAvailability extends Page
                                 ->size('xs')
                                 ->action(function () use ($day) {
                                     $this->toggleDay($day->id);
-                                }),
+                                })
+                                ->extraAttributes(['class' => 'mx-auto block']),
                             ]);
                     }
 
                     return [
-                        // Linha de cabeçalho
+                        Grid::make(count($footerCells))
+                            ->schema($footerCells),
+
                         Grid::make(count($headerCells))
                             ->schema($headerCells),
 
-                        // Linhas de horários
+
                         ...$rows,
 
-                        // Rodapé com botões
-                        Grid::make(count($footerCells))
-                            ->schema($footerCells),
                     ];
                 }),
         ]);
@@ -132,7 +158,6 @@ class ManageAvailability extends Page
 
         AvailabilityInstructor::where('user_id', $user->id)->delete();
 
-        // Recria as novas disponibilidades
         foreach ($data as $dayId => $times) {
             foreach ($times as $timeId => $checked) {
                 if ($checked) {
@@ -169,7 +194,34 @@ class ManageAvailability extends Page
                 ->label('Voltar para Lista')
                 ->icon('heroicon-o-users')
                 ->color('gray')
-                ->url(fn () => UserResource::getUrl('index'))
+                ->url(fn () => UserResource::getUrl('index')),
+                
+            PageActions\Action::make('ajuda')
+                ->label('Ajuda')
+                ->color('primary') // azul padrão do Filament
+                ->icon('heroicon-o-question-mark-circle')
+                ->button()
+                ->modalHeading('Como preencher a disponibilidade ?')
+                ->modalContent(fn () => new HtmlString('
+                    <div class="space-y-4 text-gray-700 dark:text-gray-200">
+
+                        <p class="text-sm leading-relaxed">
+                            Use esta página para indicar os horários em que você está disponível para aulas.
+                        </p>
+
+                        <ul class="list-disc pl-6 text-sm leading-relaxed space-y-1">
+                            <li> Marque as caixas de seleção para os horários disponíveis.</li>
+                            <li> Use o botão <strong>“Selecionar todos”</strong> para marcar todos os horários de um dia.</li>
+                            <li> As alterações são salvas automaticamente ao enviar o formulário.</li>
+                        </ul>
+
+                        <div class="border-l-4 border-primary-500 pl-3 mt-3 text-sm italic text-gray-600 dark:text-gray-400">
+                            <span class="font-medium">Dica:</span> mantenha seu calendário sempre atualizado para evitar conflitos de agendamento.
+                        </div>
+                    </div>
+                '))
+                ->modalSubmitAction(false)
+                ->modalCancelActionLabel('Fechar'),
         ];
     }
 
