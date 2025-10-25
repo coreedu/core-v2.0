@@ -13,6 +13,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\ScheduleResource\Pages\ManageSchedules;
 
 class ScheduleResource extends Resource
 {
@@ -166,6 +167,10 @@ class ScheduleResource extends Resource
                     ->falseLabel('Não publicado'),
             ])
             ->actions([
+                Tables\Actions\Action::make('manage-schedule')
+                    ->label('Grade')
+                    ->icon('heroicon-o-calendar')
+                    ->url(fn ($record) => ManageSchedules::getUrl(['record' => $record])),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
@@ -189,6 +194,7 @@ class ScheduleResource extends Resource
             'index' => Pages\ListSchedules::route('/'),
             'create' => Pages\CreateSchedule::route('/create'),
             'edit' => Pages\EditSchedule::route('/{record}/edit'),
+            'manage-schedule' => Pages\ManageSchedules::route('/{record}/manage-schedule'),
         ];
     }
 }
