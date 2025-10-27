@@ -11,13 +11,12 @@ class TrendUsageChart extends ChartWidget
     
     protected static string $views = 'filament.widgets.size_style_graphics';
 
-
-    // public function getColumnSpan(): int | string | array
-    // {
-    //     return 4;
-    // }
-
     protected static ?int $sort = 3; // Ordem 3 (o último gráfico)
+
+    public function getColumnSpan(): int | string | array
+    {
+        return 'full'; // ocupa toda a linha
+    }
 
     protected function getData(): array
     {
