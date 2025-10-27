@@ -10,6 +10,17 @@ class EquipmentUsageChart extends ChartWidget
 {
     protected static ?string $heading = 'Causa-Raiz: Uso de Salas por Equipamento (Top 10)';
 
+    protected static string $views = 'filament.widgets.size_style_graphics';
+
+    // public function getColumnSpan(): int | string | array
+    // {
+    //     return [
+    //     'sm' => 12,
+    //     'md' => 8, // ocupa 8 das 12 colunas
+    //     'lg' => 6, // metade da tela
+    // ];
+    // }
+
     protected static ?int $sort = 2; // Ordem 2 (depois do Gráfico 1)
 
     protected function getData(): array
