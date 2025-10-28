@@ -193,7 +193,7 @@
                 <div class="row justify-content-center">
                     <div class="col-lg-3 col-md-6 col-12 mb-4">
                         <div class="box">
-                            <img src="images/portrait-mature-smiling-authoress-sitting-desk.jpg" class="author-image img-fluid" alt="Foto desenvolvedor">
+                            <img src="images/dev-direnzi.jpeg" class="author-image img-fluid" alt="Foto desenvolvedor">
                             <div class="share">
                                 <a href="https://www.linkedin.com/in/guilhermedirenzi/" target="_blank"><i class="bi bi-linkedin"></i></a>
                                 <a href="https://github.com/Direnzi002" target="_blank"><i class="bi bi-github"></i></a>
