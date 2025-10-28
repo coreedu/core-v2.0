@@ -174,6 +174,26 @@ class RoomResource extends Resource
                         ->modalSubmitActionLabel('Salvar Alterações')
                         ->successNotificationTitle('Categorias atualizadas com sucesso!'),
                 ]),
+                Tables\Actions\BulkAction::make('gerarRelatorio')
+                    ->label('Gerar Relatório')
+                    ->icon('heroicon-o-document-text')
+                    ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                        $rooms = $records;
+
+                        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.rooms-relatorio', [
+                            'rooms' => $rooms,
+                        ]);
+
+                        return response()->streamDownload(function () use ($pdf) {
+                            echo $pdf->output();
+                        }, 'relatorio-ambientes-' . now()->format('d-m-Y_H\hi') . '.pdf');
+                    })
+                    ->deselectRecordsAfterCompletion()
+                    ->requiresConfirmation()
+                    ->modalHeading('Gerar Relatório')
+                    ->modalSubheading('O relatório incluirá as salas selecionadas e seus respectivos equipamentos.')
+                    ->modalButton('Gerar PDF')
+                    ->successNotificationTitle('Relatório gerado com sucesso!')
             ]);
     }
 
