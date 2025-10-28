@@ -81,27 +81,61 @@
             border-collapse: collapse;
             margin-bottom: 20px;
             border: 1px solid #ddd;
+            table-layout: fixed;
         }
 
-        th {
-            background-color: var(--secondary-color);
-            color: var(--white-color);
-            padding: 6px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 10px;
-        }
-
+        th,
         td {
             padding: 6px;
             border-bottom: 1px solid #eee;
             vertical-align: middle;
             text-align: center;
-            font-size: 8px;
+            word-wrap: break-word;
+        }
+
+        th {
+            background-color: var(--secondary-color);
+            color: var(--white-color);
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        td {
+            font-size: 9px;
         }
 
         tr:nth-child(even) {
             background-color: #f9f9f9;
+        }
+
+        th:nth-child(1),
+        td:nth-child(1) {
+            width: 22%;
+        }
+
+        th:nth-child(2),
+        td:nth-child(2) {
+            width: 15%;
+        }
+
+        th:nth-child(3),
+        td:nth-child(3) {
+            width: 15%;
+        }
+
+        th:nth-child(4),
+        td:nth-child(4) {
+            width: 15%;
+        }
+
+        th:nth-child(5),
+        td:nth-child(5) {
+            width: 13%;
+        }
+
+        th:nth-child(6),
+        td:nth-child(6) {
+            width: 20%;
         }
 
         .status {
