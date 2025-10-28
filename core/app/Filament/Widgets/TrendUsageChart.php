@@ -8,8 +8,15 @@ use App\Models\Schedule; // <-- Importe o Model 'Schedule'
 class TrendUsageChart extends ChartWidget
 {
     protected static ?string $heading = 'Predição: Demanda por Categoria (por Versão)';
+    
+    protected static string $views = 'filament.widgets.size_style_graphics';
 
     protected static ?int $sort = 3; // Ordem 3 (o último gráfico)
+
+    public function getColumnSpan(): int | string | array
+    {
+        return 'full'; // ocupa toda a linha
+    }
 
     protected function getData(): array
     {

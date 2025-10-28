@@ -8,6 +8,17 @@ use App\Models\Room; // <-- Importe o Model 'Room'
 class RoomInventoryChart extends ChartWidget
 {
     protected static ?string $heading = 'Inventário: Total de Salas por Categoria';
+    
+    protected static string $views = 'filament.widgets.size_style_graphics';
+
+    // public function getColumnSpan(): int | string | array
+    // {
+    //     return [
+    //     'sm' => 12,
+    //     'md' => 8, // ocupa 8 das 12 colunas
+    //     'lg' => 6, // metade da tela
+    // ];
+    // }
 
     protected static ?int $sort = 1; // Para aparecer primeiro (opcional)
 
