@@ -33,4 +33,28 @@ class Curso extends Model
             ->withPivot('module')
             ->withTimestamps();
     }
+    
+    public function getComponentsByModule($moduleId)
+    {
+
+        return $this->componentes()
+            ->wherePivot('module', $moduleId)
+            ->with('users:id,name') 
+            ->get(['componentes.id', 'componentes.nome'])
+            ->mapWithKeys(function ($component) {
+                return [
+                    $component->id => [
+                        'name' => $component->nome,
+                        'instructors' => $component->users
+                            ->mapWithKeys(function ($user) {
+                                return [
+                                    $user->id => $user->name,
+                                ];
+                            })
+                            ->toArray(),
+                    ],
+                ];
+            })
+            ->toArray();
+    }
 }

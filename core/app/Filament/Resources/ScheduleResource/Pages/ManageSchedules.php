@@ -5,6 +5,9 @@ namespace App\Filament\Resources\ScheduleResource\Pages;
 use App\Filament\Resources\ScheduleResource;
 use Filament\Resources\Pages\Page;
 use App\Models\Schedule;
+use App\Models\Curso;
+use App\Models\Room;
+use App\Models\Time\Day;
 use App\Models\TimeShift;
 
 class ManageSchedules extends Page
@@ -24,12 +27,14 @@ class ManageSchedules extends Page
     {
         $this->record = $record;
         
-        $this->timeSlots = TimeShift::where('shift_cod', 'like',"%$record->shift_cod%")->pluck('lesson_time_id'); // horários do turno
-        dd($this->timeSlots);
-
-        $this->subjects = $record->course->subjects;  // matérias do curso
-        $this->teachers = Teacher::whereIn('subject_id', $this->subjects->pluck('id'))->get();
-        $this->rooms = Room::all();
+        $this->days = Day::all()->pluck('name', 'cod')->toArray();
+        
+        $this->timeSlots = TimeShift::getTimesByShift($record->shift_cod);
+        
+        $this->subjects = Curso::find($record->course_id)
+            ?->getComponentsByModule($record->module_id);
+        
+        $this->rooms = Room::getRoomsArray();
     }
 
     public function saveSchedule(): void

@@ -28,6 +28,22 @@ class Room extends Model
             ->withTimestamps();
     }
 
+    public static function getRoomsArray()
+    {
+        return self::with('category:id,name')
+            ->get(['room.id', 'room.name', 'number', 'type'])
+            ->mapWithKeys(function ($room) {
+                return [
+                    $room->id => [
+                        'name' => $room->name,
+                        'number' => $room->number,
+                        'type' => $room->category?->name,
+                    ]
+                ];
+            })
+            ->toArray();
+    }
+
     // --- NOVO MÉTODO PARA O GRÁFICO 1 ---
 
     /**
