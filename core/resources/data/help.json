@@ -54,5 +54,10 @@
   "users": {
     "title": "Usuários",
     "text": "<p>Adicione e edite os usuários cadastrado no sistema</p><br><p><strong>Como usar:</strong><br>• Para cadastrar clique em 'Criar usuário'<br>• Para editar Clique em 'Editar', na listagem de usuários<br>• Para excluir o usuário clique em 'Excluir' na listagem de usuários.<br>• Para relacionar os componentes(matérias) com os usuários vá para a página de edição.<br>• Para editar a disponibilidade do usuário para as aulas vá em 'Editar > Gerenciar Disponibilidade' </p>"
+  },
+  "manage-schedules": {
+    "title": "manage-schedules",
+    "text": "<p>Altere a grade horária</p><br><p><strong>Como usar:</strong><br>• Em cada coluna há três espaços para escolher a matéria, o docente e a sala que será utilizada na aula. <br>• Ao selecionar a matéria os docentes que a lecionam irão aparecer nas opções. <br>• Clique em salvar para salvar as informações. </p>"
   }
+  
 }

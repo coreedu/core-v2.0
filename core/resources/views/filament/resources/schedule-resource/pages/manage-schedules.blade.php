@@ -1,14 +1,24 @@
 <x-filament::page>
     <div class="space-y-6">
         {{-- Cabeçalho de contexto --}}
-        <div class="flex flex-col gap-1">
-            <div class="text-gray-600">
-                <strong>Curso:</strong> {{ $this->record->course->nome }} <br>
-                <strong>Módulo:</strong> {{ $this->record->module_id }}º módulo <br>
+        <div class="flex flex-row items-center gap-6 text-gray-600">
+            <div>
+                <strong>Curso:</strong> {{ $this->record->course->nome }}
+            </div>
+
+            <div>
+                <strong>Módulo:</strong> {{ $this->record->module_id }}º módulo
+            </div>
+
+            <div>
                 <strong>Turno:</strong> {{ $this->record->shift->name }}
             </div>
         </div>
-
+        <div class="flex justify-end">
+            <x-filament::button wire:click="saveSchedule" color="primary">
+                Salvar Grade
+            </x-filament::button>
+        </div>
         {{-- Tabela de horários --}}
         <div class="overflow-x-auto shadow rounded-lg border">
             <table class="min-w-full text-sm text-center border-collapse">
@@ -67,9 +77,5 @@
                 </tbody>
             </table>
         </div>
-
-        <x-filament::button wire:click="saveSchedule" color="primary">
-            Salvar Grade
-        </x-filament::button>
     </div>
 </x-filament::page>

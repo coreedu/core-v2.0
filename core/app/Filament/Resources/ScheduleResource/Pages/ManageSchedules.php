@@ -9,6 +9,8 @@ use App\Models\Curso;
 use App\Models\Room;
 use App\Models\Time\Day;
 use App\Models\TimeShift;
+use Filament\Actions as PageActions;
+use App\Filament\Components\HelpButton;
 
 class ManageSchedules extends Page
 {
@@ -100,7 +102,7 @@ class ManageSchedules extends Page
                 ->label('Voltar')
                 ->icon('heroicon-o-arrow-left')
                 ->color('gray')
-                ->url(fn () => ScheduleResource::getUrl('list', ['record' => $this->record])),
+                ->url(fn () => ScheduleResource::getUrl('index', ['record' => $this->record])),
                 
             HelpButton::make('manage-schedules'),
         ];
