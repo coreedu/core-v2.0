@@ -11,6 +11,36 @@ class ClassSchedule extends Model
      */
     protected $table = 'class_schedule';
 
+    protected $fillable = [
+        'schedule_id',
+        'instructor',
+        'component',
+        'shift',
+        'day',
+        'room',
+        'course',
+        'modality',
+        'group',
+        'lesson',
+        'module',
+        'time'
+    ];
+
+    public function schedule()
+    {
+        return $this->belongsTo(Schedule::class, 'schedule_id');
+    }
+
+    public function instructor()
+    {
+        return $this->belongsTo(User::class, 'instructor');
+    }
+
+    public function component()
+    {
+        return $this->belongsTo(Componente::class, 'component');
+    }
+
     /**
      * Define o relacionamento: Uma "aula" (ClassSchedule) pertence a uma "sala" (Room).
      */

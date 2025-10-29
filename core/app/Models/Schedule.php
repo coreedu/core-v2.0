@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Time\Shift;
 use App\Models\Curso;
 use App\Models\Modality;
+use App\Models\ClassSchedule;
 use Illuminate\Support\Facades\DB;
 
 class Schedule extends Model
@@ -25,6 +26,11 @@ class Schedule extends Model
 
     public function modality() {
         return $this->belongsTo(Modality::class, 'modality_id', 'id');
+    }
+
+    public function items()
+    {
+        return $this->hasMany(ClassSchedule::class, 'schedule_id');
     }
 
     // --- NOVO MÉTODO PARA O GRÁFICO 3 (PREDITIVO) ---
