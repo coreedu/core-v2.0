@@ -150,12 +150,12 @@ class UserResource extends Resource
                                 if (!$courseId) {
                                     return [];
                                 }
-                                
+
                                 $course = \App\Models\Curso::find($courseId);
                                 if (!$course) {
                                     return [];
                                 }
-                                
+
                                 $qtdModulos = (int) $course->qtdModulos;
                                 return collect(range(1, max($qtdModulos, 1)))
                                     ->mapWithKeys(fn($n) => [$n => "{$n}º Semestre"]);
@@ -210,7 +210,8 @@ class UserResource extends Resource
                         ->circular()
                         ->getStateUsing(function ($record) {
                             return asset('storage/' . $record->photo);
-                        }),
+                        })
+                        ->defaultImageUrl(asset('images/usuario-padrao.png')),
 
                     TextColumn::make('id')
                         ->label('RM')

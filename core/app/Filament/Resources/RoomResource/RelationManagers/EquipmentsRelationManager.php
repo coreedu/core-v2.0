@@ -30,7 +30,7 @@ class EquipmentsRelationManager extends RelationManager
                     ->width(50)
                     ->circular()
                     ->disk('public')
-                    ->defaultImageUrl(asset('images/ambiente-padrao.jpg')),
+                    ->defaultImageUrl(asset('images/equipamento-padrao.png')),
 
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nome')
@@ -178,6 +178,14 @@ class EquipmentsRelationManager extends RelationManager
                     }),
             ])
             ->actions([
+                Tables\Actions\EditAction::make()
+                    ->label('Editar')
+                    ->icon('heroicon-o-pencil-square')
+                    ->modalHeading('Editar Equipamento')
+                    ->form(fn() => \App\Filament\Clusters\Inventory\Resources\EquipmentResource::getFormSchema())
+                    ->modalSubmitActionLabel('Salvar Alterações')
+                    ->successNotificationTitle('Equipamento atualizado com sucesso!'),
+
                 Tables\Actions\DetachAction::make()
                     ->label('Desvincular'),
             ])

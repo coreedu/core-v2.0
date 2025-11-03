@@ -83,7 +83,7 @@ class RoomResource extends Resource
                         ->extraImgAttributes([
                             'style' => 'width: 100%; object-fit: cover; border-radius: 8px;'
                         ])
-                        ->defaultImageUrl(asset('images/ambiente-padrao.jpg')),
+                        ->defaultImageUrl(asset('images/ambiente-padrao.png')),
 
                     Tables\Columns\TextColumn::make('full_name')
                         ->label('Nome / Número')
