@@ -167,16 +167,12 @@ class UserResource extends Resource
                             })
                             ->native(false)
                             ->columnSpan(4),
-
-                        Select::make('shift')
+                        Select::make('shift_id')
                             ->label('Turno')
-                            ->options([
-                                1 => 'Matutino',
-                                2 => 'Vespertino',
-                                3 => 'Noturno',
-                                4 => 'Integral',
-                            ])
+                            ->relationship('shift', 'name')
+                            ->preload()
                             ->native(false)
+                            ->placeholder('Selecione o turno')
                             ->columnSpan(4),
                     ]),
 
