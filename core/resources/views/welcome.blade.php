@@ -203,7 +203,7 @@
                     </div>
                     <div class="col-lg-3 col-md-6 col-12 mb-4">
                         <div class="box">
-                            <img src="images/devs/dev-matheus.png" class="author-image img-fluid" alt="Foto desenvolvedor">
+                            <img src="images/devs/dev-matheus.jpeg" class="author-image img-fluid" alt="Foto desenvolvedor">
                             <div class="share">
                                 <a href="https://www.linkedin.com/in/matheus-silva-8297a320a/" target="_blank"><i class="bi bi-linkedin"></i></a>
                                 <a href="https://github.com/matheusedivaldo" target="_blank"><i class="bi bi-github"></i></a>
