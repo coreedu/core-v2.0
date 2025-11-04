@@ -60,6 +60,10 @@ class ManageSchedules extends Page
 
     public function saveSchedule(): void
     {
+
+        dd($this->scheduleData);
+
+        // Formatar dados para salvar
         foreach ($this->scheduleData as $day => $times) {
             foreach ($times as $timeId => $data) {
                 if (isset($data['subject_id'])) {
@@ -84,15 +88,38 @@ class ManageSchedules extends Page
             ->send();
     }
 
-    public function onSubjectChanged($day, $timeId, $subjectId)
+    public function splitGroup($day, $timeId)
     {
-        $this->updateTeachersForCell($day, $timeId, $subjectId);
+        if (!isset($this->scheduleData[$day][$timeId]['groups'])) {
+            $this->scheduleData[$day][$timeId]['groups'] = ['A' => []];
+        }
+
+        $groups = $this->scheduleData[$day][$timeId]['groups'];
+
+        if (count($groups) === 1) {
+            $this->scheduleData[$day][$timeId]['groups'] = ['A' => [], 'B' => []];
+        }
     }
 
-    public function updateTeachersForCell($day, $timeId, $subjectId)
+    public function mergeGroups($day, $timeId)
+    {
+        if (isset($this->scheduleData[$day][$timeId]['groups'])) {
+            // Preserva dados da Turma A (ou mescla se quiser lógica de priorização)
+            $this->scheduleData[$day][$timeId]['groups'] = [
+                'A' => $this->scheduleData[$day][$timeId]['groups']['A'] ?? []
+            ];
+        }
+    }
+
+    public function onSubjectChanged($day, $timeId, $group, $subjectId)
+    {
+        $this->updateTeachersForCell($day, $timeId, $group, $subjectId);
+    }
+
+    public function updateTeachersForCell($day, $timeId, $group, $subjectId)
     {
         $instructors = $this->subjects[$subjectId]['instructors'] ?? [];
-        $this->scheduleData[$day][$timeId]['available_teachers'] = $instructors;
+        $this->scheduleData[$day][$timeId]['groups'][$group]['available_teachers'] = $instructors;
     }
 
     protected function getHeaderActions(): array
