@@ -26,6 +26,11 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use App\Models\Componente;
 use Filament\Forms\Components\ViewField;
+use Filament\Support\Enums\Alignment;
+use Filament\Support\Enums\FontWeight;
+use Filament\Tables\Columns\Layout\Split;
+use Filament\Tables\Columns\Layout\Panel;
+use Illuminate\Support\Carbon;
 use App\Filament\Resources\ComponentUserResource\RelationManagers\ComponentsRelationManager;
 
 class UserResource extends Resource
@@ -204,44 +209,61 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                Stack::make([
+                Split::make([
                     ImageColumn::make('photo')
                         ->label('Foto')
                         ->circular()
-                        ->getStateUsing(function ($record) {
-                            return asset('storage/' . $record->photo);
-                        })
-                        ->defaultImageUrl(asset('images/usuario-padrao.png')),
+                        ->grow(false)
+                        ->defaultImageUrl(asset('images/usuario-padrao.png'))
+                        ->getStateUsing(fn($record) => asset('storage/' . $record->photo)),
 
-                    TextColumn::make('id')
-                        ->label('RM')
-                        ->sortable()
-                        ->searchable()
-                        ->weight('bold')
-                        ->size('sm')
-                        ->formatStateUsing(function ($state, $record) {
-                            return $record->id . ' - ' . $record->name;
-                        }),
+                    Stack::make([
+                        TextColumn::make('id')
+                            ->label('RM')
+                            ->sortable()
+                            ->searchable()
+                            ->weight(FontWeight::Bold)
+                            ->formatStateUsing(fn($state, $record) => $record->id . ' - ' . $record->name),
 
-                    TextColumn::make('roles.name')
-                        ->label('Função')
-                        ->size('sm'),
-                ]),
-            ])
-            ->contentGrid([
-                'md' => 2,
+                        TextColumn::make('roles.name')
+                            ->label('Função')
+                            ->badge()
+                            ->color(fn($state) => match ($state) {
+                                'Admin' => 'danger',
+                                'Professor' => 'info',
+                                'Aluno' => 'success',
+                                default => 'gray',
+                            }),
+                    ])->space(1),
+
+                    Stack::make([
+                        TextColumn::make('email')
+                            ->label('E-mail')
+                            ->icon('heroicon-m-envelope'),
+
+                        TextColumn::make('birthdate')
+                            ->label('Nascimento')
+                            ->icon('heroicon-m-calendar')
+                            ->formatStateUsing(
+                                fn($state) =>
+                                $state ? Carbon::parse($state)->format('d/m/Y') : '-'
+                            ),
+                    ])
+                        ->space(1)
+                        ->visibleFrom('md'),
+                ])->from('md'),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('roles')
+                    ->label('Filtrar por Função')
+                    ->relationship('roles', 'name'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
 
