@@ -32,6 +32,8 @@ use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Panel;
 use Illuminate\Support\Carbon;
 use App\Filament\Resources\ComponentUserResource\RelationManagers\ComponentsRelationManager;
+use App\Filament\Imports\UserImporter;
+use Filament\Tables\Actions\ImportAction;
 
 class UserResource extends Resource
 {
@@ -57,11 +59,11 @@ class UserResource extends Resource
                 Section::make('Dados Pessoais')
                     ->columns(12)
                     ->schema([
-                        TextInput::make('id')
+                        TextInput::make('rm')
                             ->label('RM')
                             ->placeholder('Ex.: 202500123')
                             ->maxLength(20)
-                            ->required()
+                            ->required(fn(string $context) => $context === 'create')
                             ->numeric()
                             ->columnSpan(4)
                             ->prefixIcon('heroicon-s-identification'),
@@ -69,7 +71,7 @@ class UserResource extends Resource
                         TextInput::make('name')
                             ->label('Nome Completo')
                             ->placeholder('Digite o nome completo')
-                            ->required()
+                            ->required(fn(string $context) => $context === 'create')
                             ->maxLength(191)
                             ->columnSpan(8),
 
@@ -77,7 +79,7 @@ class UserResource extends Resource
                             ->label('Nascimento')
                             ->displayFormat('d/m/Y')
                             ->native(false)
-                            ->required()
+                            ->required(fn(string $context) => $context === 'create')
                             ->closeOnDateSelection()
                             ->columnSpan(4)
                             ->prefixIcon('heroicon-s-calendar'),
@@ -88,7 +90,6 @@ class UserResource extends Resource
                             ->maxSize(1024)
                             ->disk('public')
                             ->directory('img/users')
-                            ->required()
                             ->avatar()
                             ->placeholder('Clique ou arraste para selecionar')
                             ->helperText('JPG ou PNG, até 1MB')
@@ -105,7 +106,7 @@ class UserResource extends Resource
                             ->label('Email de Acesso')
                             ->placeholder('exemplo@email.com')
                             ->email()
-                            ->required()
+                            ->required(fn(string $context) => $context === 'create')
                             ->maxLength(191)
                             ->columnSpan(6)
                             ->prefixIcon('heroicon-m-envelope'),
@@ -129,7 +130,7 @@ class UserResource extends Resource
                             ->relationship('roles', 'name')
                             ->preload()
                             ->searchable()
-                            ->required()
+                            ->required(fn(string $context) => $context === 'create')
                             ->columnSpanFull()
                             ->live()
                     ]),
@@ -204,6 +205,12 @@ class UserResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->headerActions([
+                ImportAction::make()
+                    ->label('Importar')
+                    ->icon('heroicon-o-arrow-up-tray')
+                    ->importer(UserImporter::class),
+            ])
             ->columns([
                 Split::make([
                     ImageColumn::make('photo')
@@ -214,12 +221,12 @@ class UserResource extends Resource
                         ->getStateUsing(fn($record) => asset('storage/' . $record->photo)),
 
                     Stack::make([
-                        TextColumn::make('id')
+                        TextColumn::make('rm')
                             ->label('RM')
                             ->sortable()
                             ->searchable()
                             ->weight(FontWeight::Bold)
-                            ->formatStateUsing(fn($state, $record) => $record->id . ' - ' . $record->name),
+                            ->formatStateUsing(fn($state, $record) => $record->rm . ' - ' . $record->name),
 
                         TextColumn::make('roles.name')
                             ->label('Função')
