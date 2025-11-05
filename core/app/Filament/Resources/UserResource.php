@@ -36,6 +36,11 @@ use App\Filament\Imports\UserImporter;
 use Filament\Tables\Actions\ImportAction;
 use App\Filament\Exports\UserExporter;
 use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\BulkAction;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Spatie\Permission\Models\Role;
+use Illuminate\Support\Collection;
 
 class UserResource extends Resource
 {
@@ -274,7 +279,34 @@ class UserResource extends Resource
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
+                        ->label('Excluir Usuários')
+                        ->icon('heroicon-o-trash')
+                        ->color('danger'),
+
+                    BulkAction::make('atribuirRole')
+                        ->label('Atribuir Função')
+                        ->icon('heroicon-o-user-plus')
+                        ->form([
+                            Select::make('role_id')
+                                ->label('Selecione a Função')
+                                ->options(Role::pluck('name', 'id'))
+                                ->required(),
+                        ])
+                        ->action(function (array $data, Collection $records): void {
+                            $role = Role::find($data['role_id']);
+                            foreach ($records as $user) {
+                                $user->syncRoles([$role->name]);
+                            }
+                        })
+                        ->deselectRecordsAfterCompletion()
+                        ->color('primary')
+                        ->requiresConfirmation()
+                        ->successNotificationTitle('Função atribuída com sucesso!'),
+                ])
+                    ->label('Ações em Lote')
+                    ->icon('heroicon-o-cog-8-tooth'),
             ]);
     }
 
