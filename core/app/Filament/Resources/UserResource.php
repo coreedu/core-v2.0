@@ -34,6 +34,8 @@ use Illuminate\Support\Carbon;
 use App\Filament\Resources\ComponentUserResource\RelationManagers\ComponentsRelationManager;
 use App\Filament\Imports\UserImporter;
 use Filament\Tables\Actions\ImportAction;
+use App\Filament\Exports\UserExporter;
+use Filament\Tables\Actions\ExportAction;
 
 class UserResource extends Resource
 {
@@ -210,6 +212,11 @@ class UserResource extends Resource
                     ->label('Importar')
                     ->icon('heroicon-o-arrow-up-tray')
                     ->importer(UserImporter::class),
+
+                ExportAction::make()
+                    ->label('Exportar')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->exporter(UserExporter::class),
             ])
             ->columns([
                 Split::make([
