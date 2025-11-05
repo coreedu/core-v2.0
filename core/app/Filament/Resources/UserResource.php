@@ -217,8 +217,9 @@ class UserResource extends Resource
                         ->label('Foto')
                         ->circular()
                         ->grow(false)
-                        ->defaultImageUrl(asset('images/usuario-padrao.png'))
-                        ->getStateUsing(fn($record) => asset('storage/' . $record->photo)),
+                        ->getStateUsing(fn($record) => $record->photo
+                            ? asset('storage/' . $record->photo)
+                            : asset('images/usuario-padrao.png')),
 
                     Stack::make([
                         TextColumn::make('rm')
