@@ -305,8 +305,8 @@ class UserResource extends Resource
                         ->requiresConfirmation()
                         ->successNotificationTitle('Função atribuída com sucesso!'),
                 ])
-                    ->label('Ações em Lote')
-                    ->icon('heroicon-o-cog-8-tooth'),
+                    ->label('Abrir ações')
+                    ->icon('heroicon-o-ellipsis-vertical'),
             ]);
     }
 
