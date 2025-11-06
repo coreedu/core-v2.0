@@ -2,118 +2,125 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Models\ClassSchedule; // Importe o Model "cola"
-use Illuminate\Http\Request;
-use Symfony\Component\Process\Process; 
+use Symfony\Component\Process\Process; // Importe o Process
+use Symfony\Component\Process\Exception\ProcessFailedException;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/prediction-data', function () {
 
-    // 1. Busca todas as aulas
-    $aulas = ClassSchedule::query()
-        // 2. Carrega todos os dados relacionados (sem filtrar colunas)
-        ->with([
-            // Removemos os filtros de colunas (ex: ':id,nome')
-            // para trazer o objeto completo.
-            'schedule',
-            'schedule.course',
-            'sala',
-            'sala.equipments',
-            'dia',
-            'lessonTime'
-            // --- FIM DA CORREÇÃO ---
-        ])
-        // 3. Seleciona as colunas principais da tabela 'class_schedule'
-        // (Esta parte continua igual, como você pediu)
-        ->select(
-            'id as aula_id',
-            'schedule_id',
-            'created_at',
-            'room', 
-            'day',
-            'time'
-        )
-        // ->limit(100)
-        ->get();
+// --- ROTA PRINCIPAL DE PREDIÇÃO (COM A CORREÇÃO DO SELECT) ---
 
-    // 4. Retorna como JSON (o que o Python vai receber)
-    return response()->json($aulas);
-});
-
-// --- ROTA DE COLETA DE DADOS (PARA DEPURAR) ---
-Route::get('/prediction-data', function () {
-    $aulas = ClassSchedule::query()
-        ->with([
-            'schedule', 'schedule.course', 'sala', 'sala.equipments', 'dia', 'lessonTime'
-        ])
-        ->select(
-            'id as aula_id',
-            'schedule_id',
-            'created_at',
-            'room', // <-- Coluna original
-            'day',  // <-- Coluna original
-            'time'  // <-- Coluna original
-        )
-        ->get();
-    return response()->json($aulas);
-});
-
-
-// --- ROTA DE EXECUÇÃO DO PYTHON (COM CORREÇÃO DE ALIAS) ---
 Route::get('/run-prediction', function () {
-
-    // 1. Coleta os dados
-    $aulas = ClassSchedule::query()
-        ->with([
-            'schedule', 'schedule.course', 'sala', 'sala.equipments', 'dia', 'lessonTime'
-        ])
-        // --- CORREÇÃO AQUI ---
-        // Renomeamos as colunas para bater com o que o Python espera
-        ->select(
-            'id as aula_id',
-            'schedule_id',
-            'created_at',
-            'room as room_id',      // <-- Renomeado
-            'day as day_id',        // <-- Renomeado
-            'time as lesson_time_id' // <-- Renomeado
-        )
-        // ---------------------
-        ->get();
-        
-    $jsonData = $aulas->toJson();
-
-    // 2. Define o caminho para o script Python
-    $scriptPath = base_path('storage/app/python/predict_demand.py');
-
-    // 3. Define o comando e o ambiente
-    // (Usando 'py' para Windows e 'PYTHONIOENCODING' para forçar UTF-8)
-    $command = ['py', $scriptPath]; 
-    $env = [
-        'PYTHONIOENCODING' => 'UTF-8',
-        'LANG' => 'en_US.UTF-8',
-    ];
-
-    $process = new Process($command, base_path(), $env);
-
-    // 4. Passa o JSON como "entrada" (stdin)
-    $process->setInput($jsonData);
-
+    
     try {
-        // 5. Executa o script
-        $process->mustRun();
-        $outputJson = $process->getOutput();
-        
-        // 7. Retorna o resultado do Python
-        return response($outputJson)->header('Content-Type', 'application/json');
+        // 1. Coleta de Dados
+        $aulas = ClassSchedule::query()
+            // Carrega todos os dados relacionados
+            ->with([
+                'schedule',
+                'schedule.course',
+                'sala', // O método 'sala()' (antigo 'room()')
+                'sala.equipments',
+                'dia', // O método 'dia()' (antigo 'day()')
+                'lessonTime'
+            ])
+            // --- A CORREÇÃO ESTÁ AQUI ---
+            // Seleciona as colunas originais (para o ->with() funcionar)
+            // E também os aliases (para o Python funcionar)
+            ->select(
+                'id as aula_id',
+                'schedule_id',
+                'created_at',
+                
+                'room',                 // Coluna original
+                'room as room_id',      // Alias para o Python
+                
+                'day',                  // Coluna original
+                'day as day_id',        // Alias para o Python
+                
+                'time',                 // Coluna original
+                'time as lesson_time_id'  // Alias para o Python
+            )
+            // --------------------------
+            ->get();
+            
+        // Se não houver dados, retorna um erro amigável
+        if ($aulas->isEmpty()) {
+            return response()->json(['error_laravel' => 'Nenhuma aula (class_schedule) encontrada com todos os dados. O banco de dados está vazio?']);
+        }
+            
+        $jsonData = $aulas->toJson();
 
+        // 2. Preparar o Ambiente e Comando Python
+        $scriptPath = base_path('storage/app/python/predict_demand.py');
+        
+        // Define o ambiente, forçando UTF-8 e passando o PATH
+        $env = [
+            'PYTHONIOENCODING' => 'UTF-8',
+            'PATH' => getenv('PATH') 
+        ];
+
+        // Tenta 'py' (Windows) e depois 'python' (Linux/Mac/WSL)
+        $process = new Process(['py', $scriptPath], null, $env);
+        
+        try {
+            $process->setInput($jsonData);
+            $process->mustRun();
+        } catch (ProcessFailedException $e) {
+            // Se 'py' falhar, tenta 'python'
+            try {
+                $process = new Process(['python', $scriptPath], null, $env);
+                $process->setInput($jsonData);
+                $process->mustRun();
+            } catch (ProcessFailedException $e2) {
+                // Se ambos falharem
+                return response()->json([
+                    'error_laravel' => 'Falha ao executar o script Python com "py" e "python". Verifique se o Python está instalado e no PATH do sistema.',
+                    'error_py_stderr' => $e->getProcess()->getErrorOutput(),
+                    'error_python_stderr' => $e2->getProcess()->getErrorOutput(),
+                ], 500);
+            }
+        }
+
+        // 3. Retornar o resultado do Python
+        $output = $process->getOutput();
+        
+        // Verifica se o Python retornou algo
+        if (empty($output)) {
+            return response()->json([
+                'error_laravel' => 'O script Python foi executado mas não retornou nenhuma saída (output).',
+                'python_error_raw' => $process->getErrorOutput()
+            ], 500);
+        }
+
+        $result = json_decode($output);
+        
+        // Verifica se o Python retornou um JSON válido
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return response()->json([
+                'error_laravel' => 'O script Python retornou uma saída que não é um JSON válido (provavelmente um erro/warning do Python).',
+                'python_output_raw' => $output,
+                'python_error_raw' => $process->getErrorOutput()
+            ], 500);
+        }
+
+        return $result;
+        
     } catch (\Exception $e) {
-        // 8. Se o Python falhar, mostra o erro
+        // Captura erros do Laravel (ex: coleta de dados)
         return response()->json([
-            'error_laravel' => 'Falha ao executar o script Python.',
-            'error_python_output' => $process->getOutput(),
-            'error_python_stderr' => $process->getErrorOutput()
+            'error_laravel' => 'Um erro ocorreu no PHP antes de executar o Python.',
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
         ], 500);
     }
 });
