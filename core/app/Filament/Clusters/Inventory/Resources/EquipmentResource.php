@@ -30,9 +30,9 @@ class EquipmentResource extends Resource
 
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
-    public static function form(Form $form): Form
+    public static function getFormSchema(): array
     {
-        return $form->schema([
+        return [
             Forms\Components\Grid::make(2)->schema([
                 Forms\Components\TextInput::make('name')
                     ->label('Nome')
@@ -84,7 +84,12 @@ class EquipmentResource extends Resource
                 ->disk('public')
                 ->directory('equipments')
                 ->nullable(),
-        ]);
+        ];
+    }
+
+    public static function form(Form $form): Form
+    {
+        return $form->schema(static::getFormSchema());
     }
 
     public static function table(Table $table): Table

@@ -193,7 +193,7 @@
                 <div class="row justify-content-center">
                     <div class="col-lg-3 col-md-6 col-12 mb-4">
                         <div class="box">
-                            <img src="images/dev-direnzi.jpeg" class="author-image img-fluid" alt="Foto desenvolvedor">
+                            <img src="images/devs/dev-direnzi.jpeg" class="author-image img-fluid" alt="Foto desenvolvedor">
                             <div class="share">
                                 <a href="https://www.linkedin.com/in/guilhermedirenzi/" target="_blank"><i class="bi bi-linkedin"></i></a>
                                 <a href="https://github.com/Direnzi002" target="_blank"><i class="bi bi-github"></i></a>
@@ -203,7 +203,7 @@
                     </div>
                     <div class="col-lg-3 col-md-6 col-12 mb-4">
                         <div class="box">
-                            <img src="images/dev-matheus.png" class="author-image img-fluid" alt="Foto desenvolvedor">
+                            <img src="images/devs/dev-matheus.jpeg" class="author-image img-fluid" alt="Foto desenvolvedor">
                             <div class="share">
                                 <a href="https://www.linkedin.com/in/matheus-silva-8297a320a/" target="_blank"><i class="bi bi-linkedin"></i></a>
                                 <a href="https://github.com/matheusedivaldo" target="_blank"><i class="bi bi-github"></i></a>
@@ -213,7 +213,7 @@
                     </div>
                     <div class="col-lg-3 col-md-6 col-12 mb-4">
                         <div class="box">
-                            <img src="images/dev-rai.jpeg" class="author-image img-fluid" alt="Foto desenvolvedor">
+                            <img src="images/devs/dev-rai.jpeg" class="author-image img-fluid" alt="Foto desenvolvedor">
                             <div class="share">
                                 <a href="https://www.linkedin.com/in/rai-felippe-miranda-65127a237/" target="_blank"><i class="bi bi-linkedin"></i></a>
                                 <a href="https://github.com/RaiFM" target="_blank"><i class="bi bi-github"></i></a>
@@ -223,7 +223,7 @@
                     </div>
                     <div class="col-lg-3 col-md-6 col-12 mb-4">
                         <div class="box">
-                            <img src="images/dev-vitoria.jpeg" class="author-image img-fluid" alt="Foto desenvolvedor">
+                            <img src="images/devs/dev-vitoria.jpeg" class="author-image img-fluid" alt="Foto desenvolvedor">
                             <div class="share">
                                 <a href="https://www.linkedin.com/in/vit%C3%B3ria-silva-alves-33170a20a" target="_blank"><i class="bi bi-linkedin"></i></a>
                                 <a href="https://github.com/vitorii" target="_blank"><i class="bi bi-github"></i></a>

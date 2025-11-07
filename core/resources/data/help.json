@@ -17,7 +17,7 @@
   },
   "room": {
     "title": "Ambientes",
-    "text": "<p>Gerencie os ambientes físicos da instituição, como salas de aula, laboratórios e auditórios.</p><br><p><strong>Como usar:</strong><br>• Informe o nome e o número do ambiente.<br>• Escolha a categoria e adicione uma imagem ilustrativa.<br>• Defina se o ambiente está ativo.<br>• Após salvar, vincule equipamentos existentes ou cadastre novos diretamente.</p><br><p><strong>Dica:</strong><br>Use o campo <em>Disponível</em> dos equipamentos para indicar uso e mantenha o inventário sempre atualizado.</p>"
+    "text": "<p>Gerencie os ambientes físicos da instituição, como salas de aula, laboratórios, auditórios e outros espaços.</p><br><p><strong>Como usar:</strong><br>• Informe o nome, número e categoria do ambiente.<br>• Adicione uma imagem ilustrativa e defina se está ativo.<br>• Após salvar, vincule ou cadastre novos equipamentos diretamente.<br>• Edite ou desvincule equipamentos conforme necessário.<br>• Utilize as opções de Importar e Exportar para planilhas Excel.<br>• Gere relatórios em PDF com o estado e quantidade dos equipamentos.</p><br><p><strong>Dica:</strong><br>Use o campo <em>Disponível</em> dos equipamentos para indicar seu uso e mantenha o inventário sempre atualizado.</p>"
   },
   "curso": {
     "title": "Cursos",

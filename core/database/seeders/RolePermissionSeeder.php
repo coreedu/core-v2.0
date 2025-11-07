@@ -43,6 +43,7 @@ class RolePermissionSeeder extends Seeder
         $adminUser = User::firstOrCreate(
             ['email' => 'admin@example.com'],
             [
+                'rm' => '000000001',
                 'name' => 'Administrador',
                 'password' => bcrypt('senha123'), // defina uma senha
             ]

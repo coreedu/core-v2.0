@@ -26,7 +26,21 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use App\Models\Componente;
 use Filament\Forms\Components\ViewField;
+use Filament\Support\Enums\Alignment;
+use Filament\Support\Enums\FontWeight;
+use Filament\Tables\Columns\Layout\Split;
+use Filament\Tables\Columns\Layout\Panel;
+use Illuminate\Support\Carbon;
 use App\Filament\Resources\ComponentUserResource\RelationManagers\ComponentsRelationManager;
+use App\Filament\Imports\UserImporter;
+use Filament\Tables\Actions\ImportAction;
+use App\Filament\Exports\UserExporter;
+use Filament\Tables\Actions\ExportAction;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\BulkAction;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Spatie\Permission\Models\Role;
+use Illuminate\Support\Collection;
 
 class UserResource extends Resource
 {
@@ -52,11 +66,11 @@ class UserResource extends Resource
                 Section::make('Dados Pessoais')
                     ->columns(12)
                     ->schema([
-                        TextInput::make('id')
+                        TextInput::make('rm')
                             ->label('RM')
                             ->placeholder('Ex.: 202500123')
                             ->maxLength(20)
-                            ->required()
+                            ->required(fn(string $context) => $context === 'create')
                             ->numeric()
                             ->columnSpan(4)
                             ->prefixIcon('heroicon-s-identification'),
@@ -64,7 +78,7 @@ class UserResource extends Resource
                         TextInput::make('name')
                             ->label('Nome Completo')
                             ->placeholder('Digite o nome completo')
-                            ->required()
+                            ->required(fn(string $context) => $context === 'create')
                             ->maxLength(191)
                             ->columnSpan(8),
 
@@ -72,7 +86,7 @@ class UserResource extends Resource
                             ->label('Nascimento')
                             ->displayFormat('d/m/Y')
                             ->native(false)
-                            ->required()
+                            ->required(fn(string $context) => $context === 'create')
                             ->closeOnDateSelection()
                             ->columnSpan(4)
                             ->prefixIcon('heroicon-s-calendar'),
@@ -83,7 +97,6 @@ class UserResource extends Resource
                             ->maxSize(1024)
                             ->disk('public')
                             ->directory('img/users')
-                            ->required()
                             ->avatar()
                             ->placeholder('Clique ou arraste para selecionar')
                             ->helperText('JPG ou PNG, até 1MB')
@@ -100,7 +113,7 @@ class UserResource extends Resource
                             ->label('Email de Acesso')
                             ->placeholder('exemplo@email.com')
                             ->email()
-                            ->required()
+                            ->required(fn(string $context) => $context === 'create')
                             ->maxLength(191)
                             ->columnSpan(6)
                             ->prefixIcon('heroicon-m-envelope'),
@@ -124,7 +137,7 @@ class UserResource extends Resource
                             ->relationship('roles', 'name')
                             ->preload()
                             ->searchable()
-                            ->required()
+                            ->required(fn(string $context) => $context === 'create')
                             ->columnSpanFull()
                             ->live()
                     ]),
@@ -150,28 +163,24 @@ class UserResource extends Resource
                                 if (!$courseId) {
                                     return [];
                                 }
-                                
+
                                 $course = \App\Models\Curso::find($courseId);
                                 if (!$course) {
                                     return [];
                                 }
-                                
+
                                 $qtdModulos = (int) $course->qtdModulos;
                                 return collect(range(1, max($qtdModulos, 1)))
                                     ->mapWithKeys(fn($n) => [$n => "{$n}º Semestre"]);
                             })
                             ->native(false)
                             ->columnSpan(4),
-
-                        Select::make('shift')
+                        Select::make('shift_id')
                             ->label('Turno')
-                            ->options([
-                                1 => 'Matutino',
-                                2 => 'Vespertino',
-                                3 => 'Noturno',
-                                4 => 'Integral',
-                            ])
+                            ->relationship('shift', 'name')
+                            ->preload()
                             ->native(false)
+                            ->placeholder('Selecione o turno')
                             ->columnSpan(4),
                     ]),
 
@@ -203,44 +212,101 @@ class UserResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->headerActions([
+                ImportAction::make()
+                    ->label('Importar')
+                    ->icon('heroicon-o-arrow-up-tray')
+                    ->importer(UserImporter::class),
+
+                ExportAction::make()
+                    ->label('Exportar')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->exporter(UserExporter::class),
+            ])
             ->columns([
-                Stack::make([
+                Split::make([
                     ImageColumn::make('photo')
                         ->label('Foto')
                         ->circular()
-                        ->getStateUsing(function ($record) {
-                            return asset('storage/' . $record->photo);
-                        }),
+                        ->grow(false)
+                        ->getStateUsing(fn($record) => $record->photo
+                            ? asset('storage/' . $record->photo)
+                            : asset('images/usuario-padrao.png')),
 
-                    TextColumn::make('id')
-                        ->label('RM')
-                        ->sortable()
-                        ->searchable()
-                        ->weight('bold')
-                        ->size('sm')
-                        ->formatStateUsing(function ($state, $record) {
-                            return $record->id . ' - ' . $record->name;
-                        }),
+                    Stack::make([
+                        TextColumn::make('rm')
+                            ->label('RM')
+                            ->sortable()
+                            ->searchable()
+                            ->weight(FontWeight::Bold)
+                            ->formatStateUsing(fn($state, $record) => $record->rm . ' - ' . $record->name),
 
-                    TextColumn::make('roles.name')
-                        ->label('Função')
-                        ->size('sm'),
-                ]),
-            ])
-            ->contentGrid([
-                'md' => 2,
+                        TextColumn::make('roles.name')
+                            ->label('Função')
+                            ->badge()
+                            ->color(fn($state) => match ($state) {
+                                'Admin' => 'danger',
+                                'Professor' => 'info',
+                                'Aluno' => 'success',
+                                default => 'gray',
+                            }),
+                    ])->space(1),
+
+                    Stack::make([
+                        TextColumn::make('email')
+                            ->label('E-mail')
+                            ->icon('heroicon-m-envelope'),
+
+                        TextColumn::make('birthdate')
+                            ->label('Nascimento')
+                            ->icon('heroicon-m-calendar')
+                            ->formatStateUsing(
+                                fn($state) =>
+                                $state ? Carbon::parse($state)->format('d/m/Y') : '-'
+                            ),
+                    ])
+                        ->space(1)
+                        ->visibleFrom('md'),
+                ])->from('md'),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('roles')
+                    ->label('Filtrar por Função')
+                    ->relationship('roles', 'name'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
+                        ->label('Excluir Usuários')
+                        ->icon('heroicon-o-trash')
+                        ->color('danger'),
+
+                    BulkAction::make('atribuirRole')
+                        ->label('Atribuir Função')
+                        ->icon('heroicon-o-user-plus')
+                        ->form([
+                            Select::make('role_id')
+                                ->label('Selecione a Função')
+                                ->options(Role::pluck('name', 'id'))
+                                ->required(),
+                        ])
+                        ->action(function (array $data, Collection $records): void {
+                            $role = Role::find($data['role_id']);
+                            foreach ($records as $user) {
+                                $user->syncRoles([$role->name]);
+                            }
+                        })
+                        ->deselectRecordsAfterCompletion()
+                        ->color('primary')
+                        ->requiresConfirmation()
+                        ->successNotificationTitle('Função atribuída com sucesso!'),
+                ])
+                    ->label('Abrir ações')
+                    ->icon('heroicon-o-ellipsis-vertical'),
             ]);
     }
 
