@@ -1,5 +1,5 @@
 <x-filament::page>
-    <div class="space-y-6">
+    <div class="space-y-3">
         {{-- Cabeçalho de contexto --}}
         <div class="flex flex-row items-center gap-6">
             <div>
@@ -21,7 +21,7 @@
         </div>
         <div class="flex gap-6">
             {{-- Tabela de horários --}}
-            <div class="rounded">
+            <div class="md:w-[70%] w-full overflow-x-auto shadow rounded-lg border border-gray-700">
                 @include('filament.resources.schedule-resource.partials.schedule-table', [
                     'columns' => $this->days,
                     'timeSlots' => $this->timeSlots,
@@ -32,7 +32,7 @@
             </div>
 
             {{--Tabela de Sábado --}}
-            <div class="rounded">
+            <div class="md:w-[30%] w-full overflow-x-auto shadow rounded-lg border border-gray-700">
                 @include('filament.resources.schedule-resource.partials.schedule-table', [
                     'columns' => ['6' => 'Sábado'],
                     'timeSlots' => $this->saturdayTimes,
