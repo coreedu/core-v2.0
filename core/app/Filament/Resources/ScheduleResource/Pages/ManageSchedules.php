@@ -28,6 +28,7 @@ class ManageSchedules extends Page
     protected $listeners = ['subjectChanged' => 'onSubjectChanged'];
 
     public array $scheduleData = [];
+    public array $saturdayTimes = [];
     public array $subjects = [];
 
     public function mount(Schedule $record): void
