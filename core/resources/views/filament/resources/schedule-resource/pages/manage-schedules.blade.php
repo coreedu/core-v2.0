@@ -38,12 +38,11 @@
 
                                 @php
                                     $groups = $scheduleData[$idDay][$idTime]['groups'] ?? ['A' => null];
-                                
                                 @endphp
-                                <td class="border px-2 py-2">
+                                <td class="border px-2 py-2 d-flex justify-between">
 
                                     @foreach($groups as $groupLetter => $groupData)
-                                        <div>
+                                        <div class="">
 
                                         {{-- Matéria --}}
                                         <x-filament::input.wrapper>
@@ -53,7 +52,7 @@
                                             >
                                                 <option value="">Matéria</option>
                                                 @foreach ($this->subjects as $idSubject => $subject)
-                                                    <option value="{{ $idSubject }}"selected="{{ isset($this->scheduleData[$idDay][$idTime]['subject_id']) }}">{{ $subject['name'] }}</option>
+                                                    <option value="{{ $idSubject }}"selected="{{ isset($this->scheduleData[$idDay][$idTime]['groups'][$groupLetter]['subject_id']) }}">{{ $subject['name'] }}</option>
                                                 @endforeach
                                             </x-filament::input.select>
                                         </x-filament::input.wrapper>

@@ -42,40 +42,61 @@ class ManageSchedules extends Page
         $this->rooms = Room::getRoomsArray();
 
         $existingItems = $record->items()
-            ->select('day', 'time', 'component', 'instructor', 'room')
+            ->select('day', 'time', 'component', 'instructor', 'room', 'group')
             ->get();
 
         foreach ($existingItems as $item) {
-            $this->scheduleData[$item->day][$item->time] = [
-                'subject_id' => $item->component,
-                'teacher_id' => $item->instructor,
-                'room_id' => $item->room,
-            ];
+            $day = $item->day;
+            $time = $item->time;
+            $group = $item->group ?? 'A';
 
-            if (!empty($item->component) && isset($this->subjects[$item->component]['instructors'])) {
-                $this->scheduleData[$item->day][$item->time]['available_teachers'] = $this->subjects[$item->component]['instructors'] ?? [];
+            if (!empty($group)) {
+
+                $this->scheduleData[$day][$time]['groups'][$group] = [
+                    'subject_id' => $item->component,
+                    'teacher_id' => $item->instructor,
+                    'room_id' => $item->room,
+                ];
+
+                if (!empty($item->component) && isset($this->subjects[$item->component]['instructors'])) {
+                    $this->scheduleData[$item->day][$item->time]['groups'][$group]['available_teachers'] = $this->subjects[$item->component]['instructors'] ?? [];
+                }
+            }else{
+                $this->scheduleData[$item->day][$item->time] = [
+                    'subject_id' => $item->component,
+                    'teacher_id' => $item->instructor,
+                    'room_id' => $item->room,
+                ];
+    
+                if (!empty($item->component) && isset($this->subjects[$item->component]['instructors'])) {
+                    $this->scheduleData[$item->day][$item->time]['available_teachers'] = $this->subjects[$item->component]['instructors'] ?? [];
+                }
             }
         }
+
     }
 
     public function saveSchedule(): void
     {
-
-        dd($this->scheduleData);
-
-        // Formatar dados para salvar
         foreach ($this->scheduleData as $day => $times) {
             foreach ($times as $timeId => $data) {
-                if (isset($data['subject_id'])) {
+                $this->record->items()
+                            ->where('day', $day)
+                            ->where('time', $timeId)
+                            ->whereNotNull('group')
+                            ->delete();
+
+                foreach ($data['groups'] as $groupLetter => $groupData) {
                     $this->record->items()->updateOrCreate(
                         [
                             'day' => $day,
                             'time' => $timeId,
+                            'group' => $groupLetter,
                         ],
                         [
-                            'component' => !empty($data['subject_id']) ? $data['subject_id'] : null,
-                            'instructor' => !empty($data['teacher_id']) ? $data['teacher_id'] : null,
-                            'room' => !empty($data['room_id']) ? $data['room_id'] : null,
+                            'component' => $groupData['subject_id'] ?? null,
+                            'instructor' => $groupData['teacher_id'] ?? null,
+                            'room' => $groupData['room_id'] ?? null,
                         ]
                     );
                 }
@@ -104,7 +125,6 @@ class ManageSchedules extends Page
     public function mergeGroups($day, $timeId)
     {
         if (isset($this->scheduleData[$day][$timeId]['groups'])) {
-            // Preserva dados da Turma A (ou mescla se quiser lógica de priorização)
             $this->scheduleData[$day][$timeId]['groups'] = [
                 'A' => $this->scheduleData[$day][$timeId]['groups']['A'] ?? []
             ];
