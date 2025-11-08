@@ -9,6 +9,7 @@ use App\Models\Curso;
 use App\Models\Room;
 use App\Models\Time\Day;
 use App\Models\TimeShift;
+use App\Models\TimeDay;
 use Filament\Actions as PageActions;
 use App\Filament\Components\HelpButton;
 
@@ -33,9 +34,11 @@ class ManageSchedules extends Page
     {
         $this->record = $record;
         
-        $this->days = Day::all()->pluck('name', 'cod')->toArray();
         $this->timeSlots = TimeShift::getTimesByShift($record->shift_cod);
+        $this->days = Day::getDaySchedule(array_keys($this->timeSlots));
         
+        $this->saturdayTimes = TimeDay::getTimesByDay(7);
+
         $this->subjects = Curso::find($record->course_id)
             ?->getComponentsByModule($record->module_id);
         
