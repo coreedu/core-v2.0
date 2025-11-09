@@ -282,6 +282,43 @@ class UserResource extends Resource
                 Tables\Filters\SelectFilter::make('roles')
                     ->label('Filtrar por Função')
                     ->relationship('roles', 'name'),
+
+                Tables\Filters\TernaryFilter::make('is_determined')
+                    ->label('Tipo de Contrato')
+                    ->trueLabel('Determinados')
+                    ->falseLabel('Indeterminados')
+                    ->placeholder('Todos')
+                    ->queries(
+                        true: fn(Builder $query) => $query->where('is_determined', true),
+                        false: fn(Builder $query) => $query->where('is_determined', false),
+                    ),
+
+                Tables\Filters\Filter::make('contract_end_at')
+                    ->label('Período do Fim de Contrato')
+                    ->form([
+                        Forms\Components\DatePicker::make('from')
+                            ->label('De'),
+                        Forms\Components\DatePicker::make('until')
+                            ->label('Até'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when($data['from'], fn($q, $date) => $q->whereDate('contract_end_at', '>=', $date))
+                            ->when($data['until'], fn($q, $date) => $q->whereDate('contract_end_at', '<=', $date));
+                    }),
+
+                Tables\Filters\Filter::make('sem_foto')
+                    ->label('Sem Foto')
+                    ->toggle()
+                    ->query(fn(Builder $query) => $query->whereNull('photo')),
+
+                Tables\Filters\Filter::make('recentes')
+                    ->label('Cadastrados Recentemente')
+                    ->toggle()
+                    ->query(
+                        fn(Builder $query) =>
+                        $query->where('created_at', '>=', now()->subDays(30))
+                    ),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
