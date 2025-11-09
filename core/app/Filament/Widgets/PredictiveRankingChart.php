@@ -4,69 +4,106 @@ namespace App\Filament\Widgets;
 
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Http\Client\ConnectionException;
+// 1. Importações que estavam na Rota
+use App\Models\ClassSchedule;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 
 class PredictiveRankingChart extends ChartWidget
 {
-    // 1. O título estático (padrão)
     protected static ?string $heading = 'Predição: Ranking de Demanda (Top 5 / Bottom 5)';
-
-    // --- CORREÇÃO (PASSO 1) ---
-    // Adicionamos uma propriedade NÃO-ESTÁTICA para guardar o erro
     protected ?string $errorTitle = null;
-    // -------------------------
-
     protected static ?int $sort = 3;
 
     public function getColumnSpan(): int | string | array
     {
-        return 12; // Ocupa a largura total
+        return 12;
     }
     
-    // --- CORREÇÃO (PASSO 2) ---
-    // Adicionamos o método getHeading()
-    // Este método é NÃO-ESTÁTICO e é chamado pelo Filament para obter o título
     public function getHeading(): string
     {
-        // Se a nossa propriedade de erro foi definida, mostra o erro
         if ($this->errorTitle) {
             return $this->errorTitle;
         }
-        // Senão, mostra o título estático padrão
         return self::$heading;
     }
-    // -------------------------
 
     protected function getData(): array
     {
+        @set_time_limit(120); // Damos 2 minutos ao widget
+        
         $cacheKey = 'prediction_ranking_chart_data';
         $cacheDuration = 60 * 60; // 1 hora
 
+        // --- MUDANÇA PRINCIPAL: A LÓGICA AGORA ESTÁ AQUI DENTRO ---
         $predictionData = Cache::remember($cacheKey, $cacheDuration, function () {
+            
             try {
-                $response = Http::timeout(180)->get(route('run-prediction'));
-                if (!$response->successful()) {
-                    return ['error' => 'Falha ao buscar predição. Rota retornou erro.'];
+                // --- 1. COPIA DO routes/web.php: Coleta de Dados ---
+                $aulas = ClassSchedule::query()
+                    ->with([
+                        'schedule', 'schedule.course', 'sala', 'sala.equipments', 'dia', 'lessonTime'
+                    ])
+                    ->select(
+                        'id as aula_id', 'schedule_id', 'created_at',
+                        'room', 'room as room_id',
+                        'day', 'day as day_id',
+                        'time', 'time as lesson_time_id'
+                    )
+                    ->get();
+                
+                if ($aulas->isEmpty()) {
+                    return ['error' => 'Nenhuma aula (class_schedule) encontrada.'];
                 }
-                return $response->json();
-            } catch (ConnectionException $e) {
-                return ['error' => 'Erro de conexão ao chamar a rota /run-prediction.'];
+                
+                $jsonData = $aulas->toJson();
+
+                // --- 2. COPIA DO routes/web.php: Execução do Python ---
+                $scriptPath = base_path('storage/app/python/predict_demand.py');
+                $env = ['PYTHONIOENCODING' => 'UTF-8', 'LANG' => 'en_US.UTF-8'];
+
+                $process = new Process(['py', $scriptPath], base_path(), $env);
+                
+                try {
+                    $process->setInput($jsonData);
+                    $process->mustRun();
+                } catch (ProcessFailedException $e) {
+                    // Tenta 'python' se 'py' falhar
+                    $process = new Process(['python', $scriptPath], base_path(), $env);
+                    $process->setInput($jsonData);
+                    $process->mustRun();
+                }
+
+                $output = $process->getOutput();
+                
+                if (empty($output)) {
+                    return ['error' => 'O script Python executou mas não retornou saída.'];
+                }
+
+                $result = json_decode($output, true); // true para array
+                
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    return ['error' => 'Python retornou JSON inválido.', 'raw_output' => $output];
+                }
+
+                return $result; // <-- Salva o JSON do Python no cache
+
+            } catch (ProcessFailedException $e) {
+                // Erro se 'py' e 'python' falharem
+                return ['error' => 'Script Python não encontrado ou falhou.', 'stderr' => $e->getMessage()];
             } catch (\Exception $e) {
-                return ['error' => 'Erro geral: ' . $e->getMessage()];
+                // Erro geral do PHP (ex: coleta de dados)
+                return ['error' => 'Erro PHP: ' . $e->getMessage()];
             }
         });
+        // --- FIM DA LÓGICA MOVIDA ---
 
-        // --- CORREÇÃO (PASSO 3) ---
-        // A linha 63 estava aqui.
-        // Mudamos de "$this->heading = ..." para "$this->errorTitle = ..."
-        if (isset($predictionData['error']) && is_string($predictionData['error'])) {
-            $this->errorTitle = $predictionData['error']; // <-- CORRIGIDO
+        // 4. Se os dados (do cache ou da chamada) contiverem um erro
+        if (isset($predictionData['error'])) {
+            $this->errorTitle = $predictionData['error']; 
             return ['datasets' => [], 'labels' => []];
         }
-        // -------------------------
-
-        // Se os dados (do cache ou da chamada) não forem um array ou estiverem vazios
+        
         if (!is_array($predictionData) || empty($predictionData)) {
              $this->errorTitle = 'Predição retornou dados vazios ou inválidos.';
              return ['datasets' => [], 'labels' => []];
@@ -75,16 +112,9 @@ class PredictiveRankingChart extends ChartWidget
         // 6. Lógica de Ranking (Top 5 / Bottom 5)
         $dataCollection = collect($predictionData);
 
-        // Ordena do maior para o menor
         $sorted = $dataCollection->sortByDesc('predicted_score');
-
-        // Pega os 5 primeiros
         $top5 = $sorted->take(5);
-        
-        // Pega os 5 últimos (se houver mais de 10 salas)
         $bottom5 = $sorted->take(-5)->sortBy('predicted_score');
-
-        // Junta os dois grupos
         $finalData = $top5->merge($bottom5)->unique('id_da_sala');
 
         // 7. Prepara os dados para o Chart.js
@@ -92,10 +122,7 @@ class PredictiveRankingChart extends ChartWidget
             [
                 'label' => 'Pontuação de Demanda Prevista',
                 'data' => $finalData->pluck('predicted_score')->all(),
-                
-                // Cor: Verde para Top 5, Vermelho para Bottom 5
                 'backgroundColor' => $finalData->map(function ($item, $key) use ($top5) {
-                    // Verifica se o ID está na lista do Top 5
                     return $top5->contains('id_da_sala', $item['id_da_sala'])
                         ? 'rgba(75, 192, 192, 0.7)'  // Verde (Top)
                         : 'rgba(255, 99, 132, 0.7)'; // Vermelho (Bottom)
@@ -113,13 +140,13 @@ class PredictiveRankingChart extends ChartWidget
 
     protected function getType(): string
     {
-        return 'bar'; // Gráfico de barras
+        return 'bar';
     }
 
     protected function getOptions(): array
     {
         return [
-            'indexAxis' => 'y', // Faz o gráfico ser Horizontal
+            'indexAxis' => 'y', 
             'scales' => [
                 'x' => [
                     'beginAtZero' => true,
