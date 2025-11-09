@@ -257,13 +257,22 @@ class UserResource extends Resource
                             ->label('E-mail')
                             ->icon('heroicon-m-envelope'),
 
-                        TextColumn::make('birthdate')
-                            ->label('Nascimento')
+                        TextColumn::make('contract_end_at')
+                            ->label('Fim de Contrato')
                             ->icon('heroicon-m-calendar')
-                            ->formatStateUsing(
-                                fn($state) =>
-                                $state ? Carbon::parse($state)->format('d/m/Y') : '-'
-                            ),
+                            ->badge()
+                            ->getStateUsing(function ($record) {
+                                if ($record->is_determined && $record->contract_end_at) {
+                                    return \Illuminate\Support\Carbon::parse($record->contract_end_at)->format('d/m/Y');
+                                }
+                                return 'Indeterminado';
+                            })
+                            ->color(function ($record) {
+                                if (! $record->is_determined || ! $record->contract_end_at) {
+                                    return 'success';
+                                }
+                                return 'warning';
+                            }),
                     ])
                         ->space(1)
                         ->visibleFrom('md'),
