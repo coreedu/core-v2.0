@@ -14,6 +14,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ScheduleResource\Pages\ManageSchedules;
+use Illuminate\Validation\Rule;
 
 class ScheduleResource extends Resource
 {
@@ -35,11 +36,17 @@ class ScheduleResource extends Resource
                     ->label('Versão')
                     ->required()
                     ->maxLength(50)
-                    ->unique(
-                        table: 'schedule',  
-                        column: 'version',
-                        ignoreRecord: true,  // Ignorar o registro atual ao verificar a unicidade
-                    ),
+                    ->rules(function (Forms\Get $get, ?Forms\Components\Component $component) {
+                        return [
+                            Rule::unique('schedule', 'version')
+                                ->where(fn ($query) => $query
+                                    ->where('course_id', $get('course_id'))
+                                    ->where('module_id', $get('module_id'))
+                                    ->where('shift_cod', $get('shift_cod'))
+                                )
+                                ->ignore($component->getRecord()?->id),
+                        ];
+                    }),
                 Select::make('course_id')
                     ->label('Curso')
                     ->relationship('course', 'nome')
@@ -88,13 +95,7 @@ class ScheduleResource extends Resource
                     ->offIcon('heroicon-o-x-circle')
                     ->afterStateUpdated(function ($state, $record, $component) {
                         if ($state && $record) {
-                            $existingPublished = \App\Models\Schedule::where('course_id', $record->course_id)
-                                ->where('module_id', $record->module_id)
-                                ->where('status', true)
-                                ->where('id', '!=', $record->id)
-                                ->exists();
-                            
-                            if ($existingPublished) {
+                            if (self::existingPublished($record)) {
                                 $component->state(false);
                                 
                                 \Filament\Notifications\Notification::make()
@@ -140,13 +141,7 @@ class ScheduleResource extends Resource
                         ->sortable()
                         ->afterStateUpdated(function ($record, $state) {
                             if ($state) {
-                                $existingPublished = \App\Models\Schedule::where('course_id', $record->course_id)
-                                    ->where('module_id', $record->module_id)
-                                    ->where('status', true)
-                                    ->where('id', '!=', $record->id)
-                                    ->exists();
-                                
-                                if ($existingPublished) {
+                                if (self::existingPublished($record)) {
                                     $record->updateQuietly(['status' => false]);
                                     
                                     \Filament\Notifications\Notification::make()
@@ -196,5 +191,14 @@ class ScheduleResource extends Resource
             'edit' => Pages\EditSchedule::route('/{record}/edit'),
             'manage-schedule' => Pages\ManageSchedules::route('/{record}/manage-schedule'),
         ];
+    }
+
+    public static function existingPublished($record){
+        return Schedule::where('course_id', $record->course_id)
+                ->where('module_id', $record->module_id)
+                ->where('shift_cod', $record->shift_cod)
+                ->where('status', true)
+                ->where('id', '!=', $record->id)
+                ->exists();
     }
 }

@@ -13,16 +13,12 @@ return new class extends Migration
     {
         Schema::create('class_schedule', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('instructor');
-            $table->unsignedInteger('component');
-            $table->unsignedInteger('shift');
+            $table->unsignedInteger('schedule_id')->nullable();
+            $table->unsignedInteger('instructor')->nullable();
+            $table->unsignedInteger('component')->nullable();
             $table->unsignedInteger('day');
-            $table->unsignedInteger('room');
-            $table->unsignedInteger('course');
-            $table->unsignedInteger('modality');
-            $table->char('group', 10);
-            $table->unsignedInteger('lesson');
-            $table->unsignedInteger('module');
+            $table->unsignedInteger('room')->nullable();
+            $table->char('group', 10)->nullable();
             $table->unsignedInteger('time');
             $table->timestamps();
         });

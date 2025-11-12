@@ -15,4 +15,13 @@ class Day extends Model
     {
         return $this->belongsToMany(LessonTime::class, 'time_day', 'day_id', 'time_id')->orderBy('start');
     }
+
+    public static function getDaySchedule(array $lessonTimeIds)
+    {
+        return self::whereHas('times', function ($query) use ($lessonTimeIds) {
+                    $query->whereIn('lesson_time.id', $lessonTimeIds);
+                })
+                ->pluck('name', 'cod')
+                ->toArray();
+    }
 }
