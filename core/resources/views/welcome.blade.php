@@ -71,20 +71,21 @@
             <div class="container">
                 <div class="row">
                     <div class="col-lg-6 col-12">
-                        <img src="images/tablet-screen-contents.jpg" class="img-fluid" alt="Gestão educacional Core">
+                        <img src="images/core-visao-geral.png" class="img-fluid" alt="Gestão educacional Core">
                     </div>
 
                     <div class="col-lg-6 col-12">
                         <div class="book-section-info">
-                            <h6>Inovação e Eficiência</h6>
+                            <h6>Organização e Controle</h6>
                             <h2 class="mb-4">Sobre a Core</h2>
                             <p>
-                                A <strong>Core</strong> é uma plataforma desenvolvida para otimizar a gestão de recursos educacionais.
-                                Nosso sistema permite o controle completo de equipamentos, o agendamento inteligente de salas e o acompanhamento das manutenções realizadas.
+                                A <strong>CORE — Controle de Recursos Educacionais</strong> é uma plataforma criada para facilitar a gestão acadêmica
+                                de instituições de ensino. O sistema permite a <strong>criação, edição e gerenciamento de horários de aula</strong>,
+                                além do <strong>cadastro de cursos, professores, disciplinas e salas</strong>.
                             </p>
                             <p>
-                                Com foco em tecnologia e praticidade, a Core foi criada para apoiar instituições de ensino na modernização de seus processos internos,
-                                promovendo uma experiência mais organizada, eficiente e integrada entre professores, alunos e equipe administrativa.
+                                Com uma interface moderna e intuitiva, a Core ajuda equipes administrativas e coordenações a manterem
+                                os processos organizados e centralizados, garantindo mais eficiência na gestão escolar.
                             </p>
                         </div>
                     </div>
@@ -103,36 +104,35 @@
                         <nav id="navbar-example3" class="h-100 flex-column align-items-stretch">
                             <nav class="nav nav-pills flex-column">
                                 <a class="nav-link smoothscroll" href="#item-1">Visão Geral</a>
-                                <a class="nav-link smoothscroll" href="#item-2"><strong>Geração de Grade Horária</strong></a>
-                                <a class="nav-link smoothscroll" href="#item-3"><strong>Monitoramento de Equipamentos</strong></a>
-                                <a class="nav-link smoothscroll" href="#item-4">Futuro: Agendamento de Salas</a>
+                                <a class="nav-link smoothscroll" href="#item-2"><strong>Gerenciamento de Horários</strong></a>
+                                <a class="nav-link smoothscroll" href="#item-3"><strong>Cadastro Acadêmico</strong></a>
+                                <a class="nav-link smoothscroll" href="#item-4">Relatórios de Salas</a>
                             </nav>
                         </nav>
                     </div>
                     <div class="col-lg-8 col-12">
                         <div data-bs-spy="scroll" data-bs-target="#navbar-example3" data-bs-smooth-scroll="true" class="scrollspy-example-2" tabindex="0">
+
                             <div class="scrollspy-example-item" id="item-1">
                                 <h5>Visão Geral</h5>
                                 <p>
-                                    A <strong>Core</strong> é uma plataforma integrada que centraliza o controle de recursos educacionais.
-                                    Nosso objetivo é simplificar a gestão acadêmica, permitindo que instituições tenham total domínio
-                                    sobre seus equipamentos, horários e espaços.
+                                    A <strong>CORE</strong> é uma plataforma voltada à gestão acadêmica, desenvolvida para organizar e centralizar o controle de horários, cursos, professores e salas.
+                                    Seu principal objetivo é oferecer praticidade e eficiência na administração da rotina escolar.
                                 </p>
-                                <blockquote class="blockquote">Gestão inteligente para um ensino mais eficiente.</blockquote>
+                                <blockquote class="blockquote">Organização e controle para uma gestão acadêmica mais eficiente.</blockquote>
                                 <p>
-                                    Através de uma interface intuitiva e moderna, a Core conecta tecnologia e educação,
-                                    tornando o ambiente de aprendizado mais organizado e produtivo.
+                                    Com uma interface moderna e intuitiva, a CORE permite que coordenações e secretarias mantenham tudo sob controle — de horários a recursos físicos — em um único sistema.
                                 </p>
                             </div>
+
                             <div class="scrollspy-example-item" id="item-2">
-                                <h5>Geração de Grade Horária</h5>
+                                <h5>Gerenciamento de Horários</h5>
                                 <p>
-                                    Automatize a criação de grades horárias de forma prática e organizada.
-                                    A Core cruza informações de cursos, professores, modalidades e turnos
-                                    para gerar horários ideais, evitando conflitos e otimizando o uso de salas e equipamentos.
+                                    Crie, edite e gerencie grades horárias de forma simples e rápida.
+                                    A CORE permite associar cursos, professores, disciplinas, turnos e salas em uma grade organizada e livre de conflitos.
                                 </p>
                                 <p>
-                                    O sistema permite ajustes manuais, simulações e exportação de relatórios para melhor visualização das turmas e professores.
+                                    Ideal para instituições que buscam otimizar a rotina acadêmica e manter uma visão clara da estrutura de aulas e turmas.
                                 </p>
                                 <div class="row">
                                     <div class="col-lg-6 col-12 mb-3">
@@ -143,41 +143,41 @@
                                     </div>
                                 </div>
                             </div>
+
                             <div class="scrollspy-example-item" id="item-3">
-                                <h5>Monitoramento de Equipamentos</h5>
+                                <h5>Cadastro Acadêmico</h5>
                                 <p>
-                                    Controle em tempo real a disponibilidade e manutenção dos computadores e outros equipamentos da instituição.
-                                    Saiba quais estão <strong>disponíveis</strong>, <strong>em manutenção</strong> ou <strong>indisponíveis</strong> — tudo num só painel.
+                                    Gerencie todas as informações essenciais da instituição em um só lugar.
+                                    Cadastre cursos, disciplinas, professores e salas de aula de forma integrada, garantindo consistência e fácil acesso aos dados.
                                 </p>
                                 <p>
-                                    Essa funcionalidade garante maior agilidade ao suporte técnico e transparência para os gestores,
-                                    permitindo decisões rápidas sobre reparos e substituições.
+                                    Essa centralização facilita o planejamento, reduz erros e oferece uma visão completa da estrutura acadêmica.
                                 </p>
                                 <div class="row align-items-center">
                                     <div class="col-lg-6 col-12">
-                                        <img src="images/tablet-screen-contents.jpg" class="img-fluid" alt="">
+                                        <img src="images/core-visao-geral.png" class="img-fluid" alt="">
                                     </div>
                                     <div class="col-lg-6 col-12">
-                                        <p>Controle total dos recursos tecnológicos</p>
-                                        <p><strong>Visualize, acompanhe e otimize o uso de cada equipamento.</strong></p>
+                                        <p>Controle completo da estrutura educacional</p>
+                                        <p><strong>Todos os dados acadêmicos organizados e conectados.</strong></p>
                                     </div>
                                 </div>
                             </div>
+
                             <div class="scrollspy-example-item" id="item-4">
-                                <h5>Futuro: Agendamento de Salas</h5>
+                                <h5>Relatórios de Salas</h5>
                                 <p>
-                                    Em breve, a Core trará um módulo completo para o <strong>agendamento de salas</strong>,
-                                    permitindo reservar espaços de forma integrada com a grade horária e disponibilidade de recursos.
+                                    Gere relatórios detalhados sobre o estado e uso das salas de aula, facilitando o acompanhamento da disponibilidade e auxiliando na tomada de decisões administrativas.
                                 </p>
                                 <p>
-                                    O objetivo é oferecer uma experiência completa, unindo planejamento, controle e flexibilidade
-                                    na gestão de ambientes educacionais.
+                                    A ferramenta oferece uma visão clara da ocupação dos espaços, ajudando a planejar melhor o uso dos recursos físicos da instituição.
                                 </p>
                                 <img src="images/portrait-mature-smiling-authoress-sitting-desk.jpg" class="scrollspy-example-item-image img-fluid mb-3" alt="">
                                 <p>
-                                    Tudo isso com a mesma interface moderna, responsiva e intuitiva da Core.
+                                    Tudo isso mantendo a interface intuitiva e prática que define a CORE.
                                 </p>
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -187,13 +187,13 @@
         <section class="author-section section-padding" id="devs">
             <div class="container">
                 <div class="row text-center mb-5">
-                    <h2 class="section-title">Equipe de Desenvolvimento</h2>
-                    <p class="section-subtitle">Responsáveis pela criação e manutenção do sistema CORE</p>
+                    <h2 class="section-title">Equipe de Desenvolvimento CORE</h2>
+                    <p class="section-subtitle">Responsável pela criação, evolução e manutenção do sistema CORE</p>
                 </div>
                 <div class="row justify-content-center">
                     <div class="col-lg-3 col-md-6 col-12 mb-4">
                         <div class="box">
-                            <img src="images/devs/dev-direnzi.jpeg" class="author-image img-fluid" alt="Foto desenvolvedor">
+                            <img src="images/devs/dev-direnzi.jpeg" class="author-image img-fluid" alt="Foto de Guilherme Direnzi — Desenvolvedor da CORE">
                             <div class="share">
                                 <a href="https://www.linkedin.com/in/guilhermedirenzi/" target="_blank"><i class="bi bi-linkedin"></i></a>
                                 <a href="https://github.com/Direnzi002" target="_blank"><i class="bi bi-github"></i></a>
@@ -203,7 +203,7 @@
                     </div>
                     <div class="col-lg-3 col-md-6 col-12 mb-4">
                         <div class="box">
-                            <img src="images/devs/dev-matheus.jpeg" class="author-image img-fluid" alt="Foto desenvolvedor">
+                            <img src="images/devs/dev-matheus.jpeg" class="author-image img-fluid" alt="Foto de Matheus Edivaldo — Desenvolvedor da CORE">
                             <div class="share">
                                 <a href="https://www.linkedin.com/in/matheus-silva-8297a320a/" target="_blank"><i class="bi bi-linkedin"></i></a>
                                 <a href="https://github.com/matheusedivaldo" target="_blank"><i class="bi bi-github"></i></a>
@@ -213,7 +213,7 @@
                     </div>
                     <div class="col-lg-3 col-md-6 col-12 mb-4">
                         <div class="box">
-                            <img src="images/devs/dev-rai.jpeg" class="author-image img-fluid" alt="Foto desenvolvedor">
+                            <img src="images/devs/dev-rai.jpeg" class="author-image img-fluid" alt="Foto de Rai Felippe — Desenvolvedor da CORE">
                             <div class="share">
                                 <a href="https://www.linkedin.com/in/rai-felippe-miranda-65127a237/" target="_blank"><i class="bi bi-linkedin"></i></a>
                                 <a href="https://github.com/RaiFM" target="_blank"><i class="bi bi-github"></i></a>
@@ -223,9 +223,9 @@
                     </div>
                     <div class="col-lg-3 col-md-6 col-12 mb-4">
                         <div class="box">
-                            <img src="images/devs/dev-vitoria.jpeg" class="author-image img-fluid" alt="Foto desenvolvedor">
+                            <img src="images/devs/dev-vitoria.jpeg" class="author-image img-fluid" alt="Foto de Vitória Silva — Desenvolvedora da CORE">
                             <div class="share">
-                                <a href="https://www.linkedin.com/in/vit%C3%B3ria-silva-alves-33170a20a" target="_blank"><i class="bi bi-linkedin"></i></a>
+                                <a href="https://www.linkedin.com/in/vitoria-silva-alves-33170a20a/" target="_blank"><i class="bi bi-linkedin"></i></a>
                                 <a href="https://github.com/vitorii" target="_blank"><i class="bi bi-github"></i></a>
                             </div>
                             <h3 class="dev-name">Vitória Silva</h3>
@@ -239,12 +239,13 @@
             <div class="container">
                 <div class="row align-items-center justify-content-between">
                     <div class="col-lg-6 col-md-6 col-12 text-center text-md-start mb-5 mb-md-0">
-                        <img src="images/logo.svg" alt="Logo CORE" class="footer-logo mb-3">
-                        <p class="text-white mb-4"><strong>Controle de Recursos Educacionais</strong></p>
-                        <p class="footer-location mb-3"><i class="bi bi-geo-alt me-2"></i>Carapicuíba, São Paulo — Brasil</p>
+                        <img src="images/logo.svg" alt="Logo do sistema CORE — Controle de Recursos Educacionais" class="footer-logo mb-3">
+                        <p class="text-white mb-4"><strong>CORE — Controle de Recursos Educacionais</strong><br>Gestão acadêmica simplificada e organizada.</p>
+                        <p class="footer-location mb-3"><i class="bi bi-geo-alt me-2"></i>Sede em Carapicuíba — São Paulo, Brasil</p>
                     </div>
                     <div class="col-lg-5 col-md-6 col-12 text-center text-md-start">
-                        <h6 class="site-footer-title mb-3 text-white">Entre em contato</h6>
+                        <h6 class="site-footer-title mb-3 text-white">Fale com nossa equipe</h6>
+                        <p class="text-white mb-3">Dúvidas, suporte ou parcerias? Entre em contato:</p>
                         <ul class="social-icon mb-4 d-flex justify-content-center justify-content-md-start">
                             <li class="social-icon-item">
                                 <a href="mailto:controlederecursoseducacionais@gmail.com" target="_blank" class="social-icon-link">
