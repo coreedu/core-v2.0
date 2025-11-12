@@ -4,10 +4,10 @@ namespace App\Filament\Widgets;
 
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Cache;
-// 1. Importações que estavam na Rota
 use App\Models\ClassSchedule;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
+use Illuminate\Support\Facades\Http; // Apenas para a exceção, se necessário
 
 class PredictiveRankingChart extends ChartWidget
 {
@@ -30,16 +30,15 @@ class PredictiveRankingChart extends ChartWidget
 
     protected function getData(): array
     {
-        @set_time_limit(120); // Damos 2 minutos ao widget
+        @set_time_limit(180); // Aumentado para 3 minutos (180s)
         
         $cacheKey = 'prediction_ranking_chart_data';
         $cacheDuration = 60 * 60; // 1 hora
 
-        // --- MUDANÇA PRINCIPAL: A LÓGICA AGORA ESTÁ AQUI DENTRO ---
         $predictionData = Cache::remember($cacheKey, $cacheDuration, function () {
             
             try {
-                // --- 1. COPIA DO routes/web.php: Coleta de Dados ---
+                // 1. Coleta de Dados
                 $aulas = ClassSchedule::query()
                     ->with([
                         'schedule', 'schedule.course', 'sala', 'sala.equipments', 'dia', 'lessonTime'
@@ -58,18 +57,27 @@ class PredictiveRankingChart extends ChartWidget
                 
                 $jsonData = $aulas->toJson();
 
-                // --- 2. COPIA DO routes/web.php: Execução do Python ---
+                // 2. Execução do Python
                 $scriptPath = base_path('storage/app/python/predict_demand.py');
                 $env = ['PYTHONIOENCODING' => 'UTF-8', 'LANG' => 'en_US.UTF-8'];
 
                 $process = new Process(['py', $scriptPath], base_path(), $env);
                 
+                // --- CORREÇÃO DO TIMEOUT DE 60 SEGUNDOS ---
+                // Define o tempo limite do Processo para 180 segundos
+                $process->setTimeout(180); 
+                // ------------------------------------
+                
                 try {
                     $process->setInput($jsonData);
                     $process->mustRun();
                 } catch (ProcessFailedException $e) {
-                    // Tenta 'python' se 'py' falhar
                     $process = new Process(['python', $scriptPath], base_path(), $env);
+                    
+                    // --- CORREÇÃO DO TIMEOUT DE 60 SEGUNDOS (Fallback) ---
+                    $process->setTimeout(180);
+                    // ------------------------------------
+                    
                     $process->setInput($jsonData);
                     $process->mustRun();
                 }
@@ -86,17 +94,14 @@ class PredictiveRankingChart extends ChartWidget
                     return ['error' => 'Python retornou JSON inválido.', 'raw_output' => $output];
                 }
 
-                return $result; // <-- Salva o JSON do Python no cache
+                return $result; // Salva no cache
 
             } catch (ProcessFailedException $e) {
-                // Erro se 'py' e 'python' falharem
                 return ['error' => 'Script Python não encontrado ou falhou.', 'stderr' => $e->getMessage()];
             } catch (\Exception $e) {
-                // Erro geral do PHP (ex: coleta de dados)
                 return ['error' => 'Erro PHP: ' . $e->getMessage()];
             }
         });
-        // --- FIM DA LÓGICA MOVIDA ---
 
         // 4. Se os dados (do cache ou da chamada) contiverem um erro
         if (isset($predictionData['error'])) {
@@ -109,7 +114,7 @@ class PredictiveRankingChart extends ChartWidget
              return ['datasets' => [], 'labels' => []];
         }
 
-        // 6. Lógica de Ranking (Top 5 / Bottom 5)
+        // 6. Lógica de Ranking
         $dataCollection = collect($predictionData);
 
         $sorted = $dataCollection->sortByDesc('predicted_score');
@@ -117,15 +122,15 @@ class PredictiveRankingChart extends ChartWidget
         $bottom5 = $sorted->take(-5)->sortBy('predicted_score');
         $finalData = $top5->merge($bottom5)->unique('id_da_sala');
 
-        // 7. Prepara os dados para o Chart.js
+        // 7. Prepara os dados
         $datasets = [
             [
                 'label' => 'Pontuação de Demanda Prevista',
                 'data' => $finalData->pluck('predicted_score')->all(),
                 'backgroundColor' => $finalData->map(function ($item, $key) use ($top5) {
                     return $top5->contains('id_da_sala', $item['id_da_sala'])
-                        ? 'rgba(75, 192, 192, 0.7)'  // Verde (Top)
-                        : 'rgba(255, 99, 132, 0.7)'; // Vermelho (Bottom)
+                        ? 'rgba(75, 192, 192, 0.7)'
+                        : 'rgba(255, 99, 132, 0.7)';
                 })->all(),
             ]
         ];
