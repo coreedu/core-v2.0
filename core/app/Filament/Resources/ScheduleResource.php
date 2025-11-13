@@ -201,4 +201,9 @@ class ScheduleResource extends Resource
                 ->where('id', '!=', $record->id)
                 ->exists();
     }
+
+    public static function getPublished()
+    {
+        return Schedule::getPublished();
+    }
 }
