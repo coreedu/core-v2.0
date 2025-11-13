@@ -61,9 +61,7 @@
 
         <section class="hero-section d-flex justify-content-center align-items-center" id="hero">
             <div class="container text-center">
-                <h1 class="text-white mb-4">
-                    Aqui vai ficar os horários escolares passando.
-                </h1>
+                {{ dd($schedule); }}
             </div>
         </section>
 

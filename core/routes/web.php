@@ -1,9 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Models\ClassSchedule; // Importe o Model "cola"
+use App\Models\ClassSchedule;
 use Symfony\Component\Process\Process; // Importe o Process
 use Symfony\Component\Process\Exception\ProcessFailedException;
+use App\Filament\Resources\ScheduleResource;
 
 /*
 |--------------------------------------------------------------------------
@@ -12,7 +13,11 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    $schedule = ScheduleResource::getPublished();
+
+    return view('welcome', [
+        'schedule' => $schedule,
+    ]);
 });
 
 

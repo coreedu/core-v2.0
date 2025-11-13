@@ -33,6 +33,22 @@ class Schedule extends Model
         return $this->hasMany(ClassSchedule::class, 'schedule_id');
     }
 
+    public static function getPublished()
+    {
+        $today = now()->dayOfWeekIso;
+
+        // $schedule = self::where('status', true)
+        //     ->with(['items' => function ($query) use ($today) {
+        //         $query->where('day', $today)
+        //             ->with(['subject', 'teacher', 'room']);
+        //     }]);
+        // dd($schedule);
+
+        $schedule = [];
+
+        return $schedule;
+    }
+
     // --- NOVO MÉTODO PARA O GRÁFICO 3 (PREDITIVO) ---
 
     /**
