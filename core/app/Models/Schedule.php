@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 use App\Models\Time\Shift;
 use App\Models\Curso;
+use App\Models\TimeShift;
 use App\Models\Modality;
 use App\Models\ClassSchedule;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class Schedule extends Model
 {
@@ -37,16 +39,82 @@ class Schedule extends Model
     {
         $today = now()->dayOfWeekIso;
 
-        // $schedule = self::where('status', true)
-        //     ->with(['items' => function ($query) use ($today) {
-        //         $query->where('day', $today)
-        //             ->with(['subject', 'teacher', 'room']);
-        //     }]);
-        // dd($schedule);
+        $timeSlots = [];
+        if($today == 7){
+            $timeSlots = TimeDay::getTimesByDay(7);
+        }else{
+            $now = Carbon::now()->format('H:i');
+            $currentShift = TimeShift::getCurrentShiftCod();
+    
+            $timeSlots = TimeShift::getTimesByShift($currentShift);
+        }
 
-        $schedule = [];
+        $days = [$today];
+        
+        $rooms = Room::getRoomsArray();
 
-        return $schedule;
+        $register = [];
+
+        foreach($days as $day){
+            $schedules = self::getScheduleByShift($day, $currentShift);
+
+            // if($schedule){
+            //     $register[$day] = [];
+            // }
+
+            foreach($schedules as $schedule){
+                $existingItems = $schedule->items()
+                    ->select('day', 'time', 'component', 'instructor', 'room', 'group')
+                    ->where('day', $today)
+                    ->get();
+
+                // dd($existingItems);
+                $scheduleCourse = self::mountScheduleArray($existingItems);
+                
+                dd($scheduleCourse);
+                // $register[$day] += $scheduleCourse;
+            }
+        }
+        dd($register);
+
+        return $register;
+    }
+
+    public static function getScheduleByShift($day, $shift){
+        return self::where('status', true)
+            ->when($shift, fn($q) => $q->where('shift_cod', $shift))
+            ->whereHas('items', function ($query) use ($day) {
+                $query->where('day', $day);
+            })
+            ->get()
+            // ->toArray()
+            ;
+    }
+
+    public static function mountScheduleArray($itens){
+        $scheduleData = [];
+
+        foreach ($itens as $item) {
+            $day = $item->day;
+            $time = $item->time;
+            $group = $item->group ?? 'A';
+
+            if (!empty($group)) {
+                $scheduleData[$day][$time]['groups'][$group] = [
+                    'subject_id' => $item->component,
+                    'teacher_id' => $item->instructor,
+                    'room_id' => $item->room,
+                ];
+            }else{
+                $scheduleData[$item->day][$item->time] = [
+                    'subject_id' => $item->component,
+                    'teacher_id' => $item->instructor,
+                    'room_id' => $item->room,
+                ];
+            }
+        }
+
+        return $scheduleData;
     }
 
     // --- NOVO MÉTODO PARA O GRÁFICO 3 (PREDITIVO) ---

@@ -16,12 +16,20 @@ class Day extends Model
         return $this->belongsToMany(LessonTime::class, 'time_day', 'day_id', 'time_id')->orderBy('start');
     }
 
-    public static function getDaySchedule(array $lessonTimeIds)
+    public static function getWeekDaysSchedule(array $lessonTimeIds)
     {
-        return self::whereHas('times', function ($query) use ($lessonTimeIds) {
+        return self::whereNotIn('cod', [1, 7])
+            ->whereHas('times', function ($query) use ($lessonTimeIds) {
                     $query->whereIn('lesson_time.id', $lessonTimeIds);
                 })
-                ->pluck('name', 'cod')
-                ->toArray();
+            ->pluck('name', 'cod')
+            ->toArray();
+    }
+
+    public static function getWeekendDays()
+    {
+        return self::whereIn('cod', [1, 7])
+            ->pluck('name', 'cod')
+            ->toArray();
     }
 }

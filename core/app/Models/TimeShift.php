@@ -38,4 +38,33 @@ class TimeShift extends Model
             })
             ->toArray();
     }
+
+    public static function getCurrentShiftCod()
+    {
+        $now = Carbon::now()->format('H:i');
+
+        $current = self::join('lesson_time', 'lesson_time.id', '=', 'time_shift.lesson_time_id')
+            ->where('lesson_time.start', '<=', $now)
+            ->where('lesson_time.end', '>=', $now)
+            ->select('time_shift.shift_cod')
+            ->first();
+
+        if (!$current) {
+            $next = self::join('lesson_time', 'lesson_time.id', '=', 'time_shift.lesson_time_id')
+                ->where('lesson_time.start', '>', $now)
+                ->orderBy('lesson_time.start')
+                ->select('time_shift.shift_cod')
+                ->first();
+
+            $previous = self::join('lesson_time', 'lesson_time.id', '=', 'time_shift.lesson_time_id')
+                ->where('lesson_time.end', '<', $now)
+                ->orderByDesc('lesson_time.end')
+                ->select('time_shift.shift_cod')
+                ->first();
+
+            return $next->shift_cod ?? $previous->shift_cod ?? null;
+        }
+
+        return $current->shift_cod;
+    }
 }
