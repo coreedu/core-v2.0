@@ -36,7 +36,7 @@ class ManageSchedules extends Page
         $this->record = $record;
         
         $this->timeSlots = TimeShift::getTimesByShift($record->shift_cod);
-        $this->days = Day::getDaySchedule(array_keys($this->timeSlots));
+        $this->days = Day::getWeekDaysSchedule(array_keys($this->timeSlots));
         
         $this->saturdayTimes = TimeDay::getTimesByDay(7);
 
