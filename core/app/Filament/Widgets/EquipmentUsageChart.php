@@ -16,7 +16,7 @@ class EquipmentUsageChart extends ChartWidget
     // {
     //     return [
     //     'sm' => 12,
-    //     'md' => 8, // ocupa 8 das 12 colunas
+    //     'md' => 6, // ocupa 8 das 12 colunas
     //     'lg' => 6, // metade da tela
     // ];
     // }
