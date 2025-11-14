@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Room;
+use App\Models\Category;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Faker\Factory as FakerFactory;
 
@@ -20,9 +21,16 @@ class RoomFactory extends Factory
      */
     public function definition(): array
     {
+        $categoryId = null;
+
+        if (Category::exists()) {
+            $categoryId = Category::inRandomOrder()->first()->id;
+        }
+
         return [
             'name' => $this->faker->words(2, true), 
             'number' => $this->faker->numberBetween(1, 200),
+            'type' => $categoryId
         ];
     }
 }
