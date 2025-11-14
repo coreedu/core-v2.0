@@ -1,0 +1,30 @@
+/* O container visível deve esconder o conteúdo que sai da área de visualização */
+.overflow-hidden {
+    overflow: hidden;
+}
+
+/* O wrapper que será animado */
+.animation-wrapper {
+    /* Força a largura para ser a largura total do conteúdo em uma linha (Bloco 1 + Bloco 2) */
+    width: max-content; 
+    
+    /* 30s é a velocidade, ajuste este valor para deixar mais rápido ou lento */
+    animation: infinite-scroll 10s linear infinite; 
+}
+
+/* Define a animação de rolagem */
+@keyframes infinite-scroll {
+    from {
+        /* Posição inicial */
+        transform: translateX(0%);
+    }
+    to {
+        /* Move metade da largura total (o tamanho do Bloco 1) para recomeçar o loop */
+        transform: translateX(-50%); 
+    }
+}
+
+/* Opcional: Pausar a animação ao passar o mouse */
+.animation-wrapper:hover {
+    animation-play-state: paused;
+}
