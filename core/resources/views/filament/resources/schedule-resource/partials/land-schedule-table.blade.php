@@ -12,7 +12,7 @@
                         </tr>
                         <tr>
                             <th class="border">
-                                Dias
+                                
                             </th>
                             @foreach($schedule['days'] as $idxDay => $day)
                                 <th class="px-3 py-2 border" colspan="{{count($sc['days'][$idxDay]['modules'])}}">{{ $day }}</th>
