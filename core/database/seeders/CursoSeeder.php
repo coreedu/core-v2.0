@@ -13,22 +13,25 @@ class CursoSeeder extends Seeder
      */
     public function run(): void
     {
-        $courses = [
-            [
-                'turno' => 1, 
-                'nome' => 'Teste',
-                'abreviacao' => 'TT',
-                'qtdModulos' => 6,
-                'modalidade' => null,
-                'horas' => 200,
-                'horasEstagio' => null,
-                'horasTg' => null,
+        // $courses = [
+        //     [
+        //         'turno' => 1, 
+        //         'nome' => 'Teste',
+        //         'abreviacao' => 'TT',
+        //         'qtdModulos' => 6,
+        //         'modalidade' => null,
+        //         'horas' => 200,
+        //         'horasEstagio' => null,
+        //         'horasTg' => null,
 
-            ],
-        ];
+        //     ],
+        // ];
 
-        foreach ($courses as $c) {
-            Curso::create($c);
-        }
+        // foreach ($courses as $c) {
+        //     Curso::create($c);
+        // }
+
+        // Criar 10 registros aleatórios
+        Curso::factory()->count(10)->create(); 
     }
 }
