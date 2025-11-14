@@ -16,16 +16,20 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RolePermissionSeeder::class,
+            UserSeeder::class,
             ShiftSeeder::class,
             DaySeeder::class,
             LessonTimeSeeder::class,
             TimeDaySeeder::class,
             TimeShiftSeeder::class,
             CategorySeeder::class,
-            CursoSeeder::class,
             ModalitySeeder::class,
+            CursoSeeder::class,
             ComponenteSeeder::class,
+            ComponentCourseSeeder::class,
+            ComponentUserSeeder::class,
             ScheduleSeeder::class,
+            RoomSeeder::class,
         ]);
 
         // Gera permissões automaticamente para o painel "central"
