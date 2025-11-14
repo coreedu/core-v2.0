@@ -42,7 +42,7 @@ class Schedule extends Model
 
     public static function getPublished()
     {
-        $today = now()->dayOfWeekIso;
+        $today = (now()->dayOfWeek % 7) + 1;
 
         $timeSlots = [];
         if($today == 7){

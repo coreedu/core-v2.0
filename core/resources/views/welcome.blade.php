@@ -13,6 +13,7 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/bootstrap-icons.css" rel="stylesheet">
     <link href="css/templatemo-ebook-landing.css" rel="stylesheet">
+    <link href="css/corrousel-landing.css" rel="stylesheet">
 </head>
 
 <body>
@@ -59,10 +60,10 @@
             </div>
         </nav>
 
-        <section class="hero-section d-flex justify-content-center align-items-center" id="hero">
-            <div class="container text-center">
+        <section class="hero-section d-flex justify-content-center align-items-center w-100 bg-danger" id="hero"> 
+            <div class="d-flex flex-row w-100 bg-primary overflow-auto gap-4 px-5 justify-content-center">
                 @include('filament.resources.schedule-resource.partials.land-schedule-table', [
-                    'schedule' => $schedule,
+                    'schedule' => $schedule
                 ])
             </div>
         </section>

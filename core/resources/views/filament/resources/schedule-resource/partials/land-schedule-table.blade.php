@@ -1,6 +1,6 @@
 @if($schedule['courses'])
     @foreach($schedule['courses'] as $sc)
-        <table class="max-w-full w-full text-sm text-center border-collapse">
+        <table class="text-sm text-center border-collapse">
             <thead>
                 <tr>
                     <th class="px-3 py-2 border" colspan="{{$schedule['weight']}}">{{ $sc['name'] }}</th>
