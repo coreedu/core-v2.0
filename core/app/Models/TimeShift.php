@@ -65,6 +65,6 @@ class TimeShift extends Model
             return $next->shift_cod ?? $previous->shift_cod ?? null;
         }
 
-        return $current->shift_cod;
+        return (int) substr($current->shift_cod, 0, 1);
     }
 }

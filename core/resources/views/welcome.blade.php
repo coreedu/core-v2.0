@@ -61,7 +61,9 @@
 
         <section class="hero-section d-flex justify-content-center align-items-center" id="hero">
             <div class="container text-center">
-                {{ dd($schedule); }}
+                @include('filament.resources.schedule-resource.partials.land-schedule-table', [
+                    'schedule' => $schedule,
+                ])
             </div>
         </section>
 

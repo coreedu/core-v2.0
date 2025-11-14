@@ -5,8 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Models\Time\Shift;
+use App\Models\Time\LessonTime;
+use App\Models\Time\Day;
 use App\Models\Curso;
 use App\Models\TimeShift;
+use App\Models\Componente;
+use App\Models\Room;
+use App\Models\User;
 use App\Models\Modality;
 use App\Models\ClassSchedule;
 use Illuminate\Support\Facades\DB;
@@ -49,33 +54,42 @@ class Schedule extends Model
             $timeSlots = TimeShift::getTimesByShift($currentShift);
         }
 
-        $days = [$today];
+        $days = [$today => Day::find($today)?->name ?? '-'];
         
         $rooms = Room::getRoomsArray();
 
         $register = [];
+        $weight = 1;
 
-        foreach($days as $day){
-            $schedules = self::getScheduleByShift($day, $currentShift);
+        $register['courses'] = [];
 
-            // if($schedule){
-            //     $register[$day] = [];
-            // }
+        foreach($days as $idxDay => $day){
+            $schedules = self::getScheduleByShift($idxDay, $currentShift);
 
-            foreach($schedules as $schedule){
-                $existingItems = $schedule->items()
-                    ->select('day', 'time', 'component', 'instructor', 'room', 'group')
-                    ->where('day', $today)
-                    ->get();
+            if($schedules){
+                foreach($schedules as $schedule){
+                    $existingItems = $schedule->items()
+                        ->select('day', 'time', 'component', 'instructor', 'room', 'group')
+                        ->where('day', $idxDay)
+                        ->get();
 
-                // dd($existingItems);
-                $scheduleCourse = self::mountScheduleArray($existingItems);
-                
-                dd($scheduleCourse);
-                // $register[$day] += $scheduleCourse;
+                    $scheduleCourse = self::mountScheduleArray($schedule->course_id, $schedule->module_id, $existingItems);
+                    
+                    $weight += $scheduleCourse['weight'];
+                    unset($scheduleCourse['weight']);
+                    
+                    $register['courses'] = array_replace_recursive(
+                        $register['courses'],
+                        $scheduleCourse
+                    );
+                }
             }
+
         }
-        dd($register);
+
+        $register['times'] = $timeSlots;
+        $register['days'] = $days;
+        $register['weight'] = $weight;
 
         return $register;
     }
@@ -86,32 +100,25 @@ class Schedule extends Model
             ->whereHas('items', function ($query) use ($day) {
                 $query->where('day', $day);
             })
-            ->get()
-            // ->toArray()
-            ;
+            ->get();
     }
 
-    public static function mountScheduleArray($itens){
+    public static function mountScheduleArray($course, $module, $itens){
         $scheduleData = [];
-
         foreach ($itens as $item) {
             $day = $item->day;
-            $time = $item->time;
+            
             $group = $item->group ?? 'A';
 
-            if (!empty($group)) {
-                $scheduleData[$day][$time]['groups'][$group] = [
-                    'subject_id' => $item->component,
-                    'teacher_id' => $item->instructor,
-                    'room_id' => $item->room,
-                ];
-            }else{
-                $scheduleData[$item->day][$item->time] = [
-                    'subject_id' => $item->component,
-                    'teacher_id' => $item->instructor,
-                    'room_id' => $item->room,
-                ];
-            }
+            $scheduleData[$course]['days'][$day]['modules'][$module]['times'][$item->time]['groups'][$group] = [
+                'subject' => Componente::find($item->component)?->nome ?? '-',
+                'teacher' => User::find($item->instructor)?->name ?? '-',
+                'room' => Room::find($item->room)?->number ?? '-',
+            ];
+
+
+            if(!isset($scheduleData[$course]['name'])) $scheduleData[$course]['name'] = Curso::find($course)?->nome ?? '-';
+            $scheduleData['weight'] = isset([$course]['days'][$day]['modules'][$module]) ? 0 : 1;
         }
 
         return $scheduleData;
