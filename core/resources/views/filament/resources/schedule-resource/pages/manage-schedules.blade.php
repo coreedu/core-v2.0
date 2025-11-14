@@ -21,7 +21,7 @@
         </div>
         <div class="flex gap-6">
             {{-- Tabela de horários --}}
-            <div class="md:w-[70%] w-full overflow-x-auto shadow rounded-lg border border-gray-700">
+            <div class="w-[70%] overflow-x-auto shadow rounded-lg border border-gray-700">
                 @include('filament.resources.schedule-resource.partials.schedule-table', [
                     'columns' => $this->days,
                     'timeSlots' => $this->timeSlots,
@@ -32,9 +32,9 @@
             </div>
 
             {{--Tabela de Sábado --}}
-            <div class="md:w-[30%] w-full overflow-x-auto shadow rounded-lg border border-gray-700">
+            <div class="w-[30%] overflow-x-auto shadow rounded-lg border border-gray-700">
                 @include('filament.resources.schedule-resource.partials.schedule-table', [
-                    'columns' => ['6' => 'Sábado'],
+                    'columns' => ['7' => 'Sábado'],
                     'timeSlots' => $this->saturdayTimes,
                     'scheduleData' => $this->scheduleData,
                     'subjects' => $this->subjects,
