@@ -8,7 +8,7 @@ use App\Models\Inventory\Equipment;
 
 class EquipmentUsageChart extends ChartWidget
 {
-    protected static ?string $heading = 'Causa-Raiz: Uso de Salas por Equipamento (Top 10)';
+    protected static ?string $heading = 'Fator de Procura: Equipamentos Mais Solicitados';
 
     protected static string $views = 'filament.widgets.size_style_graphics';
 

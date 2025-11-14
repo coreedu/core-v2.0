@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Http; // Apenas para a exceção, se necessário
 
 class PredictiveRankingChart extends ChartWidget
 {
-    protected static ?string $heading = 'Predição: Ranking de Demanda (Top 5 / Bottom 5)';
+    protected static ?string $heading = 'Previsão de Procura: Salas (Top 5 / Bottom 5)';
     protected ?string $errorTitle = null;
     protected static ?int $sort = 3;
 

@@ -7,7 +7,7 @@ use App\Models\Room; // <-- Importe o Model 'Room'
 
 class RoomInventoryChart extends ChartWidget
 {
-    protected static ?string $heading = 'Inventário: Total de Salas por Categoria';
+    protected static ?string $heading = 'Recursos Disponíveis: Salas por Tipo';
     
     protected static string $views = 'filament.widgets.size_style_graphics';
 

@@ -85,11 +85,13 @@ class ClassSchedule extends Model
         // T1 = class_schedule (A aula, o "Fato")
         // T2 = room (A sala, a "Dimensão")
 
-        // Começa a consulta na tabela 'class_schedule' (self)
-        return self::query('class_schedule as T1')
+        // --- CORREÇÃO AQUI ---
+        // Começa a consulta na tabela 'class_schedule' (self) com o alias 'T1'
+        // Mude de self::query(...) para self::from(...)
+        return self::from('class_schedule as T1')
+            // --------------------
             
             // Liga (JOIN) à tabela 'room' (T2)
-            // A nossa "cola" é a coluna 'room' (T1.room)
             ->join('room as T2', 'T1.room', '=', 'T2.id')
             
             // Seleciona o nome da sala (T2.name)
