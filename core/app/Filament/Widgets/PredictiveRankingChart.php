@@ -17,14 +17,14 @@ class PredictiveRankingChart extends ChartWidget
 
     protected static string $views = 'filament.widgets.size_style_graphics';
 
-    public function getColumnSpan(): int | string | array
-    {
-        return [
-        'sm' => 12,
-        'md' => 6, // ocupa 8 das 12 colunas
-        'lg' => 6, // metade da tela
-        ];
-    }
+    // public function getColumnSpan(): int | string | array
+    // {
+    //     return [
+    //     'sm' => 12,
+    //     'md' => 6, // ocupa 8 das 12 colunas
+    //     'lg' => 6, // metade da tela
+    //     ];
+    // }
     
     public function getHeading(): string
     {

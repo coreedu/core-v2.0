@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class ClassSchedule extends Model
 {
@@ -77,6 +78,35 @@ class ClassSchedule extends Model
     public function modality()
     {
         return $this->belongsTo(Modality::class, 'modality');
+    }
+    
+    public static function getUsageRankingByRoom()
+    {
+        // T1 = class_schedule (A aula, o "Fato")
+        // T2 = room (A sala, a "Dimensão")
+
+        // Começa a consulta na tabela 'class_schedule' (self)
+        return self::query('class_schedule as T1')
+            
+            // Liga (JOIN) à tabela 'room' (T2)
+            // A nossa "cola" é a coluna 'room' (T1.room)
+            ->join('room as T2', 'T1.room', '=', 'T2.id')
+            
+            // Seleciona o nome da sala (T2.name)
+            // e a contagem de aulas (COUNT(T1.id))
+            ->select('T2.name as room_name', DB::raw('COUNT(T1.id) as usage_count'))
+            
+            // Agrupa os resultados pelo nome da sala
+            ->groupBy('T2.name')
+            
+            // Ordena do mais usado para o menos usado
+            ->orderBy('usage_count', 'desc')
+            
+            // Pega apenas os 10 primeiros do ranking
+            ->take(10)
+            
+            // Executa a consulta
+            ->get();
     }
 
 }
