@@ -1,7 +1,7 @@
 @if($schedule['courses'])
     @foreach($schedule['courses'] as $sc)
             <div class="d-inline-flex me-4">
-                <table class="text-sm text-center border-collapse">
+                <table class="text-sm text-center border-collapse bg-white">
                     <thead>
                         <tr>
                             <th class="px-3 py-2 border" colspan="{{$schedule['weight']}}">{{ $sc['name'] }}</th>
@@ -36,9 +36,9 @@
                                         @foreach($sc['days'][$idxDay]['modules'] as $module)
                                             @if(isset($module['times'][$idxTime]))
                                                 <td class="px-3 py-2 border">
-                                                    <div class="flex justify-center gap-4">
+                                                    <div class="d-flex justify-content-center gap-4">
                                                         @foreach($module['times'][$idxTime]['groups'] as $group)
-                                                            <div class="flex flex-column">
+                                                            <div class="d-flex flex-column"> 
                                                                 <span>{{$group['subject']}}</span>
                                                                 <span>{{$group['teacher']}}</span>
                                                                 <span>{{$group['room']}}</span>

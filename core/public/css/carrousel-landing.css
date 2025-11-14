@@ -28,3 +28,7 @@
 .animation-wrapper:hover {
     animation-play-state: paused;
 }
+
+th, td {
+    white-space: nowrap
+}
