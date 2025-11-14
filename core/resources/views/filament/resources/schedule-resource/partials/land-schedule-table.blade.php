@@ -1,3 +1,7 @@
+@php
+    use Illuminate\Support\Str;
+@endphp
+
 @if($schedule['courses'])
     @foreach($schedule['courses'] as $sc)
             <div class="d-inline-flex me-4">
@@ -39,9 +43,9 @@
                                                     <div class="d-flex justify-content-center gap-4">
                                                         @foreach($module['times'][$idxTime]['groups'] as $group)
                                                             <div class="d-flex flex-column"> 
-                                                                <span>{{$group['subject']}}</span>
-                                                                <span>{{$group['teacher']}}</span>
-                                                                <span>{{$group['room']}}</span>
+                                                                <span>{{Str::limit($group['subject'], 15, '...')}}</span>
+                                                                <span>{{Str::limit($group['teacher'], 15, '...')}}</span>
+                                                                <span>{{Str::limit($group['room'], 15, '...')}}</span>
                                                             </div>
                                                         @endforeach
                                                     </div>
