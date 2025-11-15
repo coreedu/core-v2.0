@@ -3,78 +3,87 @@
 namespace App\Filament\Widgets;
 
 use Filament\Widgets\ChartWidget;
-use App\Models\ClassSchedule; // <-- Importa o Model "cola"
+use App\Models\ClassSchedule; // Model responsável por fornecer dados de uso das salas
 
 class RoomUsageRankingChart extends ChartWidget
 {
+    // View customizada utilizada para padronizar estilo e dimensões
     protected static string $views = 'filament.widgets.size_style_graphics';
+
+    // Título exibido no dashboard, destacando o propósito analítico do gráfico
     protected static ?string $heading = 'Ranking: Salas Mais Utilizadas (Top 10)';
 
-    // Define a ordem para 4 (para aparecer depois dos outros 3)
+    // Controla a posição deste widget na ordem de carregamento
     protected static ?int $sort = 3;
-
-    // (Opcional) Se você quiser que este gráfico use a sua view de altura fixa
-    // protected static string $view = 'filament.widgets.size_style_graphics';
-
-    // (Opcional) Define o layout. 12 = Linha inteira
-    // public function getColumnSpan(): int | string | array
-    // {
-    //     return 12;
-    // }
 
     protected function getData(): array
     {
-        // 1. Chamar o novo método do Model
+        // Obtém o ranking de salas mais utilizadas, fornecido pelo Model
         $data = ClassSchedule::getUsageRankingByRoom();
 
         return [
             'datasets' => [
                 [
+                    // Nome da série de dados apresentada no gráfico
                     'label' => 'Total de Aulas',
-                    // Pega só os números: [50, 45, 30]
+
+                    // Lista de quantidades de aulas por sala
                     'data' => $data->pluck('usage_count'),
-                    'backgroundColor' => 'rgba(153, 102, 255, 0.7)', // Roxo
+
+                    // Cor de preenchimento das barras (paleta roxa para destaque)
+                    'backgroundColor' => 'rgba(153, 102, 255, 0.7)',
+
+                    // Cor da borda para melhor definição visual
                     'borderColor' => 'rgba(153, 102, 255, 1)',
                 ],
             ],
-            // Pega só os nomes: ['Sala 101', 'Laboratório B', 'Sala 203']
+
+            // Lista com os nomes das salas exibidos no eixo Y
             'labels' => $data->pluck('room_name'),
         ];
     }
 
     protected function getType(): string
     {
-        return 'bar'; // Gráfico de barras
+        // Gráfico de barras (em combinação com a opção horizontal abaixo)
+        return 'bar';
     }
 
     /**
-     * Adicionamos este método para fazer o gráfico ser HORIZONTAL.
+     * Configurações complementares para transformar o gráfico em formato horizontal,
+     * favorecendo a leitura do ranking e o comparativo entre as salas.
      */
     protected function getOptions(): array
     {
         return [
-            'indexAxis' => 'y', // <-- Vira as barras para horizontal (deitado)
+            // Define "y" como eixo principal, convertendo as barras para o formato horizontal
+            'indexAxis' => 'y',
+
+            // Configuração do eixo X (quantidade total de aulas)
             'scales' => [
                 'x' => [
-                    'beginAtZero' => true,
+                    'beginAtZero' => true, // Garante leitura correta desde o zero
                     'title' => [
                         'display' => true,
-                        'text' => 'Contagem Total de Aulas',
+                        'text' => 'Contagem Total de Aulas', // Título explicativo para o eixo
                     ],
                 ],
             ],
+
+            // Configurações de plugins do Chart.js
             'plugins' => [
                 'legend' => [
-                    'display' => false, // Legenda não é necessária
+                    'display' => false, // Oculta legenda para reduzir ruído visual
                 ],
                 'tooltip' => [
                     'callbacks' => [
+                        // Formatação personalizada do tooltip no front-end
                         'label' => 'js:function(context) {
                             let label = context.dataset.label || "";
                             if (label) {
                                 label += ": ";
                             }
-                            label += context.parsed.x; 
+                            label += context.parsed.x; // Valor da barra (aulas)
                             return label;
                         }',
                     ],
