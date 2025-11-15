@@ -173,6 +173,32 @@ class ScheduleResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+                Tables\Actions\BulkAction::make('gerarPdf')
+                    ->label('Gerar PDF')
+                    ->icon('heroicon-o-document-text')
+                    ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                        $schedules = $records;
+
+                        $schedules = Schedule::mountSchedulePdf($schedules);
+
+                        // dd($schedules);
+                        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.schedule-report', [
+                            'schedule' => $schedules,
+                        ]);
+
+                        
+                        $pdf->setPaper('A4', 'landscape');
+
+                        return response()->streamDownload(function () use ($pdf) {
+                            echo $pdf->output();
+                        }, 'horarios-' . now()->format('d-m-Y_H\hi') . '.pdf');
+                    })
+                    ->deselectRecordsAfterCompletion()
+                    ->requiresConfirmation()
+                    ->modalHeading('Gerar PDF')
+                    ->modalSubheading('O PDF incluirá todos os horarios selecionados.')
+                    ->modalButton('Gerar PDF')
+                    ->successNotificationTitle('Horários !')
             ]);
     }
 

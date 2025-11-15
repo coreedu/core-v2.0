@@ -45,11 +45,12 @@ class Schedule extends Model
         $today = (now()->dayOfWeek % 7) + 1;
 
         $timeSlots = [];
+        $currentShift = 0;
         if($today == 7){
             $timeSlots = TimeDay::getTimesByDay(7);
         }else{
             $now = Carbon::now()->format('H:i');
-            $currentShift = TimeShift::getCurrentShiftCod();
+            $currentShift = TimeShift::getCurrentShiftCodByHour($now);
     
             $timeSlots = TimeShift::getTimesByShift($currentShift);
         }
@@ -104,13 +105,72 @@ class Schedule extends Model
     }
 
     public static function mountScheduleArray($course, $module, $itens){
-        $scheduleData = [];
+        $scheduleData[$course] = [];
         foreach ($itens as $item) {
             $day = $item->day;
             
             $group = $item->group ?? 'A';
 
             $scheduleData[$course]['days'][$day]['modules'][$module]['times'][$item->time]['groups'][$group] = [
+                'subject' => Componente::find($item->component)?->nome ?? '-',
+                'teacher' => User::find($item->instructor)?->name ?? '-',
+                'room' => Room::find($item->room)?->number ?? '-',
+            ];
+
+
+            if(!isset($scheduleData[$course]['name'])) $scheduleData[$course]['name'] = Curso::find($course)?->nome ?? '-';
+            $scheduleData['weight'] = isset([$course]['days'][$day]['modules'][$module]) ? 0 : 1;
+        }
+
+        return $scheduleData;
+    }
+
+    public static function mountSchedulePdf($schedules){
+        
+        $satSlots = TimeDay::getTimesByDay(7); // sat times
+        $timeSlots = TimeShift::getTimesMap(); // mapear periodo -> horarios
+        $days = Day::getWeekDays(); // week days
+        // $weight = 1;
+
+        // dd($schedules);
+
+        $register['courses'] = [];
+
+        foreach($schedules as $schedule){
+            $existingItems = $schedule->items()
+                ->select('day', 'time', 'component', 'instructor', 'room', 'group')
+                ->get();
+
+            $scheduleCourse = self::mountScheduleArrayPdf($schedule->course_id, $schedule->module_id, $existingItems);
+            // dump($scheduleCourse);
+            
+            // $weight += $scheduleCourse['weight'];
+            // unset($scheduleCourse['weight']);
+            
+            $register['courses'] = array_replace_recursive(
+                $register['courses'],
+                $scheduleCourse
+            );
+        }
+
+        $register['times'] = $timeSlots;
+        $register['days'] = $days;
+        // $register['weight'] = $weight;
+
+        // dd($register);
+        return $register;
+    }
+
+    public static function mountScheduleArrayPdf($course, $module, $itens){
+        $scheduleData[$course] = [];
+        foreach ($itens as $item) {
+            $day = $item->day;
+            
+            $group = $item->group ?? 'A';
+
+            $shift = TimeShift::getShiftCodById($item->time);
+
+            $scheduleData[$course]['shifts'][$shift]['modules'][$module]['days'][$day]['times'][$item->time]['groups'][$group] = [
                 'subject' => Componente::find($item->component)?->nome ?? '-',
                 'teacher' => User::find($item->instructor)?->name ?? '-',
                 'room' => Room::find($item->room)?->number ?? '-',
