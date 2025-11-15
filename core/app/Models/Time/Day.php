@@ -25,6 +25,13 @@ class Day extends Model
             ->pluck('name', 'cod')
             ->toArray();
     }
+    
+    public static function getWeekDays()
+    {
+        return self::whereNotIn('cod', [1, 7])
+            ->pluck('name', 'cod')
+            ->toArray();
+    }
 
     public static function getWeekendDays()
     {

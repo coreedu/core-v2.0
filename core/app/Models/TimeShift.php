@@ -38,26 +38,50 @@ class TimeShift extends Model
             })
             ->toArray();
     }
-
-    public static function getCurrentShiftCod()
+    
+    public static function getTimesMap()
     {
-        $now = Carbon::now()->format('H:i');
+        return self::with('lessonTime')
+            ->get()
+            ->groupBy('shift_cod') // 1. Agrupa os registros pelo código do turno (ex: 1, 2, 3...)
+            ->map(function ($timeShifts) { 
+                
+                return $timeShifts->mapWithKeys(function ($timeShift) {
+                    
+                    $lessonTime = $timeShift->lessonTime;
+                    
+                    $start = optional($lessonTime)->start
+                        ? Carbon::parse($lessonTime->start)->format('H:i')
+                        : '';
+                        
+                    $end = optional($lessonTime)->end
+                        ? Carbon::parse($lessonTime->end)->format('H:i')
+                        : '';
+
+                    return [$timeShift->lesson_time_id => "{$start} - {$end}"];
+                });
+            })
+            ->toArray();
+    }
+
+    public static function getCurrentShiftCodByHour($time)
+    {
 
         $current = self::join('lesson_time', 'lesson_time.id', '=', 'time_shift.lesson_time_id')
-            ->where('lesson_time.start', '<=', $now)
-            ->where('lesson_time.end', '>=', $now)
+            ->where('lesson_time.start', '<=', $time)
+            ->where('lesson_time.end', '>=', $time)
             ->select('time_shift.shift_cod')
             ->first();
 
         if (!$current) {
             $next = self::join('lesson_time', 'lesson_time.id', '=', 'time_shift.lesson_time_id')
-                ->where('lesson_time.start', '>', $now)
+                ->where('lesson_time.start', '>', $time)
                 ->orderBy('lesson_time.start')
                 ->select('time_shift.shift_cod')
                 ->first();
 
             $previous = self::join('lesson_time', 'lesson_time.id', '=', 'time_shift.lesson_time_id')
-                ->where('lesson_time.end', '<', $now)
+                ->where('lesson_time.end', '<', $time)
                 ->orderByDesc('lesson_time.end')
                 ->select('time_shift.shift_cod')
                 ->first();
@@ -66,5 +90,13 @@ class TimeShift extends Model
         }
 
         return (int) substr($current->shift_cod, 0, 1);
+    }
+    
+    public static function getShiftCodById($time)
+    {
+
+        $shift = self::where('lesson_time_id', $time)->first();
+
+        return (int) substr($shift->shift_cod, 0, 1);
     }
 }
