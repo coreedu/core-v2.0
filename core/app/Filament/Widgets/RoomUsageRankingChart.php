@@ -11,7 +11,7 @@ class RoomUsageRankingChart extends ChartWidget
     protected static ?string $heading = 'Ranking: Salas Mais Utilizadas (Top 10)';
 
     // Define a ordem para 4 (para aparecer depois dos outros 3)
-    protected static ?int $sort = 4;
+    protected static ?int $sort = 3;
 
     // (Opcional) Se você quiser que este gráfico use a sua view de altura fixa
     // protected static string $view = 'filament.widgets.size_style_graphics';

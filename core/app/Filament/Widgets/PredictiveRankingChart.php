@@ -13,7 +13,7 @@ class PredictiveRankingChart extends ChartWidget
 {
     protected static ?string $heading = 'Previsão de Procura: Salas (Top 5 / Bottom 5)';
     protected ?string $errorTitle = null;
-    protected static ?int $sort = 3;
+    protected static ?int $sort = 4;
 
     protected static string $views = 'filament.widgets.size_style_graphics';
 
