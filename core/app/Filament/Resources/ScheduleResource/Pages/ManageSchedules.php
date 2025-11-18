@@ -98,9 +98,9 @@ class ManageSchedules extends Page
                             'group' => $groupLetter,
                         ],
                         [
-                            'component' => $groupData['subject_id'] ?? null,
-                            'instructor' => $groupData['teacher_id'] ?? null,
-                            'room' => $groupData['room_id'] ?? null,
+                            'component' => !empty($groupData['subject_id']) ? $groupData['subject_id'] :null,
+                            'instructor' => !empty($groupData['teacher_id']) ? $groupData['teacher_id'] : null,
+                            'room' => !empty($groupData['room_id']) ? $groupData['room_id'] : null,
                         ]
                     );
                 }
