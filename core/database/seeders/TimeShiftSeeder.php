@@ -21,7 +21,7 @@ class TimeShiftSeeder extends Seeder
             ['shift_cod' => 1, 'lesson_time_id' => 5],
             ['shift_cod' => 1, 'lesson_time_id' => 6],
             
-            ['shift_cod' => 12, 'lesson_time_id' => 7],
+            // ['shift_cod' => 12, 'lesson_time_id' => 7],
 
             ['shift_cod' => 2, 'lesson_time_id' => 8],
             ['shift_cod' => 2, 'lesson_time_id' => 9],
@@ -29,7 +29,7 @@ class TimeShiftSeeder extends Seeder
             ['shift_cod' => 2, 'lesson_time_id' => 11],
             ['shift_cod' => 2, 'lesson_time_id' => 12],
             
-            ['shift_cod' => 23, 'lesson_time_id' => 13],
+            // ['shift_cod' => 23, 'lesson_time_id' => 13],
 
             ['shift_cod' => 3, 'lesson_time_id' => 14],
             ['shift_cod' => 3, 'lesson_time_id' => 15],

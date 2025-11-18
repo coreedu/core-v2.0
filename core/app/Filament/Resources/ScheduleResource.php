@@ -181,7 +181,6 @@ class ScheduleResource extends Resource
 
                         $schedules = Schedule::mountSchedulePdf($schedules);
 
-                        // dd($schedules);
                         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.schedule-report', [
                             'schedule' => $schedules,
                         ]);
