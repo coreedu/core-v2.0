@@ -3,47 +3,49 @@
 namespace App\Filament\Widgets;
 
 use Filament\Widgets\ChartWidget;
-use App\Models\Room; // <-- Importe o Model 'Room'
+use App\Models\Room; // Responsável por acessar os dados de salas no banco
 
 class RoomInventoryChart extends ChartWidget
 {
-    protected static ?string $heading = 'Inventário: Total de Salas por Categoria';
+    // Título do widget exibido no dashboard
+    protected static ?string $heading = 'Recursos Disponíveis: Salas por Tipo';
     
+    // View customizada para estilização e layout do gráfico
     protected static string $views = 'filament.widgets.size_style_graphics';
 
-    // public function getColumnSpan(): int | string | array
-    // {
-    //     return [
-    //     'sm' => 12,
-    //     'md' => 8, // ocupa 8 das 12 colunas
-    //     'lg' => 6, // metade da tela
-    // ];
-    // }
-
-    protected static ?int $sort = 1; // Para aparecer primeiro (opcional)
+    // Prioriza este widget na ordem de exibição
+    protected static ?int $sort = 1;
 
     protected function getData(): array
     {
-        // 1. Chamar o método do Model
+        // Recupera, a partir do Model, a quantidade de salas agrupadas por categoria
         $data = Room::getCountByCategory();
 
         return [
             'datasets' => [
                 [
+                    // Nome da série apresentada no gráfico
                     'label' => 'Total de Salas',
-                    // Pega só os números: [50, 10, 3]
+
+                    // Quantidades por categoria (ex.: 10 salas comuns, 5 laboratórios etc.)
                     'data' => $data->pluck('room_count'),
-                    'backgroundColor' => 'rgba(255, 159, 64, 0.7)', // Laranja
+
+                    // Cor de preenchimento das barras para melhor visualização
+                    'backgroundColor' => 'rgba(255, 159, 64, 0.7)',
+
+                    // Cor da borda, reforçando contraste e clareza gráfica
                     'borderColor' => 'rgba(255, 159, 64, 1)',
                 ],
             ],
-            // Pega só os nomes: ['Sala Comum', 'Laboratório', 'Auditório']
+
+            // Nome das categorias exibidas no eixo X (ex.: Sala Comum, Laboratório, Auditório)
             'labels' => $data->pluck('name'),
         ];
     }
 
     protected function getType(): string
     {
-        return 'bar'; // Gráfico de barras
+        // Indica que o widget vai renderizar um gráfico de barras
+        return 'bar';
     }
 }

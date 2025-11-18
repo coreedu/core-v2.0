@@ -3,71 +3,81 @@
 namespace App\Filament\Widgets;
 
 use Filament\Widgets\ChartWidget;
-// Importe o Model de Equipamento
+// Model responsável por fornecer dados de uso de equipamentos
 use App\Models\Inventory\Equipment; 
 
 class EquipmentUsageChart extends ChartWidget
 {
-    protected static ?string $heading = 'Causa-Raiz: Uso de Salas por Equipamento (Top 10)';
+    // Título institucional exibido na área de dashboards
+    protected static ?string $heading = 'Fator de Procura: Equipamentos Mais Solicitados';
 
+    // View customizada para controle visual e responsividade
     protected static string $views = 'filament.widgets.size_style_graphics';
 
-    // public function getColumnSpan(): int | string | array
-    // {
-    //     return [
-    //     'sm' => 12,
-    //     'md' => 8, // ocupa 8 das 12 colunas
-    //     'lg' => 6, // metade da tela
-    // ];
-    // }
-
-    protected static ?int $sort = 2; // Ordem 2 (depois do Gráfico 1)
+    // Controla a posição deste widget na ordem de exibição
+    protected static ?int $sort = 2;
 
     protected function getData(): array
     {
-        // 1. Chamar o método do Model
+        // Recupera a métrica de uso de cada equipamento a partir do Model
         $data = Equipment::getUsageByEquipment();
 
         return [
             'datasets' => [
                 [
+                    // Rótulo da série de dados exibida no gráfico
                     'label' => 'Aulas Alocadas',
+
+                    // Quantidade de utilizações por equipamento
                     'data' => $data->pluck('usage_count'),
-                    'backgroundColor' => 'rgba(75, 192, 192, 0.7)', // Verde/Ciano
+
+                    // Cor principal das barras para reforçar visual analítico
+                    'backgroundColor' => 'rgba(75, 192, 192, 0.7)',
+
+                    // Destaque da borda das barras para melhorar contraste
                     'borderColor' => 'rgba(75, 192, 192, 1)',
                 ],
             ],
+
+            // Lista com os nomes dos equipamentos exibidos no eixo Y
             'labels' => $data->pluck('name'),
         ];
     }
 
     protected function getType(): string
     {
-        // Barras horizontais são melhores para rankings
+        // Gráfico de barras (usado em conjunto com a opção horizontal)
         return 'bar';
     }
 
     /**
-     * Adicionamos este método para fazer o gráfico ser HORIZONTAL.
+     * Configurações adicionais do gráfico,
+     * garantindo barras horizontais e melhor experiência visual para ranking.
      */
     protected function getOptions(): array
     {
         return [
-            'indexAxis' => 'y', // <-- Vira as barras para horizontal
+            // Define que o eixo principal será o Y, tornando o gráfico horizontal
+            'indexAxis' => 'y',
+
+            // Garante que o valor mínimo no eixo X seja zero
             'scales' => [
                 'x' => [
                     'beginAtZero' => true,
                 ],
             ],
+
+            // Customização dos tooltips para exibição mais clara dos valores
             'plugins' => [
                 'tooltip' => [
                     'callbacks' => [
+                        // Callback JS executado no front-end para formatar o tooltip
                         'label' => 'js:function(context) {
                             let label = context.dataset.label || "";
                             if (label) {
                                 label += ": ";
                             }
-                            label += context.parsed.x; 
+                            label += context.parsed.x; // Valor da barra
                             return label;
                         }',
                     ],

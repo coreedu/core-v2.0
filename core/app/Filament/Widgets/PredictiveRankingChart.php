@@ -3,101 +3,220 @@
 namespace App\Filament\Widgets;
 
 use Filament\Widgets\ChartWidget;
+// Cache: Usado para "memorizar" o resultado da predição (que é lenta) por 1 hora.
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Http\Client\ConnectionException;
+// ClassSchedule: O Model "Fato" que contém os dados de todas as aulas.
+use App\Models\ClassSchedule;
+// Process: A classe do Symfony usada para executar processos externos (o nosso script Python).
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Illuminate\Support\Facades\Http; // (Importação não utilizada neste código, mas pode ser útil)
 
 class PredictiveRankingChart extends ChartWidget
 {
-    // 1. O título estático (padrão)
-    protected static ?string $heading = 'Predição: Ranking de Demanda (Top 5 / Bottom 5)';
+    /**
+     * Título principal do widget.
+     */
+    protected static ?string $heading = 'Previsão de Procura: Salas (Top 5 / Bottom 5)';
 
-    // --- CORREÇÃO (PASSO 1) ---
-    // Adicionamos uma propriedade NÃO-ESTÁTICA para guardar o erro
+    /**
+     * Uma propriedade (não-estática) para guardar mensagens de erro.
+     * Usamos isto para mostrar o erro no título do gráfico se a predição falhar.
+     */
     protected ?string $errorTitle = null;
-    // -------------------------
 
-    protected static ?int $sort = 3;
+    /**
+     * Ordem de ordenação no dashboard.
+     */
+    protected static ?int $sort = 4;
 
-    public function getColumnSpan(): int | string | array
-    {
-        return 12; // Ocupa a largura total
-    }
+    /**
+     * Aponta para uma view Blade personalizada (em /resources/views/)
+     * para controlar a altura e o estilo do cartão deste widget.
+     */
+    protected static string $views = 'filament.widgets.size_style_graphics';
+
+    /**
+     * Controla o layout (largura) do widget na grelha (grid) do dashboard.
+     * Este código está comentado, por isso o widget usará a configuração padrão
+     * (provavelmente 12 colunas, ou o que estiver definido no Dashboard.php).
+     */
+    // public function getColumnSpan(): int | string | array
+    // {
+    //     return [
+    //     'sm' => 12,
+    //     'md' => 6, // ocupa 6 das 12 colunas
+    //     'lg' => 6, // metade da tela
+    //     ];
+    // }
     
-    // --- CORREÇÃO (PASSO 2) ---
-    // Adicionamos o método getHeading()
-    // Este método é NÃO-ESTÁTICO e é chamado pelo Filament para obter o título
+    /**
+     * Sobrescreve o método getHeading() padrão.
+     * Se a nossa propriedade $errorTitle foi definida (no catch),
+     * este método mostra o erro como o título do gráfico.
+     */
     public function getHeading(): string
     {
-        // Se a nossa propriedade de erro foi definida, mostra o erro
         if ($this->errorTitle) {
             return $this->errorTitle;
         }
-        // Senão, mostra o título estático padrão
         return self::$heading;
     }
-    // -------------------------
 
+    /**
+     * Esta é a função principal que o Filament chama para obter os dados do gráfico.
+     * É aqui que toda a "magia" (Cache, PHP e Python) acontece.
+     */
     protected function getData(): array
     {
+        /**
+         * PASSO 1: OTIMIZAÇÃO DE TIMEOUT (PHP)
+         * O treino de ML é lento. O PHP, por defeito, "morre" aos 30 segundos.
+         * Esta linha dá ao *script PHP do gráfico* 180 segundos (3 minutos)
+         * para que ele possa esperar pacientemente pela resposta do Python.
+         */
+        @set_time_limit(180);
+        
+        // Define uma chave única para o nosso cache de predição.
         $cacheKey = 'prediction_ranking_chart_data';
-        $cacheDuration = 60 * 60; // 1 hora
+        // Define por quanto tempo o cache será válido (1 hora).
+        $cacheDuration = 60 * 60; // 1 hora em segundos
 
+        /**
+         * PASSO 2: OTIMIZAÇÃO DE CACHE
+         * Esta é a otimização de performance mais importante.
+         * O Laravel tenta buscar os dados pela chave ('prediction_ranking_chart_data').
+         * Se encontrar (e não tiver expirado), ele retorna os dados instantaneamente.
+         * Se NÃO encontrar (ex: 1ª vez do dia), ele executa o código lento
+         * dentro da função (function () { ... }) e salva o resultado.
+         */
         $predictionData = Cache::remember($cacheKey, $cacheDuration, function () {
+            
             try {
-                $response = Http::timeout(180)->get(route('run-prediction'));
-                if (!$response->successful()) {
-                    return ['error' => 'Falha ao buscar predição. Rota retornou erro.'];
+                /**
+                 * PASSO 2a: COLETA DE DADOS (Laravel)
+                 * Recolhe todos os "Fatos" (aulas) e "Dimensões" (recursos)
+                 * para enviar ao Python como "dados de treino".
+                 */
+                $aulas = ClassSchedule::query()
+                    // ->with() é o "Eager Loading". Ele "cola" os dados relacionados
+                    // de outras tabelas numa única consulta eficiente.
+                    ->with([
+                        'schedule', 'schedule.course', 'sala', 'sala.equipments', 'dia', 'lessonTime'
+                    ])
+                    // ->select() define o "contrato" de dados com o Python.
+                    // Renomeamos colunas (ex: 'room as room_id') para criar um JSON
+                    // limpo e fácil para o Python entender.
+                    ->select(
+                        'id as aula_id', 'schedule_id', 'created_at',
+                        'room', 'room as room_id', // 'room' é para o ->with('sala')
+                        'day', 'day as day_id',     // 'day' é para o ->with('dia')
+                        'time', 'time as lesson_time_id' // 'time' é para o ->with('lessonTime')
+                    )
+                    ->get();
+                
+                // Se o banco de dados estiver vazio, não podemos treinar.
+                if ($aulas->isEmpty()) {
+                    return ['error' => 'Nenhuma aula (class_schedule) encontrada.'];
                 }
-                return $response->json();
-            } catch (ConnectionException $e) {
-                return ['error' => 'Erro de conexão ao chamar a rota /run-prediction.'];
-            } catch (\Exception $e) {
-                return ['error' => 'Erro geral: ' . $e->getMessage()];
-            }
-        });
+                
+                // Converte a coleção inteira de dados do Laravel num JSON gigante.
+                $jsonData = $aulas->toJson();
 
-        // --- CORREÇÃO (PASSO 3) ---
-        // A linha 63 estava aqui.
-        // Mudamos de "$this->heading = ..." para "$this->errorTitle = ..."
-        if (isset($predictionData['error']) && is_string($predictionData['error'])) {
-            $this->errorTitle = $predictionData['error']; // <-- CORRIGIDO
+                /**
+                 * PASSO 2b: EXECUÇÃO DO SCRIPT PYTHON
+                 * Aqui é a "ponte" entre PHP e Python.
+                 */
+                $scriptPath = base_path('storage/app/python/predict_demand.py');
+                $env = ['PYTHONIOENCODING' => 'UTF-8', 'LANG' => 'en_US.UTF-8'];
+
+                // Tenta usar 'py' (o launcher padrão do Windows)
+                $process = new Process(['py', $scriptPath], base_path(), $env);
+                
+                // --- CORREÇÃO DO TIMEOUT (PYTHON) ---
+                // O Processo Python também tem um limite (60s por defeito).
+                // Igualamos o limite dele ao do PHP (180s).
+                $process->setTimeout(180); 
+                
+                try {
+                    $process->setInput($jsonData); // Envia o JSON gigante para o Python
+                    $process->mustRun(); // Executa e espera (a parte lenta)
+                } catch (ProcessFailedException $e) {
+                    // Se 'py' falhar (ex: Linux/Mac), tenta 'python'
+                    $process = new Process(['python', $scriptPath], base_path(), $env);
+                    $process->setTimeout(180);
+                    $process->setInput($jsonData);
+                    $process->mustRun();
+                }
+
+                // Captura a "saída" (o que o Python "printou")
+                $output = $process->getOutput();
+                
+                if (empty($output)) {
+                    return ['error' => 'O script Python executou mas não retornou saída.'];
+                }
+
+                // Converte a resposta JSON do Python de volta para um array PHP
+                $result = json_decode($output, true); // true = array
+                
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    // Acontece se o Python der erro (ex: NaN) e o JSON for inválido
+                    return ['error' => 'Python retornou JSON inválido.', 'raw_output' => $output];
+                }
+
+                return $result; // <--- ESTE É O RESULTADO QUE SERÁ SALVO NO CACHE
+
+            } catch (ProcessFailedException $e) {
+                // Erro se o Python falhar (ex: "py" não encontrado, erro no script)
+                return ['error' => 'Script Python não encontrado ou falhou.', 'stderr' => $e->getMessage()];
+            } catch (\Exception $e) {
+                // Erro geral do PHP (ex: falha na coleta de dados)
+                return ['error' => 'Erro PHP: ' . $e->getMessage()];
+            }
+        }); // Fim do Cache::remember
+
+        /**
+         * PASSO 3: PROCESSAMENTO DO RESULTADO (Ranking Top 5 / Bottom 5)
+         * Aqui, já temos os dados (do Cache ou do Python) e vamos formatá-los.
+         */
+         
+        // Se a predição (ou o cache) retornou um erro, mostre-o
+        if (isset($predictionData['error'])) {
+            $this->errorTitle = $predictionData['error']; 
             return ['datasets' => [], 'labels' => []];
         }
-        // -------------------------
-
-        // Se os dados (do cache ou da chamada) não forem um array ou estiverem vazios
+        
         if (!is_array($predictionData) || empty($predictionData)) {
              $this->errorTitle = 'Predição retornou dados vazios ou inválidos.';
              return ['datasets' => [], 'labels' => []];
         }
 
-        // 6. Lógica de Ranking (Top 5 / Bottom 5)
+        // Converte o array de predição numa Coleção Laravel
         $dataCollection = collect($predictionData);
 
-        // Ordena do maior para o menor
+        // Ordena pela pontuação (do maior para o menor)
         $sorted = $dataCollection->sortByDesc('predicted_score');
-
-        // Pega os 5 primeiros
-        $top5 = $sorted->take(5);
         
-        // Pega os 5 últimos (se houver mais de 10 salas)
+        // Pega os 5 primeiros (Top 5)
+        $top5 = $sorted->take(5);
+        // Pega os 5 últimos e reordena-os (do menor para o maior)
         $bottom5 = $sorted->take(-5)->sortBy('predicted_score');
-
-        // Junta os dois grupos
+        
+        // Junta as duas listas (ex: 5 + 5 = 10 barras)
+        // .unique() garante que, se houver menos de 10 salas, não haja duplicatas
         $finalData = $top5->merge($bottom5)->unique('id_da_sala');
 
-        // 7. Prepara os dados para o Chart.js
+        /**
+         * PASSO 4: PREPARAÇÃO DOS DADOS PARA O CHART.JS
+         */
         $datasets = [
             [
                 'label' => 'Pontuação de Demanda Prevista',
                 'data' => $finalData->pluck('predicted_score')->all(),
-                
-                // Cor: Verde para Top 5, Vermelho para Bottom 5
+                // Lógica de cores: aplica verde para o Top 5, vermelho para o Bottom 5
                 'backgroundColor' => $finalData->map(function ($item, $key) use ($top5) {
-                    // Verifica se o ID está na lista do Top 5
                     return $top5->contains('id_da_sala', $item['id_da_sala'])
-                        ? 'rgba(75, 192, 192, 0.7)'  // Verde (Top)
+                        ? 'rgba(75, 192, 192, 0.7)'  // Verde-água (Top)
                         : 'rgba(255, 99, 132, 0.7)'; // Vermelho (Bottom)
                 })->all(),
             ]
@@ -111,15 +230,22 @@ class PredictiveRankingChart extends ChartWidget
         ];
     }
 
+    /**
+     * Define o tipo de gráfico (barra)
+     */
     protected function getType(): string
     {
-        return 'bar'; // Gráfico de barras
+        return 'bar';
     }
 
+    /**
+     * Define as opções visuais do Chart.js
+     */
     protected function getOptions(): array
     {
         return [
-            'indexAxis' => 'y', // Faz o gráfico ser Horizontal
+            // 'indexAxis' => 'y' é o que torna o gráfico de barras "deitado"
+            'indexAxis' => 'y', 
             'scales' => [
                 'x' => [
                     'beginAtZero' => true,
@@ -129,11 +255,12 @@ class PredictiveRankingChart extends ChartWidget
                     ]
                 ],
                 'y' => [
+                    // Impede que o Chart.js pule rótulos (nomes das salas)
                     'ticks' => ['autoskip' => false] 
                 ]
             ],
             'plugins' => [
-                'legend' => ['display' => false]
+                'legend' => ['display' => false] // Esconde a legenda
             ]
         ];
     }
