@@ -34,7 +34,7 @@ class TimeShift extends Model
                 $end = $timeShift->lessonTime
                     ? Carbon::parse($timeShift->lessonTime->end)->format('H:i')
                     : '';
-                return [$timeShift->id => "{$start} - {$end}"];
+                return [$timeShift->lesson_time_id => "{$start} - {$end}"];
             })
             ->toArray();
     }
