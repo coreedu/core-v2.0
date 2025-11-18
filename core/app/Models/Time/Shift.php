@@ -22,4 +22,12 @@ class Shift extends Model
             'id'
         );
     }
+
+    public static function listCodAndName(): array
+    {
+        return self::query()
+            ->orderBy('cod')
+            ->pluck('name', 'cod')
+            ->toArray();
+    }
 }

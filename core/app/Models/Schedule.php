@@ -129,6 +129,7 @@ class Schedule extends Model
         
         $satSlots = TimeDay::getTimesByDay(7); // sat times
         $timeSlots = TimeShift::getTimesMap(); // mapear periodo -> horarios
+        $shifts = Shift::listCodAndName(); // nome dos turnos
         $days = Day::getWeekDays(); // week days
         // $weight = 1;
 
@@ -142,10 +143,6 @@ class Schedule extends Model
                 ->get();
 
             $scheduleCourse = self::mountScheduleArrayPdf($schedule->course_id, $schedule->module_id, $existingItems);
-            // dump($scheduleCourse);
-            
-            // $weight += $scheduleCourse['weight'];
-            // unset($scheduleCourse['weight']);
             
             $register['courses'] = array_replace_recursive(
                 $register['courses'],
@@ -155,9 +152,8 @@ class Schedule extends Model
 
         $register['times'] = $timeSlots;
         $register['days'] = $days;
-        // $register['weight'] = $weight;
-
-        // dd($register);
+        $register['shifts'] = $shifts;
+        
         return $register;
     }
 
@@ -178,7 +174,6 @@ class Schedule extends Model
 
 
             if(!isset($scheduleData[$course]['name'])) $scheduleData[$course]['name'] = Curso::find($course)?->nome ?? '-';
-            $scheduleData['weight'] = isset([$course]['days'][$day]['modules'][$module]) ? 0 : 1;
         }
 
         return $scheduleData;
