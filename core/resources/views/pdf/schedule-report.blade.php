@@ -1,4 +1,5 @@
 <html>
+
     <head>
         <style>
             @page {
@@ -37,7 +38,7 @@
                 background-color: #ffffff;
                 page-break-inside: avoid;
                 border-radius: 8px;
-                overflow: hidden; 
+                overflow: hidden;
             }
 
             .tabelaHorario th,
@@ -45,14 +46,32 @@
                 border: 1px solid #dde1e7;
                 padding: 5px;
                 text-align: center;
-                font-size: 11px;
+                vertical-align: middle;
+                /* font-size: 9px; */
                 color: #333333;
+            }
+
+            .textBig{
+                font-size: 14px;
+                /* color: #bd0e0eff; */
+            }
+
+            .textSmall{
+                font-size: 10px;
+                /* color: #bd0e0eff; */
+            }
+
+            .timeText{
+                font-size: 12px;
+                text-align: center;
+                vertical-align: middle;
+                color: #bd0e0eff;
             }
 
             .tabelaHorario th {
                 background-color: #6c88d3;
                 color: #ffffff;
-                font-weight: 600;
+                /* font-weight: 600; */
             }
 
             .thead tr td {
@@ -69,7 +88,7 @@
             }
 
             td i {
-                font-size: 14px;
+                font-size: 11px;
                 color: #6c88d3;
             }
 
@@ -119,71 +138,84 @@
                 font-size: 11px;
                 margin-bottom: 2px;
             }
+
+            .tabelaHorario td{
+                width: 110px;              /* ajuste como quiser */
+                height: 40px;              /* altura fixa */
+                max-height: 70px;
+                vertical-align: top;
+                overflow: hidden;
+            }
+
+            /* linha que contém as duas tabelas */
+            .pdf-row {
+                width: 100%;
+                display: block;
+                text-align: left;
+            }
+
+            /* coluna esquerda: 70% */
+            .pdf-col-left {
+                display: inline-block;
+                width: 69%;       /* precisa ser < 70% por causa do inline-block */
+                vertical-align: top;
+            }
+
+            /* coluna direita: 30% */
+            .pdf-col-right {
+                display: inline-block;
+                width: 29%;       /* precisa ser < 30% */
+                vertical-align: top;
+            }
         </style>
     </head>
     <body>
         <div id="header">
             <table width="100%">
-            <tr>
-                <td width="30%">
-                    <img src="{{ public_path('images/logo.svg') }}" style="height: 30px; margin-right: 5px;">
-                    <!-- <img src="resources\img\logo-fatec-cores.png" style="height: 30px;"> -->
-                </td>
-                <td width="40%"></td>
-                <td width="30%" style="text-align: right; font-size: 12px;">
-                    Core - Horário Acadêmico
-                </td>
-            </tr>
-        </table>
+                <tr>
+                    <td width="30%">
+                        <img src="{{ public_path('images/logo.svg') }}" style="height: 30px; margin-right: 5px;">
+                    </td>
+                    <td width="40%"></td>
+                    <td width="30%" style="text-align: right; font-size: 12px;">
+                        Core - Horário Acadêmico
+                    </td>
+                </tr>
+            </table>
         </div>
         @foreach($schedule['courses'] as $sc)
             @foreach($sc['shifts'] as $idxShift => $shift)
                 @foreach($shift['modules'] as $idxModule => $module)
-                    <div class="me-4 curso">
-                        <table class="text-sm text-center border-collapse bg-white tabelaHorario">
-                            <thead class="thead">
-                                <tr>
-                                    <th class="px-3 py-2 border" colspan="{{count($schedule['days'])+1}}">{{$idxModule}}° {{$sc['name'] ?? 'Nome Curso'}} - {{$schedule['shifts'][$idxShift]}}</th>
-                                </tr>
-                                <tr>
-                                    <th class="border">
-                                        
-                                    </th>
-                                    @foreach($schedule['days'] as $idxDay => $day)
-                                        <th class="px-3 py-2 border">{{ $day }}</th>
-                                    @endforeach
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($schedule['times'][$idxShift] as $idxTime => $time)
-                                    <tr>
-                                        <td class="px-3 py-2 border">
-                                            {{$time}}
-                                        </td>
-                                        @foreach($schedule['days'] as $idxDay => $day)
-                                            @if(isset($module['days'][$idxDay]['times'][$idxTime]))
-                                                <td class="px-3 py-2 border">
-                                                    <div class="group-container">
-                                                        @foreach($module['days'][$idxDay]['times'][$idxTime]['groups'] as $group)
-                                                            <div class="group block"> 
-                                                                <span>{{Str::limit($group['subject'], 30, '...')}}</span>
-                                                                <span>{{Str::limit($group['teacher'], 30, '...')}}</span>
-                                                                <span>{{Str::limit($group['room'], 30, '...')}}</span>
-                                                            </div>
-                                                        @endforeach
-                                                    </div>
-                                                </td>
-                                            @else
-                                                <td class="px-3 py-2 border">-</td>
-                                            @endif
-                                        @endforeach
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        
-                        </table>
+                    <div class="pdf-row">
+                        <div class="pdf-col-left">
+                            @include('filament.resources.schedule-resource.partials.pdf-table', [
+                                'schedule' => $schedule,
+                                'curso' => $sc,
+                                'times' => $schedule['times'][$idxShift],
+                                'days' => $schedule['days'],
+                                'module' => $module,
+                                'idxModule' => $idxModule,
+                                'shift' => $schedule['shifts'][$idxShift]
+                            ])
+                        </div>
+
+                        <div class="pdf-col-right">
+                            @include('filament.resources.schedule-resource.partials.pdf-table', [
+                                'schedule' => $schedule,
+                                'curso' => $sc,
+                                'times' => $schedule['satSlots'],
+                                'days' => [7 => 'Sábado'],
+                                'module' => $module,
+                                'idxModule' => $idxModule,
+                                'shift' => ''
+                            ])
+                        </div>
                     </div>
-                    <div class="page-break"></div>
+
+                    {{-- Só quebra página se NÃO for o último item --}}
+                    @if(!($loop->parent->parent->last && $loop->parent->last && $loop->last))
+                        <div class="page-break"></div>
+                    @endif
                 @endforeach
             @endforeach
         @endforeach

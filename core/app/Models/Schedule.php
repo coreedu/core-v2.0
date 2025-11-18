@@ -131,9 +131,6 @@ class Schedule extends Model
         $timeSlots = TimeShift::getTimesMap(); // mapear periodo -> horarios
         $shifts = Shift::listCodAndName(); // nome dos turnos
         $days = Day::getWeekDays(); // week days
-        // $weight = 1;
-
-        // dd($schedules);
 
         $register['courses'] = [];
 
@@ -153,6 +150,7 @@ class Schedule extends Model
         $register['times'] = $timeSlots;
         $register['days'] = $days;
         $register['shifts'] = $shifts;
+        $register['satSlots'] = $satSlots;
         
         return $register;
     }
