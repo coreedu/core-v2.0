@@ -191,6 +191,7 @@
                             @include('filament.resources.schedule-resource.partials.pdf-table', [
                                 'schedule' => $schedule,
                                 'curso' => $sc,
+                                'cursoName' => $sc['name'],
                                 'times' => $schedule['times'][$idxShift],
                                 'days' => $schedule['days'],
                                 'module' => $module,
@@ -203,6 +204,7 @@
                             @include('filament.resources.schedule-resource.partials.pdf-table', [
                                 'schedule' => $schedule,
                                 'curso' => $sc,
+                                'cursoName' => $sc['abreviacao'],
                                 'times' => $schedule['satSlots'],
                                 'days' => [7 => 'Sábado'],
                                 'module' => $module,

@@ -172,6 +172,7 @@ class Schedule extends Model
 
 
             if(!isset($scheduleData[$course]['name'])) $scheduleData[$course]['name'] = Curso::find($course)?->nome ?? '-';
+            if(!isset($scheduleData[$course]['abreviacao'])) $scheduleData[$course]['abreviacao'] = Curso::find($course)?->abreviacao ?? '-';
         }
 
         return $scheduleData;
