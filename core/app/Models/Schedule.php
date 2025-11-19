@@ -139,7 +139,7 @@ class Schedule extends Model
                 ->select('day', 'time', 'component', 'instructor', 'room', 'group')
                 ->get();
 
-            $scheduleCourse = self::mountScheduleArrayPdf($schedule->course_id, $schedule->module_id, $existingItems);
+            $scheduleCourse = self::mountScheduleArrayPdf($schedule->course_id, $schedule->module_id, $schedule->shift_cod, $existingItems);
             
             $register['courses'] = array_replace_recursive(
                 $register['courses'],
@@ -155,14 +155,14 @@ class Schedule extends Model
         return $register;
     }
 
-    public static function mountScheduleArrayPdf($course, $module, $itens){
+    public static function mountScheduleArrayPdf($course, $module, $shift, $itens){
         $scheduleData[$course] = [];
         foreach ($itens as $item) {
             $day = $item->day;
             
             $group = $item->group ?? 'A';
 
-            $shift = TimeShift::getShiftCodById($item->time);
+            // $shift = TimeShift::getShiftCodById($item->time);
 
             $scheduleData[$course]['shifts'][$shift]['modules'][$module]['days'][$day]['times'][$item->time]['groups'][$group] = [
                 'subject' => Componente::find($item->component)?->nome ?? '-',
