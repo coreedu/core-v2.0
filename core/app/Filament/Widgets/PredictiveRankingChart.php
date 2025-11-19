@@ -251,7 +251,7 @@ class PredictiveRankingChart extends ChartWidget
                     'beginAtZero' => true,
                     'title' => [
                         'display' => true,
-                        'text' => 'Pontuação de Demanda (Prevista pelo Python)'
+                        'text' => 'Pontuação de Demanda Prevista'
                     ]
                 ],
                 'y' => [
