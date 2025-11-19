@@ -61,7 +61,7 @@
         </nav>
 
         <section class="hero-section d-flex justify-content-center align-items-center w-100 px-5" id="hero"> 
-            <div class="d-flex flex-row w-100 bg-white justify-content-center overflow-hidden p-3 bg-secondary">
+            <div class="d-flex flex-row w-100 justify-content-center overflow-hidden p-3">
                 <div class="d-flex flex-row flex-nowrap animation-wrapper">
                     {{-- Bloco 1 --}}
                     @include('filament.resources.schedule-resource.partials.land-schedule-table', [
