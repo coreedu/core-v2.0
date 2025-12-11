@@ -73,6 +73,11 @@ class GroupEquipmentResource extends Resource
                 Tables\Columns\TextColumn::make('maintenance_date')
                     ->label('Manutenção')
                     ->date('d/m/Y')
+                    ->sortable(), 
+                    
+                Tables\Columns\TextColumn::make('equipments_count')
+                    ->label('Equipamentos')
+                    ->counts('equipments')
                     ->sortable(),
             ])
             ->defaultSort('name')
@@ -88,7 +93,7 @@ class GroupEquipmentResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\EquipmentsRelationManager::class,
         ];
     }
 

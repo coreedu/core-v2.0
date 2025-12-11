@@ -61,6 +61,14 @@ class EquipmentResource extends Resource
                     ->preload(),
             ]),
 
+            Forms\Components\Select::make('group_equipment_id')
+                ->label('Grupo do Equipamento')
+                ->relationship('group', 'name')
+                ->searchable()
+                ->preload()
+                ->placeholder('Selecione um grupo')
+                ->nullable(),
+
             Forms\Components\Toggle::make('status')
                 ->label('Disponível')
                 ->onColor('success')
@@ -115,6 +123,12 @@ class EquipmentResource extends Resource
                         ->formatStateUsing(fn(bool $state): string => $state ? 'Disponível' : 'Indisponível')
                         ->badge()
                         ->color(fn(bool $state): string => $state ? 'success' : 'danger'),
+
+                    Tables\Columns\TextColumn::make('group.name')
+                        ->label('Grupo')
+                        ->badge()
+                        ->color('primary')
+                        ->sortable(),
                 ])->space(2),
             ])
             ->contentGrid([

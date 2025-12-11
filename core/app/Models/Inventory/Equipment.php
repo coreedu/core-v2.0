@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use App\Models\ClassSchedule;
+use App\Models\GroupEquipment;
 
 class Equipment extends Model
 {
@@ -21,6 +22,7 @@ class Equipment extends Model
         'status',
         'observation',
         'photos',
+        'group_equipment_id'
     ];
 
     protected $casts = [
@@ -41,6 +43,11 @@ class Equipment extends Model
     {
         return $this->belongsToMany(\App\Models\Room::class, 'equipment_room', 'equipment_id', 'room_id')
             ->withTimestamps();
+    }
+
+    public function group()
+    {
+        return $this->belongsTo(GroupEquipment::class, 'group_equipment_id');
     }
 
     // --- NOVO MÉTODO PARA O GRÁFICO 2 ---
