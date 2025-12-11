@@ -6,6 +6,8 @@ use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Grid;
 
 use Filament\Tables\Actions\Action;
 use App\Models\GroupEquipment;
@@ -61,27 +63,36 @@ class GroupEquipmentsRelationManager extends RelationManager
                             ->required(),
 
                         // -------- EXISTENTE --------
-                        Forms\Components\Select::make('group_equipment_id')
-                            ->label('Grupo existente')
-                            ->options(
-                                fn () => GroupEquipment::query()
-                                    ->whereNull('room_id')
-                                    ->pluck('name', 'id')
-                            )
-                            ->searchable()
-                            ->required()
-                            ->visible(fn ($get) => $get('mode') === 'existing'),
+                        Section::make('Grupo existente')
+                            ->visible(fn ($get) => $get('mode') === 'existing')
+                            ->schema([
+                                Forms\Components\Select::make('group_equipment_id')
+                                    ->label('Grupos')
+                                    ->options(
+                                        fn () => GroupEquipment::query()
+                                            ->whereNull('room_id')
+                                            ->pluck('name', 'id')
+                                    )
+                                    ->searchable()
+                                    ->required()
+                        ]),
+                        
 
                         // -------- NOVO --------
-                        Forms\Components\TextInput::make('name')
-                            ->label('Nome do grupo')
-                            ->required()
-                            ->visible(fn ($get) => $get('mode') === 'new'),
+                        Section::make('Novo grupo')
+                        ->visible(fn ($get) => $get('mode') === 'new')
+                        ->schema([
+                            Grid::make(3)->schema([
+                                Forms\Components\TextInput::make('name')
+                                    ->label('Nome do grupo')
+                                    ->required(),
 
-                        Forms\Components\Toggle::make('status')
-                            ->label('Ativo')
-                            ->default(true)
-                            ->visible(fn ($get) => $get('mode') === 'new'),
+                                Forms\Components\Toggle::make('status')
+                                    ->label('Ativo')
+                                    ->default(true)
+                            ]),
+                        ]),
+                        
                     ])
                     ->action(function (array $data) {
                         $record = $this->getOwnerRecord();
@@ -96,8 +107,8 @@ class GroupEquipmentsRelationManager extends RelationManager
                         if ($data['mode'] === 'new') {
                             GroupEquipment::create([
                                 'name' => $data['name'],
-                                'patrimony' => $data['patrimony'] ?? null,
-                                'maintenance_date' => $data['maintenance_date'] ?? null,
+                                // 'patrimony' => $data['patrimony'] ?? null,
+                                // 'maintenance_date' => $data['maintenance_date'] ?? null,
                                 'status' => $data['status'] ?? true,
                                 'room_id' => $record->id,
                             ]);
@@ -105,7 +116,6 @@ class GroupEquipmentsRelationManager extends RelationManager
                     }),
             ])
             ->actions([
-                // Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('detach')
                     ->label('Remover grupo')
                     ->icon('heroicon-o-link-slash')
