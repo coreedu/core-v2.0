@@ -7,6 +7,8 @@ use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Grid;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Actions\Action;
@@ -67,39 +69,64 @@ class EquipmentsRelationManager extends RelationManager
                         ->required(),
 
                     // ---- EXISTENTE ----
-                    Forms\Components\Select::make('equipment_id')
-                        ->label('Equipamento existente')
-                        ->options(
-                            fn () => Equipment::query()
-                                ->whereNull('group_equipment_id')
-                                ->pluck('name', 'id')
-                        )
-                        ->searchable()
-                        ->required()
-                        ->visible(fn ($get) => $get('mode') === 'existing'),
-
+                    Section::make('Equipamento existente')
+                        ->visible(fn ($get) => $get('mode') === 'existing')
+                        ->schema([
+                            Forms\Components\Select::make('equipment_id')
+                                ->label('Equipamento')
+                                ->options(
+                                    fn () => Equipment::query()
+                                        ->whereNull('group_equipment_id')
+                                        ->pluck('name', 'id')
+                                )
+                                ->searchable()
+                                ->required(),
+                        ]),
                     // ---- NOVO ----
-                    Forms\Components\TextInput::make('name')
-                        ->label('Nome do equipamento')
-                        ->required()
-                        ->visible(fn ($get) => $get('mode') === 'new'),
+                    Section::make('Novo equipamento')
+                        ->visible(fn ($get) => $get('mode') === 'new')
+                        ->schema([
+                            Grid::make(3)->schema([
+                                Forms\Components\TextInput::make('name')
+                                    ->label('Nome do equipamento')
+                                    ->required(),
 
-                    Forms\Components\Select::make('brand_id')
-                        ->label('Marca')
-                        ->relationship('brand', 'name')
-                        ->searchable()
-                        ->visible(fn ($get) => $get('mode') === 'new'),
+                                Forms\Components\TextInput::make('patrimony')
+                                    ->label('Patrimônio')
+                                    ->placeholder('Ex.: 12345')
+                                    ->maxLength(255)
+                                    ->nullable(),
 
-                    Forms\Components\Select::make('type_id')
-                        ->label('Tipo')
-                        ->relationship('type', 'name')
-                        ->searchable()
-                        ->visible(fn ($get) => $get('mode') === 'new'),
+                                Forms\Components\Select::make('brand_id')
+                                    ->label('Marca')
+                                    ->relationship('brand', 'name')
+                                    ->searchable(),
 
-                    Forms\Components\Toggle::make('status')
-                        ->label('Ativo')
-                        ->default(true)
-                        ->visible(fn ($get) => $get('mode') === 'new'),
+                                Forms\Components\Select::make('type_id')
+                                    ->label('Tipo')
+                                    ->relationship('type', 'name')
+                                    ->searchable(),
+
+                                Forms\Components\Toggle::make('status')
+                                    ->label('Disponível')
+                                    ->default(true),
+
+                                Forms\Components\Textarea::make('observation')
+                                    ->label('Observações')
+                                    ->placeholder('Ex.: Equipamento com pequenos arranhões na lateral.')
+                                    ->rows(3)
+                                    ->nullable(),
+
+                                // Forms\Components\FileUpload::make('photos')
+                                //     ->label('Fotos do Equipamento')
+                                //     ->image()
+                                //     ->multiple()
+                                //     ->reorderable()
+                                //     ->disk('public')
+                                //     ->directory('equipments')
+                                //     ->nullable(),
+                            ]),
+                        ]),
                 ])
                 ->action(function (array $data) {
                     if ($data['mode'] === 'existing') {
@@ -138,15 +165,15 @@ class EquipmentsRelationManager extends RelationManager
                     ->label('Status')
                     ->boolean(),
             ])
-            // ->headerActions([
-            //     Tables\Actions\CreateAction::make()
-            //         ->label('Adicionar equipamento'),
-            // ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()
-                    ->label('Remover do grupo')
-                    ->before(function ($record) {
+                Tables\Actions\Action::make('detach')
+                    ->label('Remover Equipamento')
+                    ->icon('heroicon-o-link-slash')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalHeading('Remover equipamento do grupo')
+                    ->modalDescription('O equipamento será apenas desvinculado deste grupo.')
+                    ->action(function ($record) {
                         $record->update(['group_equipment_id' => null]);
                     }),
             ]);
