@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->foreignId('brand_id')->nullable()->constrained('brands')->nullOnDelete();
             $table->foreignId('type_id')->nullable()->constrained('types')->nullOnDelete();
+            $table->foreignId('group_equipment_id')->nullable()->constrained('group_equipment')->nullOnDelete();
             $table->string('patrimony')->nullable();
             $table->boolean('status')->default(true);
             $table->text('observation')->nullable();
