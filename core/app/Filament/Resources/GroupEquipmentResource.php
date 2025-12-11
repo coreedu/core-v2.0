@@ -42,10 +42,10 @@ class GroupEquipmentResource extends Resource
                     ->label('Ativo')
                     ->default(true),
 
-                Forms\Components\TextInput::make('patrimony')
-                    ->label('Patrimonio')
-                    ->maxLength(255)
-                    ->nullable(),
+                // Forms\Components\TextInput::make('patrimony')
+                //     ->label('Patrimonio')
+                //     ->maxLength(255)
+                //     ->nullable(),
 
                 Forms\Components\DatePicker::make('maintenance_date')
                     ->label('Data de manutenção')
@@ -66,9 +66,9 @@ class GroupEquipmentResource extends Resource
                     ->label('Status')
                     ->boolean(),
 
-                Tables\Columns\TextColumn::make('patrimony')
-                    ->label('Patrimonio')
-                    ->searchable(),
+                // Tables\Columns\TextColumn::make('patrimony')
+                //     ->label('Patrimonio')
+                //     ->searchable(),
 
                 Tables\Columns\TextColumn::make('maintenance_date')
                     ->label('Manutenção')
