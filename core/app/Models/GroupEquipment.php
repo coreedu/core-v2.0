@@ -24,6 +24,11 @@ class GroupEquipment extends Model
         );
     }
 
+    public function equipmentsCount(): int
+    {
+        return $this->equipments()->count();
+    }
+
     public function room()
     {
         return $this->belongsTo(Room::class, 'room_id');

@@ -103,12 +103,14 @@ class RoomResource extends Resource
                         ->badge()
                         ->color('info'),
 
-                    // Tables\Columns\TextColumn::make('equipments_count')
-                    //     ->counts('equipments')
-                    //     ->label('Equipamentos')
-                    //     ->formatStateUsing(fn($state) => "{$state} equipamento" . ($state != 1 ? 's' : ''))
-                    //     ->badge()
-                    //     ->color('gray'),
+                    Tables\Columns\TextColumn::make('total_equipments')
+                        ->label('Equipamentos')
+                        ->getStateUsing(fn ($record) => $record->totalEquipments())
+                        ->formatStateUsing(fn ($state) =>
+                            "{$state} equipamento" . ($state != 1 ? 's' : '')
+                        )
+                        ->badge()
+                        ->color('gray'),
                 ])->space(2),
             ])
             ->contentGrid([

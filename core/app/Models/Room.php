@@ -24,12 +24,6 @@ class Room extends Model
     {
         return $this->belongsTo(\App\Models\Category::class, 'type');
     }
-
-    // public function equipments()
-    // {
-    //     return $this->belongsToMany(\App\Models\Inventory\Equipment::class, 'equipment_room', 'room_id', 'equipment_id')
-    //         ->withTimestamps();
-    // }
     
     public function groupEquipments()
     {
@@ -37,6 +31,14 @@ class Room extends Model
             \App\Models\GroupEquipment::class,
             'room_id'
         );
+    }
+
+    public function totalEquipments(): int
+    {
+        return \DB::table('group_equipment')
+            ->leftJoin('equipment', 'equipment.group_equipment_id', '=', 'group_equipment.id')
+            ->where('group_equipment.room_id', $this->id)
+            ->count('equipment.id');
     }
 
     public static function getRoomsArray()

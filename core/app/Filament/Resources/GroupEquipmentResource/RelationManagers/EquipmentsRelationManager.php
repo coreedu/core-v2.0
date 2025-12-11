@@ -147,7 +147,6 @@ class EquipmentsRelationManager extends RelationManager
                 Tables\Actions\DeleteAction::make()
                     ->label('Remover do grupo')
                     ->before(function ($record) {
-                        // remove o vínculo, não apaga o equipamento
                         $record->update(['group_equipment_id' => null]);
                     }),
             ]);
