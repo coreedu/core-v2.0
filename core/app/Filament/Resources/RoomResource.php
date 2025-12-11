@@ -3,7 +3,8 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\RoomResource\Pages;
-use App\Filament\Resources\RoomResource\RelationManagers\EquipmentsRelationManager;
+// use App\Filament\Resources\RoomResource\RelationManagers\EquipmentsRelationManager;
+use App\Filament\Resources\RoomResource\RelationManagers\GroupEquipmentsRelationManager;
 use App\Models\Room;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -102,12 +103,12 @@ class RoomResource extends Resource
                         ->badge()
                         ->color('info'),
 
-                    Tables\Columns\TextColumn::make('equipments_count')
-                        ->counts('equipments')
-                        ->label('Equipamentos')
-                        ->formatStateUsing(fn($state) => "{$state} equipamento" . ($state != 1 ? 's' : ''))
-                        ->badge()
-                        ->color('gray'),
+                    // Tables\Columns\TextColumn::make('equipments_count')
+                    //     ->counts('equipments')
+                    //     ->label('Equipamentos')
+                    //     ->formatStateUsing(fn($state) => "{$state} equipamento" . ($state != 1 ? 's' : ''))
+                    //     ->badge()
+                    //     ->color('gray'),
                 ])->space(2),
             ])
             ->contentGrid([
@@ -200,7 +201,7 @@ class RoomResource extends Resource
     public static function getRelations(): array
     {
         return [
-            EquipmentsRelationManager::class,
+            GroupEquipmentsRelationManager::class,
         ];
     }
 

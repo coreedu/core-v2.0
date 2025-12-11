@@ -25,10 +25,18 @@ class Room extends Model
         return $this->belongsTo(\App\Models\Category::class, 'type');
     }
 
-    public function equipments()
+    // public function equipments()
+    // {
+    //     return $this->belongsToMany(\App\Models\Inventory\Equipment::class, 'equipment_room', 'room_id', 'equipment_id')
+    //         ->withTimestamps();
+    // }
+    
+    public function groupEquipments()
     {
-        return $this->belongsToMany(\App\Models\Inventory\Equipment::class, 'equipment_room', 'room_id', 'equipment_id')
-            ->withTimestamps();
+        return $this->hasMany(
+            \App\Models\GroupEquipment::class,
+            'room_id'
+        );
     }
 
     public static function getRoomsArray()

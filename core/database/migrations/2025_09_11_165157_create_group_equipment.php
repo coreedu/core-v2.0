@@ -17,6 +17,7 @@ return new class extends Migration
             $table->boolean('status')->default(true);
             $table->string('patrimony')->nullable();
             $table->date('maintenance_date')->nullable();
+            $table->foreignId('room_id')->nullable()->constrained('room')->nullOnDelete();
             $table->timestamps();
         });
     }
