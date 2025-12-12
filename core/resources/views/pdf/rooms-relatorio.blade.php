@@ -93,7 +93,7 @@
             word-wrap: break-word;
         }
 
-        th {
+        thead {
             background-color: var(--secondary-color);
             color: var(--white-color);
             font-weight: bold;
@@ -186,44 +186,54 @@
     </div>
 
     @foreach ($rooms as $room)
-    <div class="room-header">
-        <span>{{ $room->name ?? 'Sala ' . $room->number }}</span>
-        <span>| Nº {{ $room->number }}</span>
-        <span>| Status: <strong>{{ $room->active ? 'Ativa' : 'Inativa' }}</strong></span>
-    </div>
+        <div class="room-header">
+            <span>{{'Sala ' . $room->number }}</span>
+            <span>| Status: <strong>{{ $room->active ? 'Ativa' : 'Inativa' }}</strong></span>
+        </div>
 
-    @if ($room->equipments->count())
-    <table>
-        <thead>
-            <tr>
-                <th>Equipamento</th>
-                <th>Marca</th>
-                <th>Tipo</th>
-                <th>Patrimônio</th>
-                <th>Status</th>
-                <th>Observação</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($room->equipments as $eq)
-            <tr>
-                <td>{{ $eq->name }}</td>
-                <td>{{ $eq->brand->name ?? '-' }}</td>
-                <td>{{ $eq->type->name ?? '-' }}</td>
-                <td>{{ $eq->patrimony }}</td>
-                <td class="status {{ $eq->status ? 'disponivel' : 'indisponivel' }}">
-                    {{ $eq->status ? 'Disponível' : 'Indisponível' }}
-                </td>
-                <td>{{ $eq->observation ?? '-' }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-    @else
-    <p class="no-equip">Nenhum equipamento vinculado.</p>
-    @endif
+            @if ($room->totalEquipments())
+                <table>
+                    <thead>
+                        <tr>
+                            <td>Nome</td>
+                            <td>Marca</td>
+                            <td>Tipo</td>
+                            <td>Patrimônio</td>
+                            <td>Status</td>
+                        </tr>
+                    </thead>
+                </table>
+                @foreach ($room->getGroups() as $group)
+
+                    <h5>Grupo: {{ $group->name }}</h5>
+
+                    @php
+                        $equipments = $group->getEquipments();
+                    @endphp
+
+                    @if ($equipments->count())
+                        <table>
+                            @foreach ($equipments as $eq)
+                                <tr>
+                                    <td>{{ $eq->name }}</td>
+                                    <td>{{ $eq->brand->name ?? '-' }}</td>
+                                    <td>{{ $eq->type->name ?? '-' }}</td>
+                                    <td>{{ $eq->patrimony ?? '-' }}</td>
+                                    <<td class="status {{ $eq->status ? 'disponivel' : 'indisponivel' }}">
+                                        {{ $eq->status ? 'Disponível' : 'Indisponível' }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </table>
+                    @else
+                        <p>Nenhum equipamento neste grupo.</p>
+                    @endif
+
+                @endforeach
+            @else
+                <p class="no-equip">Nenhum equipamento vinculado.</p>
+            @endif
     @endforeach
-
     <footer>
         © {{ now()->year }} Sistema Core — Controle de Recursos Educacionais. Todos os direitos reservados.
     </footer>

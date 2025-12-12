@@ -33,6 +33,14 @@ class Room extends Model
         );
     }
 
+    public function getGroups()
+    {
+        return $this->groupEquipments()
+            ->with('equipments')
+            ->orderBy('name')
+            ->get();
+    }
+
     public function totalEquipments(): int
     {
         return \DB::table('group_equipment')
