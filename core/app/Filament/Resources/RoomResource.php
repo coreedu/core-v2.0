@@ -189,7 +189,7 @@ class RoomResource extends Resource
 
                         return response()->streamDownload(function () use ($pdf) {
                             echo $pdf->output();
-                        }, 'relatorio-ambientes-' . now()->format('d-m-Y_H\hi') . '.pdf');
+                        }, 'relatorio-ambientes-' . now()->format('Y-m-d_Hi') . '.pdf');
                     })
                     ->deselectRecordsAfterCompletion()
                     ->requiresConfirmation()
