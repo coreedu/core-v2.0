@@ -187,7 +187,7 @@
 
     @foreach ($rooms as $room)
         <div class="room-header">
-            <span>{{'Sala ' . $room->number }}</span>
+            <span>{{$room->category?->name. ' ' . $room->number }}</span>
             <span>| Status: <strong>{{ $room->active ? 'Ativa' : 'Inativa' }}</strong></span>
         </div>
 

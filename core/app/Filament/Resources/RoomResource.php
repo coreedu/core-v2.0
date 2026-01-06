@@ -181,7 +181,7 @@ class RoomResource extends Resource
                     ->label('Gerar Relatório')
                     ->icon('heroicon-o-document-text')
                     ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
-                        $rooms = $records;
+                        $rooms = $records->load('category');
 
                         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.rooms-relatorio', [
                             'rooms' => $rooms,
