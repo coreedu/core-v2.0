@@ -35,7 +35,7 @@ class ManageAvailability extends Page
 
     public function mount(): void
     {
-        $user = auth()->user();
+        $user = $this->record;
 
         $this->matrix = [];
 
