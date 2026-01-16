@@ -15,9 +15,9 @@ class ShiftSeeder extends Seeder
     {
         $shifts = [
             ['cod' => 1, 'name' => 'Matutino', 'description' => ''],
-            ['cod' => 12, 'name' => 'Matutino/Vespertino', 'description' => ''],
+            // ['cod' => 12, 'name' => 'Matutino/Vespertino', 'description' => ''],
             ['cod' => 2, 'name' => 'Vespertino', 'description' => ''],
-            ['cod' => 23, 'name' => 'Vespertino/Noturno', 'description' => ''],
+            // ['cod' => 23, 'name' => 'Vespertino/Noturno', 'description' => ''],
             ['cod' => 3, 'name' => 'Noturno', 'description' => '']
         ];
         

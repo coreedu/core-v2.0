@@ -24,7 +24,9 @@ class DayResource extends Resource
 
     protected static ?string $cluster = Time::class;
 
-    protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
+    // protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
+
+    protected static bool $shouldRegisterNavigation = false;
 
     protected static ?string $navigationLabel = 'Dias';
     protected static ?string $pluralModelLabel = 'Dias';
@@ -70,30 +72,30 @@ class DayResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\Action::make('view')
-                    ->label('Ver horários')
-                    ->icon('heroicon-o-eye')
-                    ->button()
-                    ->color('primary')
-                    ->modalHeading(fn($record) => "Horários — {$record->name}")
-                    ->modalSubmitActionLabel('Salvar')
-                    ->modalCancelActionLabel('Fechar')
-                    ->modalWidth('3xl')
-                    ->form([
-                        Forms\Components\CheckboxList::make('times')
-                            ->label('Horários disponíveis')
-                            ->relationship('times', 'start')
-                            ->getOptionLabelFromRecordUsing(fn($record) => method_exists($record, 'getLabelAttribute') ? $record->getLabelAttribute() : ($record->start ?? ''))
-                            ->columns(2)
-                            ->bulkToggleable()
-                            ->searchable()
-                            ->helperText('Selecione os horários que pertencem a este dia.'),
-                    ])
-                    ->mountUsing(function (Forms\Form $form, Day $record) {
-                        $form->fill([
-                            'times' => $record->times()->pluck('lesson_time.id')->all(),
-                        ]);
-                    }),
+                // Tables\Actions\Action::make('view')
+                //     ->label('Ver horários')
+                //     ->icon('heroicon-o-eye')
+                //     ->button()
+                //     ->color('primary')
+                //     ->modalHeading(fn($record) => "Horários — {$record->name}")
+                //     ->modalSubmitActionLabel('Salvar')
+                //     ->modalCancelActionLabel('Fechar')
+                //     ->modalWidth('3xl')
+                //     ->form([
+                //         Forms\Components\CheckboxList::make('times')
+                //             ->label('Horários disponíveis')
+                //             ->relationship('times', 'start')
+                //             ->getOptionLabelFromRecordUsing(fn($record) => method_exists($record, 'getLabelAttribute') ? $record->getLabelAttribute() : ($record->start ?? ''))
+                //             ->columns(2)
+                //             ->bulkToggleable()
+                //             ->searchable()
+                //             ->helperText('Selecione os horários que pertencem a este dia.'),
+                //     ])
+                //     ->mountUsing(function (Forms\Form $form, Day $record) {
+                //         $form->fill([
+                //             'times' => $record->times()->pluck('lesson_time.id')->all(),
+                //         ]);
+                //     }),
 
                 Tables\Actions\EditAction::make()
                     ->label('Editar')
