@@ -60,7 +60,7 @@ class ShiftResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->defaultSort('cod')
+            // ->defaultSort('cod')
             ->columns([
                 Stack::make([
                     TextColumn::make('name')

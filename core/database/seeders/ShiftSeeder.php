@@ -14,11 +14,11 @@ class ShiftSeeder extends Seeder
     public function run(): void
     {
         $shifts = [
-            ['cod' => 1, 'name' => 'Matutino', 'description' => ''],
-            // ['cod' => 12, 'name' => 'Matutino/Vespertino', 'description' => ''],
-            ['cod' => 2, 'name' => 'Vespertino', 'description' => ''],
-            // ['cod' => 23, 'name' => 'Vespertino/Noturno', 'description' => ''],
-            ['cod' => 3, 'name' => 'Noturno', 'description' => '']
+            ['name' => 'Matutino', 'description' => ''],
+            // ['name' => 'Matutino/Vespertino', 'description' => ''],
+            ['name' => 'Vespertino', 'description' => ''],
+            // ['name' => 'Vespertino/Noturno', 'description' => ''],
+            ['name' => 'Noturno', 'description' => '']
         ];
         
         foreach ($shifts as $shift) {

@@ -3,31 +3,38 @@
 namespace App\Models\Time;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Time\TimeConfig;
 
 class Shift extends Model
 {
     protected $table = 'shift';
 
     // Campos que podem ser preenchidos em mass-assignment
-    protected $fillable = ['cod', 'name', 'description']; 
+    protected $fillable = ['name', 'description']; 
 
-    public function lessonTimes()
-    {
-        return $this->belongsToMany(
-            \App\Models\Time\LessonTime::class,
-            'time_shift',
-            'shift_cod',
-            'lesson_time_id',
-            'cod',
-            'id'
-        );
-    }
+    // public function lessonTimes()
+    // {
+    //     return $this->belongsToMany(
+    //         \App\Models\Time\LessonTime::class,
+    //         'time_shift',
+    //         'shift_id',
+    //         'lesson_time_id',
+    //         'cod',
+    //         'id'
+    //     );
+    // }
 
     public static function listCodAndName(): array
     {
         return self::query()
-            ->orderBy('cod')
-            ->pluck('name', 'cod')
+            ->orderBy('id')
+            ->pluck('name', 'id')
             ->toArray();
+    }
+
+    public function timeConfigs(): HasMany
+    {
+        return $this->hasMany(TimeConfig::class, 'shift_id');
     }
 }

@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('shift', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('cod');
+            // $table->unsignedInteger('cod');
             $table->string('name', 100);
-            $table->string('description', 100);
+            $table->string('description', 100)->nullable();
             $table->timestamps();
         });
     }
