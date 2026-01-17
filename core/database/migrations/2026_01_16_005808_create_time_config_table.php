@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('time_config', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('context_id')->nullable()->constrained('contexts');
-            $table->foreignId('shift_id')->nullable()->constrained('shifts');
+            $table->foreignId('context_id')->constrained('contexts');
+            $table->foreignId('shift_id')->constrained('shifts');
             $table->timestamps();
         });
     }

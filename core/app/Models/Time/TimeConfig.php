@@ -31,8 +31,8 @@ class TimeConfig extends Model
         return $this->hasMany(TimeSlots::class, 'time_config_id');
     }
 
-    public function day(): BelongsTo
+    public function getFullNameAttribute(): string
     {
-        return $this->belongsTo(Day::class, 'day_id');
+        return "{$this->context->name} - {$this->shift->name}";
     }
 }
