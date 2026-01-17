@@ -8,7 +8,7 @@ use App\Models\Schedule;
 use App\Models\Curso;
 use App\Models\Room;
 use App\Models\Time\Day;
-use App\Models\TimeShift;
+use App\Models\Time\TimeSlots;
 use App\Models\TimeDay;
 use Filament\Actions as PageActions;
 use App\Filament\Components\HelpButton;
@@ -35,10 +35,19 @@ class ManageSchedules extends Page
     {
         $this->record = $record;
         
-        $this->timeSlots = TimeShift::getTimesByShift($record->shift_cod);
-        $this->days = Day::getWeekDaysSchedule(array_keys($this->timeSlots));
+        $config = $record->timeConfig;
+
+        $this->slots = $config->slots()
+            ->with(['day', 'lessonTime']) 
+            ->get();
+
+        $this->timeSlots = $this->slots->map(function ($slot) {
+            return substr($slot->lessonTime->start, 0, 5) . ' - ' . substr($slot->lessonTime->end, 0, 5);
+        })->unique()->toArray();
+
+        $this->days = $this->slots->pluck('day.name')->unique()->toArray();
         
-        $this->saturdayTimes = TimeDay::getTimesByDay(7);
+        // $this->saturdayTimes = TimeDay::getTimesByDay(7);
 
         $this->subjects = Curso::find($record->course_id)
             ?->getComponentsByModule($record->module_id);
@@ -46,12 +55,14 @@ class ManageSchedules extends Page
         $this->rooms = Room::getRoomsArray();
 
         $existingItems = $record->items()
-            ->select('day', 'time', 'component', 'instructor', 'room', 'group')
+            ->with('timeSlots')
             ->get();
 
         foreach ($existingItems as $item) {
-            $day = $item->day;
-            $time = $item->time;
+            $slot = $item->timeSlots;
+
+            $day = $slot->day_id;
+            $time = $slot->lesson_time_id;
             $group = $item->group ?? 'A';
 
             if (!empty($group)) {

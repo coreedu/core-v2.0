@@ -11,7 +11,7 @@
             </div>
 
             <div>
-                <strong>Turno:</strong> {{ $this->record->shift->name }}
+                <strong>Turno:</strong> {{ $this->record->timeConfig->shift->name }}
             </div>
         </div>
         <div class="flex justify-end">
@@ -19,23 +19,12 @@
                 Salvar Grade
             </x-filament::button>
         </div>
-        <div class="flex gap-6">
+        <div class="">
             {{-- Tabela de horários --}}
-            <div class="w-[70%] overflow-x-auto shadow rounded-lg border border-gray-700">
+            <div class="w-[100%] overflow-x-auto shadow rounded-lg border border-gray-700">
                 @include('filament.resources.schedule-resource.partials.schedule-table', [
                     'columns' => $this->days,
                     'timeSlots' => $this->timeSlots,
-                    'scheduleData' => $this->scheduleData,
-                    'subjects' => $this->subjects,
-                    'rooms' => $this->rooms
-                ])
-            </div>
-
-            {{--Tabela de Sábado --}}
-            <div class="w-[30%] overflow-x-auto shadow rounded-lg border border-gray-700">
-                @include('filament.resources.schedule-resource.partials.schedule-table', [
-                    'columns' => ['7' => 'Sábado'],
-                    'timeSlots' => $this->saturdayTimes,
                     'scheduleData' => $this->scheduleData,
                     'subjects' => $this->subjects,
                     'rooms' => $this->rooms
