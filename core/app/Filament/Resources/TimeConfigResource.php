@@ -23,6 +23,9 @@ use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Actions\Action;
+use Filament\Forms\Set;
+use Filament\Notifications\Notification;
 
 class TimeConfigResource extends Resource
 {
@@ -43,7 +46,13 @@ class TimeConfigResource extends Resource
     {
         $shifts = Shift::all();
         $days = Day::all();
-        $lessonTimes = LessonTime::pluck('start', 'id');
+        $lessonTimes = LessonTime::all()
+            ->mapWithKeys(function ($time) {
+                $start = substr($time->start, 0, 5);
+                $end = substr($time->end, 0, 5);
+                
+                return [$time->id => "{$start} - {$end}"];
+            });
 
         return $form
             ->schema([
@@ -52,11 +61,10 @@ class TimeConfigResource extends Resource
                     ->relationship('context', 'name')
                     ->required()
                     ->disabled(fn ($context) => $context === 'edit')
-                    ->unique(
-                        table: 'time_config', 
-                        column: 'context_id', 
-                        ignoreRecord: true
-                    )
+                    ->dehydrated()
+                    ->rules(function ($record) {
+                        return $record ? [] : ['unique:time_config,context_id'];
+                    })
                     ->validationMessages([
                         'unique' => 'Esta modalidade já possui uma configuração de horários cadastrada.',
                     ]),
@@ -73,7 +81,34 @@ class TimeConfigResource extends Resource
                                                 return CheckboxList::make("slots.{$shift->id}.{$day->id}")
                                                     ->label($day->name)
                                                     ->options($lessonTimes)
-                                                    ->bulkToggleable();
+                                                    ->bulkToggleable()
+                                                    ->hintAction(
+                                                        Action::make('replicate')
+                                                            ->label('')
+                                                            ->icon('heroicon-m-arrow-path')
+                                                            ->color('info')
+                                                            ->tooltip('Copiar este dia para os outros')
+                                                            ->action(function ($state, Set $set) use ($shift) {
+                                                                if (blank($state)) {
+                                                                    Notification::make()
+                                                                        ->title('Selecione horários antes de replicar')
+                                                                        ->warning()
+                                                                        ->send();
+                                                                    return;
+                                                                }
+
+                                                                $workDays = [2, 3, 4, 5, 6]; 
+
+                                                                foreach ($workDays as $dayId) {
+                                                                    $set("slots.{$shift->id}.{$dayId}", $state);
+                                                                }
+
+                                                                Notification::make()
+                                                                    ->title('Horários replicados com sucesso!')
+                                                                    ->success()
+                                                                    ->send();
+                                                            })
+                                                );
                                             })->toArray()
                                         )
                                 ]);
@@ -91,23 +126,8 @@ class TimeConfigResource extends Resource
                     ->label('Contexto/Modalidade')
                     ->sortable()
                     ->searchable(),
-
-                // // Mostra o Turno (ex: Noite) através da relação com TimeConfig
-                // TextColumn::make('shift.name')
-                //     ->label('Turno')
-                //     ->badge()
-                //     ->color('info')
-                //     ->sortable(),
-
-                // // Mostra o Dia da Semana
-                // TextColumn::make('day.name')
-                //     ->label('Dia')
-                //     ->sortable(),
             ])
             ->defaultSort('context_id')
-            // ->defaultGroup('context.name')
-            // ->groupRecordsRecordSelect() // Opcional: permite selecionar o grupo todo
-            // ->collapsible()
             ->filters([
                 //
             ])
