@@ -4,6 +4,7 @@ namespace App\Models\Time;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Time\LessonTime;
+use App\Models\Time\TimeSlots;
 
 class Day extends Model
 {
@@ -14,6 +15,11 @@ class Day extends Model
     public function times()
     {
         return $this->belongsToMany(LessonTime::class, 'time_day', 'day_id', 'time_id')->orderBy('start');
+    }
+
+    public function timeSlots(): HasMany
+    {
+        return $this->hasMany(TimeSlot::class, 'day_id');
     }
 
     public static function getWeekDaysSchedule(array $lessonTimeIds)
