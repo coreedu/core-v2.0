@@ -11,17 +11,17 @@ class LessonTime extends Model
     protected $fillable = ['start', 'end'];
 
     // app/Models/Time/LessonTime.php
-    public function shift()
-    {
-        return $this->belongsToMany(
-            \App\Models\Time\Shift::class,
-            'time_shift',
-            'lesson_time_id',
-            'shift_cod',
-            'id',
-            'cod'
-        );
-    }
+    // public function shift()
+    // {
+    //     return $this->belongsToMany(
+    //         \App\Models\Time\Shift::class,
+    //         'time_shift',
+    //         'lesson_time_id',
+    //         'shift_cod',
+    //         'id',
+    //         'cod'
+    //     );
+    // }
 
     public function days()
     {
