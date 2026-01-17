@@ -16,10 +16,10 @@ return new class extends Migration
             $table->unsignedInteger('schedule_id')->nullable();
             $table->unsignedInteger('instructor')->nullable();
             $table->unsignedInteger('component')->nullable();
-            $table->unsignedInteger('day');
+            // $table->unsignedInteger('day');
             $table->unsignedInteger('room')->nullable();
             $table->char('group', 10)->nullable();
-            $table->unsignedInteger('time');
+            $table->unsignedInteger('slot_id');
             $table->timestamps();
         });
     }
