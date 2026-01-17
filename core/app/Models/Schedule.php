@@ -14,6 +14,7 @@ use App\Models\Room;
 use App\Models\User;
 use App\Models\Modality;
 use App\Models\ClassSchedule;
+use App\Models\Time\TimeConfig;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -21,10 +22,10 @@ class Schedule extends Model
 {
     protected $table = 'schedule';
 
-    protected $fillable = ['version', 'shift_cod', 'course_id', 'modality_id', 'module_id', 'status'];
+    protected $fillable = ['version', 'time_config_id', 'course_id', 'modality_id', 'module_id', 'status'];
 
-    public function shift() {
-        return $this->belongsTo(Shift::class, 'shift_cod', 'cod');
+    public function timeConfig() {
+        return $this->belongsTo(TimeConfig::class, 'time_config_id', 'id');
     }
 
     public function course() {

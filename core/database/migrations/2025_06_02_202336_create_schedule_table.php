@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('schedule', function (Blueprint $table) {
             $table->id();
             $table->string('version');
-            $table->unsignedInteger('shift_cod');
+            $table->unsignedInteger('time_config_id');
             $table->unsignedInteger('course_id');
             $table->unsignedInteger('modality_id')->nullable();
             $table->unsignedInteger('module_id');

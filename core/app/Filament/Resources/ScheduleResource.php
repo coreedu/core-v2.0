@@ -42,11 +42,12 @@ class ScheduleResource extends Resource
                                 ->where(fn ($query) => $query
                                     ->where('course_id', $get('course_id'))
                                     ->where('module_id', $get('module_id'))
-                                    ->where('shift_cod', $get('shift_cod'))
+                                    ->where('time_config_id', $get('time_config'))
                                 )
                                 ->ignore($component->getRecord()?->id),
                         ];
                     }),
+
                 Select::make('course_id')
                     ->label('Curso')
                     ->relationship('course', 'nome')
@@ -54,13 +55,6 @@ class ScheduleResource extends Resource
                     ->searchable()
                     ->required()
                     ->live(),
-                Select::make('shift_cod')
-                        ->label('turno')
-                        ->relationship('shift', 'name')
-                        ->preload()
-                        ->searchable()
-                        ->required()
-                        ->live(),
                 Select::make('module_id')
                     ->label('Modulo')
                     ->options(function (Forms\Get $get) {
@@ -80,12 +74,23 @@ class ScheduleResource extends Resource
                     })
                     ->required()
                     ->live(),
+
                 Select::make('modality_id')
                     ->label('Modalidade')
                     ->relationship('modality', 'name')
                     ->preload()
                     ->searchable()
                     ->live(),
+
+                Select::make('time_config_id')
+                        ->label('Categoria')
+                        ->relationship('timeConfig', 'id')
+                        ->getOptionLabelFromRecordUsing(fn ($record) => $record->getFullNameAttribute())
+                        ->preload()
+                        ->searchable()
+                        ->required()
+                        ->live(),
+
                 Forms\Components\Toggle::make('status')
                     ->label('Publicado')
                     ->default(false)
@@ -125,10 +130,6 @@ class ScheduleResource extends Resource
                         ->formatStateUsing(fn($state) => "{$state}º Módulo")
                         ->sortable()
                         ->searchable(),
-                    Tables\Columns\TextColumn::make('shift.name')
-                        ->label('Turno')
-                        ->searchable()
-                        ->sortable(),
                     Tables\Columns\TextColumn::make('modality.name')
                         ->label('Modalidade')
                         ->searchable(),
