@@ -12,6 +12,7 @@ use App\Models\Time\TimeSlots;
 use App\Models\TimeDay;
 use Filament\Actions as PageActions;
 use App\Filament\Components\HelpButton;
+use Illuminate\Support\Facades\DB;
 
 class ManageSchedules extends Page
 {
@@ -23,6 +24,7 @@ class ManageSchedules extends Page
     public Schedule $record;
     public array $days = [];
     public array $timeSlots = [];
+    public $slots = [];
     public array $rooms = [];
 
     protected $listeners = ['subjectChanged' => 'onSubjectChanged'];
@@ -93,30 +95,31 @@ class ManageSchedules extends Page
 
     public function saveSchedule(): void
     {
-        foreach ($this->scheduleData as $day => $times) {
-            foreach ($times as $timeId => $data) {
-                $this->record->items()
-                            ->where('day', $day)
-                            ->where('time', $timeId)
-                            ->whereNotNull('group')
-                            ->delete();
+        DB::transaction(function () {
+            foreach ($this->scheduleData as $day => $times) {
+                foreach ($times as $timeId => $data) {
+                    $slot = $this->slots->where('day_id', $day)
+                                   ->where('lesson_time_id', $timeId)
+                                   ->first();
 
-                foreach ($data['groups'] as $groupLetter => $groupData) {
-                    $this->record->items()->updateOrCreate(
-                        [
-                            'day' => $day,
-                            'time' => $timeId,
-                            'group' => $groupLetter,
-                        ],
-                        [
-                            'component' => !empty($groupData['subject_id']) ? $groupData['subject_id'] :null,
-                            'instructor' => !empty($groupData['teacher_id']) ? $groupData['teacher_id'] : null,
-                            'room' => !empty($groupData['room_id']) ? $groupData['room_id'] : null,
-                        ]
-                    );
+                    if (!$slot) continue;
+
+                    $this->record->items()
+                        ->where('slot_id', $slot->id)
+                        ->delete();
+
+                    foreach ($data['groups'] as $groupLetter => $groupData) {
+                        $this->record->items()->create([
+                            'slot_id'    => $slot->id,
+                            'group'      => $groupLetter,
+                            'component'  => $groupData['subject_id'] ?? null,
+                            'instructor' => $groupData['teacher_id'] ?? null,
+                            'room'       => $groupData['room_id'] ?? null,
+                        ]);
+                    }
                 }
             }
-        }
+        });
 
         \Filament\Notifications\Notification::make()
             ->title('Grade salva com sucesso!')

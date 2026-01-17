@@ -23,8 +23,7 @@ class ClassSchedule extends Model
         'modality',
         'group',
         'lesson',
-        'module',
-        'time'
+        'module'
     ];
 
     public function timeSlots()
@@ -50,16 +49,6 @@ class ClassSchedule extends Model
     public function sala()
     {
         return $this->belongsTo(Room::class, 'room');
-    }
-    
-    public function dia()
-    {
-        return $this->belongsTo(\App\Models\Time\Day::class, 'day');
-    }
-
-    public function lessonTime()
-    {
-        return $this->belongsTo(\App\Models\Time\LessonTime::class, 'time');
     }
     
     public function curso()
