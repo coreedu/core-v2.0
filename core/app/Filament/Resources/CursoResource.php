@@ -95,18 +95,6 @@ class CursoResource extends Resource
                             ->numeric()
                             ->columnSpan(6),
                     ]),
-
-                Section::make('Turno')
-                    ->columns(12)
-                    ->schema([
-                        Forms\Components\Select::make('turno')
-                            ->label('Turno')
-                            ->relationship('shift', 'name')
-                            ->required(fn($livewire) => $livewire instanceof \App\Filament\Resources\CursoResource\Pages\CreateCurso)
-                            ->preload()
-                            ->placeholder('Selecione o turno')
-                            ->columnSpan(6),
-                    ]),
             ]);
     }
 

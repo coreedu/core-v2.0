@@ -9,7 +9,6 @@ class Curso extends Model
     use HasFactory;
     
     protected $fillable = [
-        'turno',
         'nome',
         'abreviacao',
         'qtdModulos',
@@ -22,11 +21,6 @@ class Curso extends Model
     public function modality()
     {
         return $this->belongsTo(\App\Models\Modality::class, 'modalidade');
-    }
-
-    public function shift()
-    {
-        return $this->belongsTo(\App\Models\Time\Shift::class, 'turno', 'cod');
     }
 
     public function componentes()
