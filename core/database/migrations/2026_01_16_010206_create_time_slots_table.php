@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('time_slots', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('time_config_id')->nullable()->constrained('time_config');
-            $table->foreignId('lesson_time_id')->nullable()->constrained('lesson_time');
-            $table->foreignId('day_id')->nullable()->constrained('day');
+            $table->foreignId('time_config_id')->constrained('time_config');
+            $table->foreignId('lesson_time_id')->constrained('lesson_time');
+            $table->foreignId('day_id')->constrained('day');
             $table->timestamps();
         });
     }
