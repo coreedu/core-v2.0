@@ -44,7 +44,10 @@ class EquipmentResource extends Resource
                     ->label('Patrimônio')
                     ->placeholder('Ex.: 12345')
                     ->maxLength(255)
-                    ->nullable(),
+                    ->required(fn(Forms\Get $get): bool => filled($get('type_id')))
+                    ->validationMessages([
+                        'required' => 'O patrimônio é obrigatório para este tipo de equipamento.',
+                    ]),
             ]),
 
             Forms\Components\Grid::make(2)->schema([
@@ -65,6 +68,7 @@ class EquipmentResource extends Resource
                     ->relationship('type', 'name')
                     ->searchable()
                     ->preload()
+                    ->live()
                     ->createOptionForm([
                         Forms\Components\TextInput::make('name')
                             ->label('Nome do Tipo')
@@ -81,45 +85,39 @@ class EquipmentResource extends Resource
                 ->placeholder('Selecione um grupo')
                 ->nullable()
                 ->createOptionForm([
-                    Forms\Components\Grid::make(2)
-                        ->schema([
-                            Forms\Components\TextInput::make('name')
-                                ->label('Nome do Grupo')
-                                ->required()
-                                ->maxLength(255)
-                                ->placeholder('Ex: Informática, Audiovisual...')
-                                ->columnSpanFull(),
-
-                            Forms\Components\Toggle::make('status')
-                                ->label('Status do Grupo')
-                                ->helperText('Define se este grupo estará visível')
-                                ->default(true)
-                                ->onColor('success')
-                                ->offColor('danger')
-                                ->inline(false),
-
-                            Forms\Components\DatePicker::make('maintenance_date')
-                                ->label('Data de manutenção')
-                                ->native(false)
-                                ->displayFormat('d/m/Y')
-                                ->prefixIcon('heroicon-m-calendar-days'),
-                        ])
+                    Forms\Components\Grid::make(2)->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->label('Nome do Grupo')
+                            ->required()
+                            ->maxLength(255)
+                            ->columnSpanFull(),
+                        Forms\Components\Toggle::make('status')
+                            ->label('Ativo')
+                            ->default(true),
+                        Forms\Components\DatePicker::make('maintenance_date')
+                            ->label('Data de manutenção'),
+                    ])
                 ]),
 
             Forms\Components\Toggle::make('status')
                 ->label('Disponível')
+                ->helperText('Define se o equipamento pode ser reservado ou emprestado no momento.')
                 ->onColor('success')
                 ->offColor('danger')
                 ->onIcon('heroicon-o-check-circle')
                 ->offIcon('heroicon-o-x-circle')
                 ->default(true)
+                ->live()
                 ->inline(false),
 
             Forms\Components\Textarea::make('observation')
                 ->label('Observações')
                 ->placeholder('Ex.: Equipamento com pequenos arranhões na lateral.')
                 ->rows(3)
-                ->nullable(),
+                ->required(fn(Forms\Get $get): bool => ! $get('status'))
+                ->validationMessages([
+                    'required' => 'É necessário informar o motivo ou observação quando o equipamento está indisponível.',
+                ]),
 
             Forms\Components\FileUpload::make('photos')
                 ->label('Fotos do Equipamento')
