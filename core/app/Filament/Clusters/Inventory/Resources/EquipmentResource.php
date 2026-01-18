@@ -52,13 +52,25 @@ class EquipmentResource extends Resource
                     ->label('Marca')
                     ->relationship('brand', 'name')
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->createOptionForm([
+                        Forms\Components\TextInput::make('name')
+                            ->label('Nome da Marca')
+                            ->required()
+                            ->maxLength(255),
+                    ]),
 
                 Forms\Components\Select::make('type_id')
                     ->label('Tipo')
                     ->relationship('type', 'name')
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->createOptionForm([
+                        Forms\Components\TextInput::make('name')
+                            ->label('Nome do Tipo')
+                            ->required()
+                            ->maxLength(255),
+                    ]),
             ]),
 
             Forms\Components\Select::make('group_equipment_id')
@@ -67,7 +79,32 @@ class EquipmentResource extends Resource
                 ->searchable()
                 ->preload()
                 ->placeholder('Selecione um grupo')
-                ->nullable(),
+                ->nullable()
+                ->createOptionForm([
+                    Forms\Components\Grid::make(2)
+                        ->schema([
+                            Forms\Components\TextInput::make('name')
+                                ->label('Nome do Grupo')
+                                ->required()
+                                ->maxLength(255)
+                                ->placeholder('Ex: Informática, Audiovisual...')
+                                ->columnSpanFull(),
+
+                            Forms\Components\Toggle::make('status')
+                                ->label('Status do Grupo')
+                                ->helperText('Define se este grupo estará visível')
+                                ->default(true)
+                                ->onColor('success')
+                                ->offColor('danger')
+                                ->inline(false),
+
+                            Forms\Components\DatePicker::make('maintenance_date')
+                                ->label('Data de manutenção')
+                                ->native(false)
+                                ->displayFormat('d/m/Y')
+                                ->prefixIcon('heroicon-m-calendar-days'),
+                        ])
+                ]),
 
             Forms\Components\Toggle::make('status')
                 ->label('Disponível')
