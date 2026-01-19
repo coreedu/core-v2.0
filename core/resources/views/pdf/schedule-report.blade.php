@@ -187,7 +187,7 @@
             @foreach($sc['shifts'] as $idxShift => $shift)
                 @foreach($shift['modules'] as $idxModule => $module)
                     <div class="pdf-row">
-                        <div class="pdf-col-left">
+                        <div class="pdf-col">
                             @include('filament.resources.schedule-resource.partials.pdf-table', [
                                 'schedule' => $schedule,
                                 'curso' => $sc,
@@ -197,19 +197,6 @@
                                 'module' => $module,
                                 'idxModule' => $idxModule,
                                 'shift' => $schedule['shifts'][$idxShift]
-                            ])
-                        </div>
-
-                        <div class="pdf-col-right">
-                            @include('filament.resources.schedule-resource.partials.pdf-table', [
-                                'schedule' => $schedule,
-                                'curso' => $sc,
-                                'cursoName' => $sc['abreviacao'],
-                                'times' => $schedule['satSlots'],
-                                'days' => [7 => 'Sábado'],
-                                'module' => $module,
-                                'idxModule' => $idxModule,
-                                'shift' => ''
                             ])
                         </div>
                     </div>

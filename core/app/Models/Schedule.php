@@ -136,7 +136,7 @@ class Schedule extends Model
 
     public static function mountSchedulePdf($schedules){
         
-        $satSlots = TimeDay::getTimesByDay(7); // sat times
+        // $satSlots = TimeDay::getTimesByDay(7); // sat times
         $timeSlots = TimeShift::getTimesMap(); // mapear periodo -> horarios
         $shifts = Shift::listCodAndName(); // nome dos turnos
         $days = Day::getWeekDays(); // week days
@@ -145,10 +145,10 @@ class Schedule extends Model
 
         foreach($schedules as $schedule){
             $existingItems = $schedule->items()
-                ->select('day', 'time', 'component', 'instructor', 'room', 'group')
+                ->select('slot_id', 'component', 'instructor', 'room', 'group')
                 ->get();
 
-            $scheduleCourse = self::mountScheduleArrayPdf($schedule->course_id, $schedule->module_id, $schedule->shift_cod, $existingItems);
+            $scheduleCourse = self::mountScheduleArrayPdf($schedule->course_id, $schedule->module_id, $schedule->timeConfig->shift_id, $existingItems);
             
             $register['courses'] = array_replace_recursive(
                 $register['courses'],
@@ -159,7 +159,7 @@ class Schedule extends Model
         $register['times'] = $timeSlots;
         $register['days'] = $days;
         $register['shifts'] = $shifts;
-        $register['satSlots'] = $satSlots;
+        // $register['satSlots'] = $satSlots;
         
         return $register;
     }
@@ -167,13 +167,14 @@ class Schedule extends Model
     public static function mountScheduleArrayPdf($course, $module, $shift, $itens){
         $scheduleData[$course] = [];
         foreach ($itens as $item) {
-            $day = $item->day;
+            $day = $item->timeSlots->day_id;
+            $time = $item->timeSlots->lesson_time_id;
             
             $group = $item->group ?? 'A';
 
             // $shift = TimeShift::getShiftCodById($item->time);
 
-            $scheduleData[$course]['shifts'][$shift]['modules'][$module]['days'][$day]['times'][$item->time]['groups'][$group] = [
+            $scheduleData[$course]['shifts'][$shift]['modules'][$module]['days'][$day]['times'][$time]['groups'][$group] = [
                 'subject' => Componente::find($item->component)?->nome ?? '-',
                 'teacher' => User::find($item->instructor)?->name ?? '-',
                 'room' => Room::find($item->room)?->number ?? '-',
