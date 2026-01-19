@@ -1,15 +1,29 @@
 <table>
     @foreach($courses as $courseId => $courseData)
-    {{-- ... (cabeçalhos do curso e dias) --}}
+    {{-- 1. Nome do Curso (Mesclando todas as colunas: Horário + Dias) --}}
+    <tr>
+        <th colspan="{{ count($days) + 1 }}" style="background-color: #4b5563; color: #ffffff; font-weight: bold; text-align: center; border: 1px solid #000000;">
+            {{ $courseData['name'] }}
+        </th>
+    </tr>
+
+    {{-- 2. Cabeçalho dos Dias --}}
+    <tr>
+        {{-- Coluna vazia em cima do Horário --}}
+        <th style="background-color: #f3f4f6; font-weight: bold; border: 1px solid #000000; text-align: center;">
+            Horário
+        </th>
+        
+        {{-- Loop dos Dias (Segunda a Sexta) --}}
+        @foreach($days as $dayId => $dayName)
+            <th style="background-color: #f3f4f6; font-weight: bold; border: 1px solid #000000; text-align: center; width: 150px;">
+                {{ $dayName }}
+            </th>
+        @endforeach
+    </tr>
 
     @foreach($courseData['shifts'] as $shiftId => $shiftContent)
-        {{-- Linha opcional para identificar o turno (Matutino, Vespertino, etc) --}}
-        <tr>
-            <td colspan="{{ count($days) + 1 }}" style="background-color: #e5e7eb; font-weight: bold;">
-                Turno: {{ $shifts[$shiftId] ?? $shiftId }}
-            </td>
-        </tr>
-
+    
         {{-- Agora iteramos sobre os horários específicos DESTE turno --}}
         @foreach($times[$shiftId] as $timeId => $timeLabel)
             @php
