@@ -46,7 +46,9 @@ class TimeConfigResource extends Resource
     {
         $shifts = Shift::all();
         $days = Day::all();
-        $lessonTimes = LessonTime::all()
+        $lessonTimes = LessonTime::query()
+            ->orderBy('start', 'asc')
+            ->get()
             ->mapWithKeys(function ($time) {
                 $start = substr($time->start, 0, 5);
                 $end = substr($time->end, 0, 5);
