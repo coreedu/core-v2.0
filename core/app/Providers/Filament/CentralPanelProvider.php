@@ -33,7 +33,7 @@ class CentralPanelProvider extends PanelProvider
             ->path('central')
             ->databaseNotifications()
             ->login()
-            ->passwordReset()
+            // ->passwordReset()
             ->profile(Profile::class)
             ->colors([
                 'primary' => Color::Amber,
