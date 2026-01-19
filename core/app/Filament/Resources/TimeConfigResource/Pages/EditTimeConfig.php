@@ -41,6 +41,38 @@ class EditTimeConfig extends EditRecord
         return $data;
     }
 
+    // protected function handleRecordUpdate(Model $record, array $data): Model
+    // {
+    //     return DB::transaction(function () use ($record, $data) {
+    //         $contextId = $data['context_id'];
+    //         $allTabsData = $data['slots'] ?? [];
+
+    //         $record->update(['context_id' => $contextId]);
+
+    //         foreach ($allTabsData as $shiftId => $days) {
+    //             $config = TimeConfig::firstOrCreate([
+    //                 'context_id' => $contextId,
+    //                 'shift_id'   => $shiftId,
+    //             ]);
+
+    //             $config->slots()->delete();
+
+    //             foreach ($days as $dayId => $horariosIds) {
+    //                 if (is_array($horariosIds)) {
+    //                     foreach ($horariosIds as $lessonTimeId) {
+    //                         $config->slots()->create([
+    //                             'day_id' => $dayId,
+    //                             'lesson_time_id' => $lessonTimeId,
+    //                         ]);
+    //                     }
+    //                 }
+    //             }
+    //         }
+
+    //         return $record;
+    //     });
+    // }
+
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         return DB::transaction(function () use ($record, $data) {
@@ -55,18 +87,33 @@ class EditTimeConfig extends EditRecord
                     'shift_id'   => $shiftId,
                 ]);
 
-                $config->slots()->delete();
+                $keptSlotIds = [];
 
                 foreach ($days as $dayId => $horariosIds) {
                     if (is_array($horariosIds)) {
                         foreach ($horariosIds as $lessonTimeId) {
-                            $config->slots()->create([
-                                'day_id' => $dayId,
-                                'lesson_time_id' => $lessonTimeId,
-                            ]);
+                            $slot = $config->slots()->updateOrCreate(
+                                [
+                                    'day_id' => $dayId,
+                                    'lesson_time_id' => $lessonTimeId,
+                                ]
+                            );
+
+                            $keptSlotIds[] = $slot->id;
                         }
                     }
                 }
+                $config->slots()
+                    ->whereNotIn('id', $keptSlotIds)
+                    ->get()
+                    ->each(function ($oldSlot) {
+                        
+                        $hasClasses = \DB::table('class_schedule')->where('slot_id', $oldSlot->id)->exists();
+                        
+                        if (!$hasClasses) {
+                            $oldSlot->delete();
+                        }
+                    });
             }
 
             return $record;
