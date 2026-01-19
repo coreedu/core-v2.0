@@ -53,7 +53,20 @@ class RoomResource extends Resource
                     ->nullable()
                     ->native(false)
                     ->placeholder('Selecione a categoria')
-                    ->columnSpan(6),
+                    ->columnSpan(6)
+                    ->createOptionForm([
+                        Forms\Components\Grid::make(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('name')
+                                    ->label('Nome')
+                                    ->required()
+                                    ->maxLength(50),
+                                Forms\Components\TextInput::make('description')
+                                    ->label('Descrição')
+                                    ->required()
+                                    ->maxLength(50),
+                            ])
+                    ]),
 
                 Forms\Components\FileUpload::make('img')
                     ->label('Imagem')
@@ -105,8 +118,9 @@ class RoomResource extends Resource
 
                     Tables\Columns\TextColumn::make('total_equipments')
                         ->label('Equipamentos')
-                        ->getStateUsing(fn ($record) => $record->totalEquipments())
-                        ->formatStateUsing(fn ($state) =>
+                        ->getStateUsing(fn($record) => $record->totalEquipments())
+                        ->formatStateUsing(
+                            fn($state) =>
                             "{$state} equipamento" . ($state != 1 ? 's' : '')
                         )
                         ->badge()
