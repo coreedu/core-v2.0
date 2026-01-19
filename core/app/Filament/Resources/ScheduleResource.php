@@ -208,7 +208,24 @@ class ScheduleResource extends Resource
                     ->modalHeading('Gerar PDF')
                     ->modalSubheading('O PDF incluirá todos os horarios selecionados.')
                     ->modalButton('Gerar PDF')
-                    ->successNotificationTitle('Horários !')
+                    ->successNotificationTitle('Horários !'),
+                Tables\Actions\BulkAction::make('gerarExcel')
+                    ->label('Gerar Excel')
+                    ->icon('heroicon-o-document-chart-bar')
+                    ->color('success')
+                    ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                        $data = \App\Models\Schedule::mountSchedulePdf($records);
+
+                        return \Maatwebsite\Excel\Facades\Excel::download(
+                            new \App\Exports\ScheduleExport($data), 
+                            'horarios-' . now()->format('d-m-Y_H\hi') . '.xlsx'
+                        );
+                    })
+                    ->deselectRecordsAfterCompletion()
+                    ->requiresConfirmation()
+                    ->modalHeading('Gerar Planilha Excel')
+                    ->modalSubheading('A planilha incluirá todos os horários selecionados com a estrutura de 3 linhas por horário.')
+                    ->modalButton('Gerar Excel')
             ]);
     }
 
