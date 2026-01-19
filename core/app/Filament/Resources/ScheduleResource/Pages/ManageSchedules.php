@@ -95,7 +95,6 @@ class ManageSchedules extends Page
             }
         }
 
-
     }
 
     public function saveSchedule(): void
@@ -113,13 +112,15 @@ class ManageSchedules extends Page
                         ->where('slot_id', $slot->id)
                         ->delete();
 
+                    $sanitize = fn($value) => (blank($value) || $value === 'null') ? null : $value;
+
                     foreach ($data['groups'] as $groupLetter => $groupData) {
                         $this->record->items()->create([
                             'slot_id'    => $slot->id,
                             'group'      => $groupLetter,
-                            'component'  => $groupData['subject_id'] ?? null,
-                            'instructor' => $groupData['teacher_id'] ?? null,
-                            'room'       => $groupData['room_id'] ?? null,
+                            'component'  => $sanitize($groupData['subject_id'] ?? null),
+                            'instructor' => $sanitize($groupData['teacher_id'] ?? null),
+                            'room'       => $sanitize($groupData['room_id'] ?? null),
                         ]);
                     }
                 }
