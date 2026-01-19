@@ -7,6 +7,7 @@ use Filament\Resources\Pages\Page;
 use App\Models\Schedule;
 use App\Models\Curso;
 use App\Models\Room;
+use App\Models\User;
 use App\Models\Time\Day;
 use App\Models\Time\TimeSlots;
 use App\Models\TimeDay;
@@ -131,6 +132,87 @@ class ManageSchedules extends Page
             ->title('Grade salva com sucesso!')
             ->success()
             ->send();
+    }
+    
+    public function makeSchedule(): array
+    {
+
+        $course = $this->record->course_id;
+        $module = $this->record->module_id;
+
+        $config = $this->record->timeConfig;
+        $slots = $config->slots()
+            ->with(['day', 'lessonTime'])
+            ->join('day', 'time_slots.day_id', '=', 'day.id') // Join para garantir a ordenação pelo ID do dia
+            ->join('lesson_time', 'time_slots.lesson_time_id', '=', 'lesson_time.id') // Join para ordenar por hora
+            ->orderBy('day.id', 'asc') 
+            ->orderBy('lesson_time.start', 'asc')
+            ->select('time_slots.*')
+            ->get();
+
+        $componentes = Curso::find($course)
+            ->componentes()
+            ->wherePivot('module', $module)
+            ->get();
+
+        $instrutores = User::whereHas('components', function($q) use ($componentes) {
+                $q->whereIn('componentes.id', $componentes->pluck('id'));
+            })
+            ->with(['availabilities', 'components'])
+            ->get();
+
+            
+        $salas = Room::where('active', true)->get();
+
+        $horarioGerado = [];
+        foreach ($slots as $slot) {
+
+            $diaId = $slot->day_id;
+            $horaId = $slot->lesson_time_id;
+            $count = 0;
+            foreach ($componentes as $comp) {
+            $count++;
+                $aulasJaAtribuidas = $this->contarAulasAtribuidas($horarioGerado, $comp->id);
+                if ($aulasJaAtribuidas >= $comp->horasSemanais) continue;
+
+                $instrutorElegivel = $instrutores->filter(function($professor) use ($comp, $diaId, $horaId) {
+                    $temComponente = $professor->components->contains('id', $comp->id);
+
+                    $estaDisponivel = $professor->availabilities
+                        ->where('id', $horaId)
+                        ->where('pivot.day_id', $diaId)
+                        ->isNotEmpty();
+                    
+                    return $temComponente && $estaDisponivel;
+                })->first();
+
+        
+                if ($instrutorElegivel) {
+                    $horarioGerado[$diaId][$horaId]['groups']['A'] = [
+                        'subject_id' => $comp->id,
+                        'teacher_id' => $instrutorElegivel->id,
+                        'room_id' => $salas->first()->id ?? null,
+                        'slot_id' => $slot->id
+                    ];
+
+                    continue 2; 
+                }
+            }
+        }
+
+        $this->scheduleData = $horarioGerado;
+        return $this->scheduleData;
+        
+    }
+
+    private function contarAulasAtribuidas($horario, $componenteId) {
+        $count = 0;
+        foreach ($horario as $dia) {
+            foreach ($dia as $hora) {
+                if (($hora['groups']['A']['subject_id'] ?? null) == $componenteId) $count++;
+            }
+        }
+        return $count;
     }
 
     public function splitGroup($day, $timeId)
