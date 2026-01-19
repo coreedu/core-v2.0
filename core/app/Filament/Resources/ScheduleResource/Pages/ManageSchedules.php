@@ -43,12 +43,17 @@ class ManageSchedules extends Page
             ->with(['day', 'lessonTime']) 
             ->get();
 
-        $this->timeSlots = $this->slots->map(function ($slot) {
-            return substr($slot->lessonTime->start, 0, 5) . ' - ' . substr($slot->lessonTime->end, 0, 5);
-        })->unique()->toArray();
+        $this->timeSlots = $this->slots->mapWithKeys(function ($slot) {
+            $start = substr($slot->lessonTime->start, 0, 5);
+            $end = substr($slot->lessonTime->end, 0, 5);
+            $label = "{$start} - {$end}";
 
-        $this->days = $this->slots->pluck('day.name')->unique()->toArray();
-        
+            return [$slot->lesson_time_id => $label];
+        })
+        ->unique() 
+        ->toArray();
+
+        $this->days = $this->slots->pluck('day.name', 'day.id')->unique()->sortKeys()->toArray();
         // $this->saturdayTimes = TimeDay::getTimesByDay(7);
 
         $this->subjects = Curso::find($record->course_id)
@@ -61,28 +66,27 @@ class ManageSchedules extends Page
             ->get();
 
         foreach ($existingItems as $item) {
-            $slot = $item->timeSlots;
 
+            $slot = $item->timeSlots;
             $day = $slot->day_id;
             $time = $slot->lesson_time_id;
             $group = $item->group ?? 'A';
 
             if (!empty($group)) {
-
                 $this->scheduleData[$day][$time]['groups'][$group] = [
-                    'subject_id' => $item->component,
-                    'teacher_id' => $item->instructor,
-                    'room_id' => $item->room,
+                    'subject_id' => $item->component ?? '',
+                    'teacher_id' => $item->instructor ?? '',
+                    'room_id' => $item->room ?? '',
                 ];
 
                 if (!empty($item->component) && isset($this->subjects[$item->component]['instructors'])) {
-                    $this->scheduleData[$item->day][$item->time]['groups'][$group]['available_teachers'] = $this->subjects[$item->component]['instructors'] ?? [];
+                    $this->scheduleData[$day][$time]['groups'][$group]['available_teachers'] = $this->subjects[$item->component]['instructors'] ?? [];
                 }
             }else{
-                $this->scheduleData[$item->day][$item->time] = [
-                    'subject_id' => $item->component,
-                    'teacher_id' => $item->instructor,
-                    'room_id' => $item->room,
+                $this->scheduleData[$day][$time] = [
+                    'subject_id' => $item->component ?? '',
+                    'teacher_id' => $item->instructor ?? '',
+                    'room_id' => $item->room ?? '',
                 ];
     
                 if (!empty($item->component) && isset($this->subjects[$item->component]['instructors'])) {
@@ -90,6 +94,7 @@ class ManageSchedules extends Page
                 }
             }
         }
+
 
     }
 
@@ -130,13 +135,13 @@ class ManageSchedules extends Page
     public function splitGroup($day, $timeId)
     {
         if (!isset($this->scheduleData[$day][$timeId]['groups'])) {
-            $this->scheduleData[$day][$timeId]['groups'] = ['A' => []];
+            $this->scheduleData[$day][$timeId]['groups'] = ['A' => $this->scheduleData[$day][$timeId]['groups']['A'] ?? []];
         }
 
         $groups = $this->scheduleData[$day][$timeId]['groups'];
 
         if (count($groups) === 1) {
-            $this->scheduleData[$day][$timeId]['groups'] = ['A' => [], 'B' => []];
+            $this->scheduleData[$day][$timeId]['groups'] = ['A' => $this->scheduleData[$day][$timeId]['groups']['A'] ?? [], 'B' => []];
         }
     }
 

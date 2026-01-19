@@ -3,11 +3,19 @@
         {{-- Cabeçalho de contexto --}}
         <div class="flex flex-row items-center gap-6">
             <div>
+                <strong>Versão:</strong> {{ $this->record->version }}
+            </div>
+
+            <div>
                 <strong>Curso:</strong> {{ $this->record->course->nome }}
             </div>
 
             <div>
                 <strong>Módulo:</strong> {{ $this->record->module_id }}º módulo
+            </div>
+
+            <div>
+                <strong>Categoria:</strong> {{ $this->record->timeConfig->context->name }}
             </div>
 
             <div>
