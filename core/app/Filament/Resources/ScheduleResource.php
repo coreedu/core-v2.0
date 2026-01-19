@@ -130,6 +130,16 @@ class ScheduleResource extends Resource
                         ->formatStateUsing(fn($state) => "{$state}º Módulo")
                         ->sortable()
                         ->searchable(),
+                    Tables\Columns\TextColumn::make('timeConfig.shift.name')
+                        ->label('Turno')
+                        ->badge()
+                        ->color('info')
+                        ->sortable()
+                        ->searchable(),
+                    Tables\Columns\TextColumn::make('timeConfig.context.name')
+                        ->label('Categoria')
+                        ->sortable()
+                        ->searchable(),
                     Tables\Columns\TextColumn::make('modality.name')
                         ->label('Modalidade')
                         ->searchable(),
@@ -222,9 +232,9 @@ class ScheduleResource extends Resource
     public static function existingPublished($record){
         return Schedule::where('course_id', $record->course_id)
                 ->where('module_id', $record->module_id)
-                ->where('shift_cod', $record->shift_cod)
                 ->where('status', true)
                 ->where('id', '!=', $record->id)
+                ->where('time_config_id', $record->time_config_id)
                 ->exists();
     }
 

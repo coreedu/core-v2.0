@@ -47,14 +47,14 @@ class Schedule extends Model
 
         $timeSlots = [];
         $currentShift = 0;
-        if($today == 7){
-            $timeSlots = TimeDay::getTimesByDay(7);
-        }else{
+        // if($today == 7){
+        //     $timeSlots = TimeDay::getTimesByDay(7);
+        // }else{
             $now = Carbon::now()->format('H:i');
             $currentShift = TimeShift::getCurrentShiftCodByHour($now);
     
             $timeSlots = TimeShift::getTimesByShift($currentShift);
-        }
+        // }
 
         $days = [$today => Day::find($today)?->name ?? '-'];
         
@@ -71,8 +71,7 @@ class Schedule extends Model
             if($schedules){
                 foreach($schedules as $schedule){
                     $existingItems = $schedule->items()
-                        ->select('day', 'time', 'component', 'instructor', 'room', 'group')
-                        ->where('day', $idxDay)
+                        ->select('slot_id', 'component', 'instructor', 'room', 'group')
                         ->get();
 
                     $scheduleCourse = self::mountScheduleArray($schedule->course_id, $schedule->module_id, $existingItems);
@@ -98,21 +97,29 @@ class Schedule extends Model
 
     public static function getScheduleByShift($day, $shift){
         return self::where('status', true)
-            ->when($shift, fn($q) => $q->where('shift_cod', $shift))
-            ->whereHas('items', function ($query) use ($day) {
-                $query->where('day', $day);
+            ->whereHas('items.timeSlots', function ($query) use ($day) {
+                $query->where('day_id', $day);
             })
+            ->whereHas('timeConfig', function ($query) use ($shift) {
+                $query->where('shift_id', $shift);
+            })
+            ->with(['items' => function ($query) use ($day) {
+                $query->whereHas('timeSlots', fn($q) => $q->where('day_id', $day))
+                    ->with(['timeSlots.lessonTime', 'instructor', 'sala', 'component']);
+            }])
             ->get();
     }
 
     public static function mountScheduleArray($course, $module, $itens){
         $scheduleData[$course] = [];
+
         foreach ($itens as $item) {
-            $day = $item->day;
+            $day = $item->timeSlots->day_id;
+            $time = $item->timeSlots->lesson_time_id;
             
             $group = $item->group ?? 'A';
 
-            $scheduleData[$course]['days'][$day]['modules'][$module]['times'][$item->time]['groups'][$group] = [
+            $scheduleData[$course]['days'][$day]['modules'][$module]['times'][$time]['groups'][$group] = [
                 'subject' => Componente::find($item->component)?->nome ?? '-',
                 'teacher' => User::find($item->instructor)?->name ?? '-',
                 'room' => Room::find($item->room)?->number ?? '-',
@@ -120,6 +127,7 @@ class Schedule extends Model
 
 
             if(!isset($scheduleData[$course]['name'])) $scheduleData[$course]['name'] = Curso::find($course)?->nome ?? '-';
+            // if(!isset($scheduleData[$course]['categoria'])) $scheduleData[$course]['categoria'] = Curso::find($course)?-> ?? '-';
             $scheduleData['weight'] = isset([$course]['days'][$day]['modules'][$module]) ? 0 : 1;
         }
 
