@@ -22,7 +22,12 @@ class ActivityLogResource extends Resource
 
     protected static ?string $model = Activity::class;
     protected static ?string $navigationLabel = 'Logs';
+    protected static ?string $pluralModelLabel = 'Logs';
+    protected static ?string $modelLabel = 'Logs';
+    protected static ?string $navigationGroup = 'Administração';
+
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
+    
 
     public static function form(Form $form): Form
     {
@@ -38,9 +43,15 @@ class ActivityLogResource extends Resource
             ->columns([
                 TextColumn::make('subject_type')
                     ->label('Módulo')
-                    ->formatStateUsing(fn ($state) =>
-                        class_basename($state)
-                    ),
+                    ->formatStateUsing(function (?string $state) {
+                        if (! $state) {
+                            return '-';
+                        }
+
+                        $model = class_basename($state);
+
+                        return config("audit.models.$model", $model);
+                    }),
 
                 BadgeColumn::make('event')
                     ->label('Ação')
