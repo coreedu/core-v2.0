@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use App\Models\ClassSchedule;
 use App\Models\GroupEquipment;
+use App\Traits\Auditable;
 
 class Equipment extends Model
 {
     use HasFactory;
+    use Auditable;
 
     protected $table = 'equipment';
 

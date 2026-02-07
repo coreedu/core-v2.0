@@ -17,9 +17,11 @@ use App\Models\ClassSchedule;
 use App\Models\Time\TimeConfig;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Traits\Auditable;
 
 class Schedule extends Model
 {
+    use Auditable;
     protected $table = 'schedule';
 
     protected $fillable = ['version', 'time_config_id', 'course_id', 'modality_id', 'module_id', 'status'];

@@ -7,9 +7,11 @@ use App\Models\Inventory\Equipment;
 use App\Models\Inventory\Brand;
 use App\Models\Inventory\Type;
 use App\Models\Room;
+use App\Traits\Auditable;
 
 class GroupEquipment extends Model
 {
+    use Auditable;
     protected $fillable = [
         'name',
         'status',

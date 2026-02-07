@@ -3,9 +3,11 @@
 namespace App\Models\Time;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\Auditable;
 
 class LessonTime extends Model
 {
+    use Auditable;
     protected $table = 'lesson_time';
 
     protected $fillable = ['start', 'end'];

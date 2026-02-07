@@ -5,9 +5,11 @@ namespace App\Models\Time;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Time\LessonTime;
 use App\Models\Time\TimeSlots;
+use App\Traits\Auditable;
 
 class Day extends Model
 {
+    use Auditable;
     protected $table = 'day';
 
     protected $fillable = ['cod', 'name'];

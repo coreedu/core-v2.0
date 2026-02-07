@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Time\TimeConfig;
 use App\Models\Time\LessonTime;
 use App\Models\Time\Day;
+use App\Traits\Auditable;
 
 class TimeSlots extends Model
 {
+    use Auditable;
     protected $table = 'time_slots';
 
     protected $fillable = ['time_config_id','lesson_time_id','day_id'];

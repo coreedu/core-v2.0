@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\Auditable;
 
 class AvailabilityInstructor extends Model
 {
+    use Auditable;
     protected $table = 'availability_instructor';
 
     protected $fillable = [

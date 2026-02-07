@@ -5,9 +5,11 @@ namespace App\Models\Time;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Time\TimeConfig;
+use App\Traits\Auditable;
 
 class Shift extends Model
 {
+    use Auditable;
     protected $table = 'shift';
 
     // Campos que podem ser preenchidos em mass-assignment

@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use App\Models\Time\TimeSlots;
+use App\Traits\Auditable;
 
 class ClassSchedule extends Model
 {
+    use Auditable;
     /**
      * O nome da tabela associada ao Model.
      */

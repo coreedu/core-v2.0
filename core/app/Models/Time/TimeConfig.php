@@ -9,9 +9,11 @@ use App\Models\Time\TimeSlots;
 use App\Models\Time\Day;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Traits\Auditable;
 
 class TimeConfig extends Model
 {
+    use Auditable;
     protected $table = 'time_config';
 
     protected $fillable = ['context_id', 'shift_id'];

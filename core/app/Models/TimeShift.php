@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Time\LessonTime;
 use Carbon\Carbon;
+use App\Traits\Auditable;
 
 class TimeShift extends Model
 {
+    use Auditable;
     protected $table = 'time_shift';
 
     protected $fillable = ['lesson_time_id', 'shift_cod'];
