@@ -57,95 +57,95 @@ class EquipmentsRelationManager extends RelationManager
                     ->icon('heroicon-o-plus')
                     ->modalHeading('Adicionar equipamento ao grupo')
                     ->modalSubmitActionLabel('Salvar')
-                ->form([
-                    Forms\Components\Radio::make('mode')
-                        ->label('O que deseja fazer?')
-                        ->options([
-                            'existing' => 'Vincular equipamento existente',
-                            'new' => 'Criar novo equipamento',
-                        ])
-                        ->default('existing')
-                        ->reactive()
-                        ->required(),
+                    ->form([
+                        Forms\Components\Radio::make('mode')
+                            ->label('O que deseja fazer?')
+                            ->options([
+                                'existing' => 'Vincular equipamento existente',
+                                'new' => 'Criar novo equipamento',
+                            ])
+                            ->default('existing')
+                            ->reactive()
+                            ->required(),
 
-                    // ---- EXISTENTE ----
-                    Section::make('Equipamento existente')
-                        ->visible(fn ($get) => $get('mode') === 'existing')
-                        ->schema([
-                            Forms\Components\Select::make('equipment_id')
-                                ->label('Equipamento')
-                                ->options(
-                                    fn () => Equipment::query()
-                                        ->whereNull('group_equipment_id')
-                                        ->pluck('name', 'id')
-                                )
-                                ->searchable()
-                                ->required(),
-                        ]),
-                    // ---- NOVO ----
-                    Section::make('Novo equipamento')
-                        ->visible(fn ($get) => $get('mode') === 'new')
-                        ->schema([
-                            Grid::make(3)->schema([
-                                Forms\Components\TextInput::make('name')
-                                    ->label('Nome do equipamento')
+                        // ---- EXISTENTE ----
+                        Section::make('Equipamento existente')
+                            ->visible(fn($get) => $get('mode') === 'existing')
+                            ->schema([
+                                Forms\Components\Select::make('equipment_id')
+                                    ->label('Equipamento')
+                                    ->options(
+                                        fn() => Equipment::query()
+                                            ->whereNull('group_equipment_id')
+                                            ->pluck('name', 'id')
+                                    )
+                                    ->searchable()
                                     ->required(),
-
-                                Forms\Components\TextInput::make('patrimony')
-                                    ->label('Patrimônio')
-                                    ->placeholder('Ex.: 12345')
-                                    ->maxLength(255)
-                                    ->nullable(),
-
-                                Forms\Components\Select::make('brand_id')
-                                    ->label('Marca')
-                                    ->relationship('brand', 'name')
-                                    ->searchable(),
-
-                                Forms\Components\Select::make('type_id')
-                                    ->label('Tipo')
-                                    ->relationship('type', 'name')
-                                    ->searchable(),
-
-                                Forms\Components\Toggle::make('status')
-                                    ->label('Disponível')
-                                    ->default(true),
-
-                                Forms\Components\Textarea::make('observation')
-                                    ->label('Observações')
-                                    ->placeholder('Ex.: Equipamento com pequenos arranhões na lateral.')
-                                    ->rows(3)
-                                    ->nullable(),
-
-                                // Forms\Components\FileUpload::make('photos')
-                                //     ->label('Fotos do Equipamento')
-                                //     ->image()
-                                //     ->multiple()
-                                //     ->reorderable()
-                                //     ->disk('public')
-                                //     ->directory('equipments')
-                                //     ->nullable(),
                             ]),
-                        ]),
-                ])
-                ->action(function (array $data) {
-                    if ($data['mode'] === 'existing') {
-                        Equipment::where('id', $data['equipment_id'])
-                            ->update([
+                        // ---- NOVO ----
+                        Section::make('Novo equipamento')
+                            ->visible(fn($get) => $get('mode') === 'new')
+                            ->schema([
+                                Grid::make(3)->schema([
+                                    Forms\Components\TextInput::make('name')
+                                        ->label('Nome do equipamento')
+                                        ->required(),
+
+                                    Forms\Components\TextInput::make('patrimony')
+                                        ->label('Patrimônio')
+                                        ->placeholder('Ex.: 12345')
+                                        ->maxLength(255)
+                                        ->nullable(),
+
+                                    Forms\Components\Select::make('brand_id')
+                                        ->label('Marca')
+                                        ->relationship('brand', 'name')
+                                        ->searchable(),
+
+                                    Forms\Components\Select::make('type_id')
+                                        ->label('Tipo')
+                                        ->relationship('type', 'name')
+                                        ->searchable(),
+
+                                    Forms\Components\Toggle::make('status')
+                                        ->label('Disponível')
+                                        ->default(true),
+
+                                    Forms\Components\Textarea::make('observation')
+                                        ->label('Observações')
+                                        ->placeholder('Ex.: Equipamento com pequenos arranhões na lateral.')
+                                        ->rows(3)
+                                        ->nullable(),
+
+                                    // Forms\Components\FileUpload::make('photos')
+                                    //     ->label('Fotos do Equipamento')
+                                    //     ->image()
+                                    //     ->multiple()
+                                    //     ->reorderable()
+                                    //     ->disk('public')
+                                    //     ->directory('equipments')
+                                    //     ->nullable(),
+                                ]),
+                            ]),
+                    ])
+                    ->action(function (array $data) {
+                        if ($data['mode'] === 'existing') {
+                            Equipment::where('id', $data['equipment_id'])
+                                ->update([
+                                    'group_equipment_id' => $this->getOwnerRecord()->id,
+                                ]);
+                        }
+
+                        if ($data['mode'] === 'new') {
+                            Equipment::create([
+                                'name' => $data['name'],
+                                'brand_id' => $data['brand_id'] ?? null,
+                                'type_id' => $data['type_id'] ?? null,
+                                'status' => $data['status'] ?? true,
                                 'group_equipment_id' => $this->getOwnerRecord()->id,
                             ]);
-                    }
-
-                    if ($data['mode'] === 'new') {
-                        Equipment::create([
-                            'name' => $data['name'],
-                            'brand_id' => $data['brand_id'] ?? null,
-                            'type_id' => $data['type_id'] ?? null,
-                            'status' => $data['status'] ?? true,
-                            'group_equipment_id' => $this->getOwnerRecord()->id,
-                        ]);
-                    }
-                }),
+                        }
+                    }),
             ])
             ->columns([
                 Tables\Columns\TextColumn::make('name')
@@ -166,6 +166,11 @@ class EquipmentsRelationManager extends RelationManager
                     ->boolean(),
             ])
             ->actions([
+                Tables\Actions\EditAction::make()
+                    ->label('Editar')
+                    ->icon('heroicon-o-pencil-square')
+                    ->color('primary'),
+
                 Tables\Actions\Action::make('detach')
                     ->label('Remover Equipamento')
                     ->icon('heroicon-o-link-slash')
