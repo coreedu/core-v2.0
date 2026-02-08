@@ -44,7 +44,16 @@ class EquipmentResource extends Resource
                     ->label('Patrimônio')
                     ->placeholder('Ex.: 12345')
                     ->maxLength(255)
-                    ->required(fn(Forms\Get $get): bool => filled($get('type_id')))
+                    ->required(function (Forms\Get $get): bool {
+                        $typeId = $get('type_id');
+
+                        if (! $typeId) {
+                            return false;
+                        }
+
+                        return \App\Models\Inventory\Type::where('id', $typeId)
+                            ->value('requires_asset_tag') === true;
+                    })
                     ->validationMessages([
                         'required' => 'O patrimônio é obrigatório para este tipo de equipamento.',
                     ]),
