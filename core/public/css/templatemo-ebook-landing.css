@@ -278,14 +278,15 @@ strong {
 }
 
 .sticky-wrapper.is-sticky .navbar {
-    background-color: rgba(0, 0, 0, 0.85);
+    background-color: rgba(0, 0, 0, 0.85) !important;
 }
 
 .navbar {
-    background: transparent;
+    background-color: rgba(0, 0, 0, 0.85);
     z-index: 99;
     padding-top: 15px;
     padding-bottom: 15px;
+    transition: background-color 0.3s ease;
 }
 
 .navbar-brand,
@@ -368,9 +369,15 @@ strong {
 
 .navbar-toggler[aria-expanded="true"] .navbar-toggler-icon:before,
 .navbar-toggler[aria-expanded="true"] .navbar-toggler-icon:after {
-    transition: top 300ms 50ms ease, -webkit-transform 300ms 350ms ease;
-    transition: top 300ms 50ms ease, transform 300ms 350ms ease;
-    transition: top 300ms 50ms ease, transform 300ms 350ms ease,
+    transition:
+        top 300ms 50ms ease,
+        -webkit-transform 300ms 350ms ease;
+    transition:
+        top 300ms 50ms ease,
+        transform 300ms 350ms ease;
+    transition:
+        top 300ms 50ms ease,
+        transform 300ms 350ms ease,
         -webkit-transform 300ms 350ms ease;
     top: 0;
 }
@@ -394,9 +401,15 @@ strong {
 
 .navbar-toggler .navbar-toggler-icon:before,
 .navbar-toggler .navbar-toggler-icon:after {
-    transition: top 300ms 350ms ease, -webkit-transform 300ms 50ms ease;
-    transition: top 300ms 350ms ease, transform 300ms 50ms ease;
-    transition: top 300ms 350ms ease, transform 300ms 50ms ease,
+    transition:
+        top 300ms 350ms ease,
+        -webkit-transform 300ms 50ms ease;
+    transition:
+        top 300ms 350ms ease,
+        transform 300ms 50ms ease;
+    transition:
+        top 300ms 350ms ease,
+        transform 300ms 50ms ease,
         -webkit-transform 300ms 50ms ease;
     position: absolute;
     right: 0;
@@ -665,7 +678,9 @@ strong {
     width: 40px;
     height: 40px;
     line-height: 40px;
-    transition: background 0.3s, transform 0.2s;
+    transition:
+        background 0.3s,
+        transform 0.2s;
 }
 .social-icon-link:hover {
     background: var(--primary-color);
