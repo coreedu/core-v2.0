@@ -15,7 +15,15 @@ class Type extends Model
 
     protected $fillable = [
         'name',
+        'requires_asset_tag',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'requires_asset_tag' => 'boolean',
+        ];
+    }
 
     public function equipment()
     {

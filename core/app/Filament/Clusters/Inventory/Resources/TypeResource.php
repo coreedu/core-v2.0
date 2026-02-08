@@ -35,12 +35,24 @@ class TypeResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->label('Nome do Tipo')
-                    ->placeholder('Ex.: Computador, Câmera, Projetor...')
-                    ->required()
-                    ->maxLength(255)
-                    ->unique(ignoreRecord: true),
+                Forms\Components\Section::make('Configurações do Tipo')
+                    ->description('Defina as propriedades básicas para este tipo de equipamento.')
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->label('Nome do Tipo')
+                            ->placeholder('Ex.: Computador, Câmera...')
+                            ->required()
+                            ->maxLength(255)
+                            ->unique(ignoreRecord: true),
+
+                        Forms\Components\Toggle::make('requires_asset_tag')
+                            ->label('Exige Patrimônio?')
+                            ->helperText('Ative se itens deste tipo devem obrigatoriamente ter um número de patrimônio.')
+                            ->onIcon('heroicon-m-check')
+                            ->offIcon('heroicon-m-x-mark')
+                            ->onColor('success')
+                            ->default(false),
+                    ])->columns(2),
             ]);
     }
 
