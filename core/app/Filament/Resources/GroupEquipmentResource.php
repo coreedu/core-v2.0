@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Pages\SubNavigationPosition;
 
-
 class GroupEquipmentResource extends Resource
 {
     protected static ?string $model = GroupEquipment::class;
@@ -31,26 +30,28 @@ class GroupEquipmentResource extends Resource
 
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
+        return $form->schema([
+            Forms\Components\Grid::make(12)->schema([
                 Forms\Components\TextInput::make('name')
                     ->label('Nome')
                     ->required()
-                    ->maxLength(255),
-
-                Forms\Components\Toggle::make('status')
-                    ->label('Ativo')
-                    ->default(true),
-
-                // Forms\Components\TextInput::make('patrimony')
-                //     ->label('Patrimonio')
-                //     ->maxLength(255)
-                //     ->nullable(),
+                    ->maxLength(255)
+                    ->columnSpan(6),
 
                 Forms\Components\DatePicker::make('maintenance_date')
                     ->label('Data de manutenção')
-                    ->nullable(),
-            ]);
+                    ->nullable()
+                    ->columnSpan(4),
+
+                Forms\Components\Toggle::make('status')
+                    ->label('Ativo')
+                    ->default(true)
+                    ->onColor('success')
+                    ->offColor('danger')
+                    ->inline(false)
+                    ->columnSpan(2),
+            ]),
+        ]);
     }
 
     public static function table(Table $table): Table
@@ -66,15 +67,11 @@ class GroupEquipmentResource extends Resource
                     ->label('Status')
                     ->boolean(),
 
-                // Tables\Columns\TextColumn::make('patrimony')
-                //     ->label('Patrimonio')
-                //     ->searchable(),
-
                 Tables\Columns\TextColumn::make('maintenance_date')
                     ->label('Manutenção')
                     ->date('d/m/Y')
-                    ->sortable(), 
-                    
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('equipments_count')
                     ->label('Equipamentos')
                     ->counts('equipments')
