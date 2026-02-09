@@ -154,7 +154,7 @@ class ManageAvailability extends Page
 
     public function submit(): void
     {
-        $user = auth()->user();
+        $user = $this->record;
         $data = $this->form->getState()['matrix'] ?? [];
 
         AvailabilityInstructor::where('user_id', $user->id)->delete();
