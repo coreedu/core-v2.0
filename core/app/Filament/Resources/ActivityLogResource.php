@@ -29,6 +29,12 @@ class ActivityLogResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
     
 
+    // Adicione este método dentro da classe ActivityLogResource
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view_any_activity::log');
+    }
+
     public static function form(Form $form): Form
     {
         return $form
