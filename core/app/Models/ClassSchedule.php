@@ -58,10 +58,10 @@ class ClassSchedule extends Model
         return $this->belongsTo(Curso::class, 'course');
     }
 
-    public function modality()
-    {
-        return $this->belongsTo(Modality::class, 'modality');
-    }
+    // public function modality()
+    // {
+    //     return $this->belongsTo(Modality::class, 'modality');
+    // }
     
     public static function getUsageRankingByRoom()
     {
