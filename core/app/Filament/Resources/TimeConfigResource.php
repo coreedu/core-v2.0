@@ -89,7 +89,7 @@ class TimeConfigResource extends Resource
                                                             ->label('')
                                                             ->icon('heroicon-m-arrow-path')
                                                             ->color('info')
-                                                            ->tooltip('Copiar este dia para os outros')
+                                                            ->tooltip('Copiar os horarios para os outros dias')
                                                             ->action(function ($state, Set $set) use ($shift) {
                                                                 if (blank($state)) {
                                                                     Notification::make()
