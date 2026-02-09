@@ -8,6 +8,7 @@ use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use App\Models\Time\TimeConfig;
+use App\Filament\Components\HelpButton;
 
 class EditTimeConfig extends EditRecord
 {
@@ -17,6 +18,7 @@ class EditTimeConfig extends EditRecord
     {
         return [
             Actions\DeleteAction::make(),
+            HelpButton::make('edit-config'),
         ];
     }
 
