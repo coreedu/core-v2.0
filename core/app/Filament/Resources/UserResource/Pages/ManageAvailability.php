@@ -159,17 +159,31 @@ class ManageAvailability extends Page
 
         AvailabilityInstructor::where('user_id', $user->id)->delete();
 
-        foreach ($data as $dayId => $times) {
-            foreach ($times as $timeId => $checked) {
-                if ($checked) {
-                    AvailabilityInstructor::create([
-                        'user_id' => $user->id,
-                        'day_id' => $dayId,
-                        'time_id' => $timeId,
-                    ]);
+        // 1. Silenciamos os logs individuais para evitar poluição
+        activity()->withoutLogs(function () use ($user, $data) {
+            
+            // Deletamos as disponibilidades antigas
+            AvailabilityInstructor::where('user_id', $user->id)->delete();
+
+            foreach ($data as $dayId => $times) {
+                foreach ($times as $timeId => $checked) {
+                    if ($checked) {
+                        AvailabilityInstructor::create([
+                            'user_id' => $user->id,
+                            'day_id' => $dayId,
+                            'time_id' => $timeId,
+                        ]);
+                    }
                 }
             }
-        }
+        });
+
+        // 2. Criamos um único log manual descrevendo a ação
+        activity()
+            ->performedOn($user)
+            ->causedBy(auth()->user())
+            ->event('updated')
+            ->log("Atualizou a disponibilidade de {$user->name}.");
 
         Notification::make()
             ->title('Disponibilidade atualizada com sucesso!')
