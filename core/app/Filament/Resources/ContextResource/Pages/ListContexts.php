@@ -5,6 +5,7 @@ namespace App\Filament\Resources\ContextResource\Pages;
 use App\Filament\Resources\ContextResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use App\Filament\Components\HelpButton;
 
 class ListContexts extends ListRecords
 {
@@ -14,6 +15,7 @@ class ListContexts extends ListRecords
     {
         return [
             Actions\CreateAction::make(),
+            HelpButton::make('contexts'),
         ];
     }
 }

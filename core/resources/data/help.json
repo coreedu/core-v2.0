@@ -58,6 +58,10 @@
   "manage-schedules": {
     "title": "manage-schedules",
     "text": "<p>Altere a grade horária</p><br><p><strong>Como usar:</strong><br>• Em cada coluna há três espaços para escolher a matéria, o docente e a sala que será utilizada na aula. <br>• Ao selecionar a matéria os docentes que a lecionam irão aparecer nas opções. <br>• Clique em salvar para salvar as informações. </p>"
+  },
+  "contexts": {
+    "title": "Contextos",
+    "text": "<p>Configure os contextos para os cursos.</p><br><p><strong>Como usar:</strong><br>• Cadastre os contextos que serão utilizados nos cursos, tipos de horarios de uma classificação específica.<br>• Cada contexto pode ter uma descrição e um código único.<br>• Exemplo: Contexto de horário para cursos de graduação (os horários cadastrados para este contexto serão utilizados somente para cursos que utilizarem o mesmo contexto).</p>"
   }
   
 }
