@@ -62,6 +62,14 @@
   "contexts": {
     "title": "Contextos",
     "text": "<p>Configure os contextos para os cursos.</p><br><p><strong>Como usar:</strong><br>• Cadastre os contextos que serão utilizados nos cursos, tipos de horarios de uma classificação específica.<br>• Cada contexto pode ter uma descrição e um código único.<br>• Exemplo: Contexto de horário para cursos de graduação (os horários cadastrados para este contexto serão utilizados somente para cursos que utilizarem o mesmo contexto).</p>"
+  },
+  "list-config": {
+    "title": "Contextos",
+    "text": "<p>Configure os horários para os contextos já criados</p><br><p><strong>Como usar:</strong><br>• Clique em criar nova configurção, escolha o contexto, o turno e os horários correspondentes de cada um."
+  },
+  "edit-config": {
+    "title": "Editar Contextos",
+    "text": "<p>Edite os horários do contexto</p><br><p><strong>Como usar:</strong><br>• Escolha o contexto, o turno e os horários correspondentes do turno escolhido.<br>• Os horários cadastrados, de acordo com o contexto do curso, aparecerão na tela de grades para fazer o cadastro de novas grades escolares"
   }
   
 }
