@@ -8,6 +8,7 @@ use App\Models\Schedule;
 use App\Models\Curso;
 use App\Models\Room;
 use App\Models\User;
+use App\Models\ClassSchedule;
 use App\Models\Time\Day;
 use App\Models\Time\TimeSlots;
 use App\Models\TimeDay;
@@ -42,7 +43,8 @@ class ManageSchedules extends Page
 
         $this->slots = $config->slots()
             ->with(['day', 'lessonTime']) 
-            ->get();
+            ->get()
+            ->sortBy(fn($slot) => $slot->lessonTime->start);
 
         $this->timeSlots = $this->slots->mapWithKeys(function ($slot) {
             $start = substr($slot->lessonTime->start, 0, 5);
@@ -101,6 +103,12 @@ class ManageSchedules extends Page
     public function saveSchedule(): void
     {
         DB::transaction(function () {
+
+            $scheduleId = $this->record['id'];
+            activity()->withoutLogs(function () use ($scheduleId) {
+                ClassSchedule::where('schedule_id', $scheduleId)->delete();
+            });
+
             foreach ($this->scheduleData as $day => $times) {
                 foreach ($times as $timeId => $data) {
                     $slot = $this->slots->where('day_id', $day)
