@@ -59,7 +59,7 @@ class CreateTimeConfig extends CreateRecord
             });
 
             activity()
-                ->performedOn($mainRecord)
+                ->performedOn($mainRecord?->context)
                 ->causedBy(auth()->user())
                 ->event('created')
                 ->log("Criou a configuração de horários para o contexto {$contextId}.");

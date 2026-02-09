@@ -81,42 +81,50 @@ class EditTimeConfig extends EditRecord
             $contextId = $data['context_id'];
             $allTabsData = $data['slots'] ?? [];
 
-            $record->update(['context_id' => $contextId]);
+            activity()->withoutLogs(function () use ($record, $contextId, $allTabsData) {
+                $record->update(['context_id' => $contextId]);
 
-            foreach ($allTabsData as $shiftId => $days) {
-                $config = TimeConfig::firstOrCreate([
-                    'context_id' => $contextId,
-                    'shift_id'   => $shiftId,
-                ]);
+                foreach ($allTabsData as $shiftId => $days) {
+                    $config = TimeConfig::firstOrCreate([
+                        'context_id' => $contextId,
+                        'shift_id'   => $shiftId,
+                    ]);
 
-                $keptSlotIds = [];
+                    $keptSlotIds = [];
 
-                foreach ($days as $dayId => $horariosIds) {
-                    if (is_array($horariosIds)) {
-                        foreach ($horariosIds as $lessonTimeId) {
-                            $slot = $config->slots()->updateOrCreate(
-                                [
-                                    'day_id' => $dayId,
-                                    'lesson_time_id' => $lessonTimeId,
-                                ]
-                            );
+                    foreach ($days as $dayId => $horariosIds) {
+                        if (is_array($horariosIds)) {
+                            foreach ($horariosIds as $lessonTimeId) {
+                                $slot = $config->slots()->updateOrCreate(
+                                    [
+                                        'day_id' => $dayId,
+                                        'lesson_time_id' => $lessonTimeId,
+                                    ]
+                                );
 
-                            $keptSlotIds[] = $slot->id;
+                                $keptSlotIds[] = $slot->id;
+                            }
                         }
                     }
+                    $config->slots()
+                        ->whereNotIn('id', $keptSlotIds)
+                        ->get()
+                        ->each(function ($oldSlot) {
+                            
+                            $hasClasses = \DB::table('class_schedule')->where('slot_id', $oldSlot->id)->exists();
+                            
+                            if (!$hasClasses) {
+                                $oldSlot->delete();
+                            }
+                        });
                 }
-                $config->slots()
-                    ->whereNotIn('id', $keptSlotIds)
-                    ->get()
-                    ->each(function ($oldSlot) {
-                        
-                        $hasClasses = \DB::table('class_schedule')->where('slot_id', $oldSlot->id)->exists();
-                        
-                        if (!$hasClasses) {
-                            $oldSlot->delete();
-                        }
-                    });
-            }
+            });
+
+            activity()
+                ->performedOn($record->context)
+                ->causedBy(auth()->user())
+                ->event('updated')
+                ->log("Atualizou a configuração de horários para o contexto {$contextId}.");
 
             return $record;
         });
