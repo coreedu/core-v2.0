@@ -65,50 +65,56 @@ class Schedule extends Model
     {
         $now = now()->format('H:i');
         $todayId = (now()->dayOfWeek % 7) + 1;
-
+        
         $currentShiftId = TimeShift::getCurrentShiftCodByHour($now);
 
-        $register['courses'] = [];
-        $register['weight'] = 1;
-        $register['days'] = [$todayId => Day::find($todayId)?->name ?? '-'];
+        $query = TimeConfig::where('shift_id', $currentShiftId);
 
-        $configsAtivas = TimeConfig::where('shift_id', $currentShiftId)
-            ->whereHas('schedules', function ($query) {
-                $query->has('items'); 
+        $configsAtivas = $query->whereHas('schedules', function ($q) {
+                $q->where('status', 1)
+                ->has('items'); 
             })
             ->with(['context', 'shift', 'slots.lessonTime'])
             ->get();
 
-        
+        $register = [
+            'courses' => [],
+            'weight' => 0,
+            'times' => [],
+            'days' => [$todayId => Day::find($todayId)?->name ?? '-']
+        ];
+
+        // Mapeamento dos horários do turno
         $register['times'] = $configsAtivas->flatMap->slots
             ->where('day_id', $todayId)
             ->sortBy('lessonTime.start')
-            ->mapWithKeys(function ($slot) {
-                $label = substr($slot->lessonTime->start, 0, 5) . " - " . substr($slot->lessonTime->end, 0, 5);
-                return [$slot->lesson_time_id => $label];
-            })
-            ->toArray();
+            ->mapWithKeys(fn($slot) => [
+                $slot->lesson_time_id => substr($slot->lessonTime->start, 0, 5) . " - " . substr($slot->lessonTime->end, 0, 5)
+            ])->toArray();
 
         foreach ($configsAtivas as $config) {
-            
-            $schedules = $config->schedules()->whereHas('items')->get();
-            foreach ($schedules as $schedule) {
+            $schedulesAtivos = $config->schedules()
+            ->where('status', 1)
+            ->get();
+
+            foreach ($schedulesAtivos as $schedule) {
                 $existingItems = $schedule->items()
                     ->whereHas('timeSlots', fn($q) => $q->where('day_id', $todayId))
-                    ->with(['instructor', 'component', 'sala'])
+                    ->with(['instructor', 'component', 'sala', 'timeSlots'])
                     ->get();
 
-                $scheduleCourse = [];
-                
                 $scheduleCourse = self::mountScheduleArray($schedule->course_id, $schedule->module_id, $existingItems);
-
-                $register['courses'] = array_replace_recursive(
-                    $register['courses'],
-                    $scheduleCourse
-                );
+                
+                if (isset($scheduleCourse['weight'])) {
+                    $register['weight'] += $scheduleCourse['weight'];
+                    unset($scheduleCourse['weight']);
                 }
-            return $register;
+
+                $register['courses'] = array_replace_recursive($register['courses'], $scheduleCourse);
+            }
         }
+
+        return $register;
     }
 
     // public static function getPublished()
