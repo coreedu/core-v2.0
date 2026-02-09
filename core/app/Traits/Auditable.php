@@ -41,6 +41,7 @@ trait Auditable
         return $this->name
             ?? $this->titulo
             ?? $this->descricao
+            ?? $this->nome 
             ?? "#{$this->id}";
     }
 }
