@@ -77,7 +77,17 @@ class ActivityLogResource extends Resource
 
                 TextColumn::make('description')
                     ->label('Descrição')
-                    ->limit(40),
+                    ->limit(40)
+                    ->tooltip(function (TextColumn $column): ?string {
+                        $state = $column->getState();
+
+                        if (strlen($state) <= $column->getCharacterLimit()) {
+                            return null;
+                        }
+
+                        // Retorna o texto completo apenas se ele exceder o limite
+                        return $state;
+                    }),
 
                 TextColumn::make('causer.name')
                     ->label('Usuário')
