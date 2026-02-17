@@ -70,9 +70,14 @@ class Schedule extends Model
 
         $query = TimeConfig::where('shift_id', $currentShiftId);
 
-        $configsAtivas = $query->whereHas('schedules', function ($q) {
+        $configsAtivas = $query->whereHas('schedules', function ($q) use ($todayId){
                 $q->where('status', 1)
-                ->has('items'); 
+                ->whereHas('items', function ($queryItem) use ($todayId) {
+                  // Filtra apenas se o item de aula estiver vinculado a um slot de hoje
+                  $queryItem->whereHas('timeSlots', function ($querySlot) use ($todayId) {
+                    $querySlot->where('day_id', $todayId);
+                  });
+                });
             })
             ->with(['context', 'shift', 'slots.lessonTime'])
             ->get();
@@ -117,60 +122,6 @@ class Schedule extends Model
         return $register;
     }
 
-    // public static function getPublished()
-    // {
-    //     $today = (now()->dayOfWeek % 7) + 1;
-
-    //     $timeSlots = [];
-    //     $currentShift = 0;
-    //     // if($today == 7){
-    //     //     $timeSlots = TimeDay::getTimesByDay(7);
-    //     // }else{
-    //         $now = Carbon::now()->format('H:i');
-    //         $currentShift = TimeShift::getCurrentShiftCodByHour($now);
-    
-    //         $timeSlots = TimeShift::getTimesByShift($currentShift);
-    //     // }
-
-    //     $days = [$today => Day::find($today)?->name ?? '-'];
-        
-    //     $rooms = Room::getRoomsArray();
-
-    //     $register = [];
-    //     $weight = 1;
-
-    //     $register['courses'] = [];
-
-    //     foreach($days as $idxDay => $day){
-    //         $schedules = self::getScheduleByShift($idxDay, $currentShift);
-
-    //         if($schedules){
-    //             foreach($schedules as $schedule){
-    //                 $existingItems = $schedule->items()
-    //                     ->select('slot_id', 'component', 'instructor', 'room', 'group')
-    //                     ->get();
-
-    //                 $scheduleCourse = self::mountScheduleArray($schedule->course_id, $schedule->module_id, $existingItems);
-                    
-    //                 $weight += $scheduleCourse['weight'];
-    //                 unset($scheduleCourse['weight']);
-                    
-    //                 $register['courses'] = array_replace_recursive(
-    //                     $register['courses'],
-    //                     $scheduleCourse
-    //                 );
-    //             }
-    //         }
-
-    //     }
-
-    //     $register['times'] = $timeSlots;
-    //     $register['days'] = $days;
-    //     $register['weight'] = $weight;
-
-    //     return $register;
-    // }
-
     public static function getScheduleByShift($day, $shift){
         return self::where('status', true)
             ->whereHas('items.timeSlots', function ($query) use ($day) {
@@ -196,7 +147,7 @@ class Schedule extends Model
             $group = $item->group ?? 'A';
 
             $scheduleData[$course]['days'][$day]['modules'][$module]['times'][$time]['groups'][$group] = [
-                'subject' => Componente::find($item->component)?->nome ?? '-',
+                'subject' => Componente::find($item->component)?->abreviacao ?? '-',
                 'teacher' => User::find($item->instructor)?->name ?? '-',
                 'room' => Room::find($item->room)?->number ?? '-',
             ];
