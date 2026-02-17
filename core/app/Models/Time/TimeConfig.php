@@ -40,7 +40,6 @@ class TimeConfig extends Model
 
     public function schedules(): HasMany
     {
-        // Uma configuração pode ter vários registros de grade (versões)
         return $this->hasMany(\App\Models\Schedule::class, 'time_config_id');
     }
 }

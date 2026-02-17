@@ -8,6 +8,7 @@ use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use App\Models\Time\TimeConfig;
+use App\Models\Time\Context;
 use App\Filament\Components\HelpButton;
 
 class EditTimeConfig extends EditRecord
@@ -17,7 +18,49 @@ class EditTimeConfig extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            Actions\DeleteAction::make()
+                ->modalHeading("Exclusão do Contexto")
+                ->modalDescription(fn (TimeConfig $record) => 
+                    "Atenção: Isso apagará TUDO vinculado ao contexto '{$record->context?->name}', incluindo todos os slots e horarios existentes. Deseja prosseguir?"
+                )
+                ->before(function (TimeConfig $record) {
+                    DB::transaction(function () use ($record) {
+                        $context = $record->context;
+
+                        if ($context) {
+                            // 1. Buscamos todas as TimeConfigs deste contexto (os 3 turnos)
+                            $allConfigs = $context->timeConfigs;
+
+                            foreach ($allConfigs as $config) {
+                                activity()->withoutLogs(function () use ($config, $record) {
+                                    $config->schedules->each(function($schedule) {
+                                        $schedule->items()->delete(); 
+                                        
+                                        $schedule->delete();
+                                    });
+
+                                    $config->slots()->delete();
+
+                                    // Apagar a configuração do turno (exceto o record atual que o Filament apagará)
+                                    if ($config->id !== $record->id) {
+                                        $config->delete();
+                                    }
+                                });
+                            }
+
+                            activity()
+                                ->performedOn($context)
+                                ->event('deleted')
+                                ->log("Exclusão completa do contexto {$context->name}.");
+                        }
+                    });
+                })
+                ->after(function (TimeConfig $record) {
+                    $context = $record->context;
+                    if ($context) {
+                        $context->delete();
+                    }
+                }),
             HelpButton::make('edit-config'),
         ];
     }
@@ -43,42 +86,11 @@ class EditTimeConfig extends EditRecord
         return $data;
     }
 
-    // protected function handleRecordUpdate(Model $record, array $data): Model
-    // {
-    //     return DB::transaction(function () use ($record, $data) {
-    //         $contextId = $data['context_id'];
-    //         $allTabsData = $data['slots'] ?? [];
-
-    //         $record->update(['context_id' => $contextId]);
-
-    //         foreach ($allTabsData as $shiftId => $days) {
-    //             $config = TimeConfig::firstOrCreate([
-    //                 'context_id' => $contextId,
-    //                 'shift_id'   => $shiftId,
-    //             ]);
-
-    //             $config->slots()->delete();
-
-    //             foreach ($days as $dayId => $horariosIds) {
-    //                 if (is_array($horariosIds)) {
-    //                     foreach ($horariosIds as $lessonTimeId) {
-    //                         $config->slots()->create([
-    //                             'day_id' => $dayId,
-    //                             'lesson_time_id' => $lessonTimeId,
-    //                         ]);
-    //                     }
-    //                 }
-    //             }
-    //         }
-
-    //         return $record;
-    //     });
-    // }
-
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         return DB::transaction(function () use ($record, $data) {
-            $contextId = $data['context_id'];
+            $context = Context::find($data['context_id']);
+            $contextId = $context->id;
             $allTabsData = $data['slots'] ?? [];
 
             activity()->withoutLogs(function () use ($record, $contextId, $allTabsData) {
@@ -124,7 +136,7 @@ class EditTimeConfig extends EditRecord
                 ->performedOn($record->context)
                 ->causedBy(auth()->user())
                 ->event('updated')
-                ->log("Atualizou a configuração de horários para o contexto {$contextId}.");
+                ->log("Atualizou a configuração de horários para o contexto {$context->name}.");
 
             return $record;
         });
