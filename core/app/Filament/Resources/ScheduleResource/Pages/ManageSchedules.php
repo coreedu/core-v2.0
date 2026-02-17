@@ -104,7 +104,10 @@ class ManageSchedules extends Page
     {
         DB::transaction(function () {
 
+            $this->getSanitizedScheduleData();
+
             $scheduleId = $this->record['id'];
+
             activity()->withoutLogs(function () use ($scheduleId) {
                 ClassSchedule::where('schedule_id', $scheduleId)->delete();
             });
@@ -114,7 +117,7 @@ class ManageSchedules extends Page
                     $slot = $this->slots->where('day_id', $day)
                                    ->where('lesson_time_id', $timeId)
                                    ->first();
-
+                    
                     if (!$slot) continue;
 
                     $this->record->items()
@@ -123,15 +126,23 @@ class ManageSchedules extends Page
 
                     $sanitize = fn($value) => (blank($value) || $value === 'null') ? null : $value;
 
-                    foreach ($data['groups'] as $groupLetter => $groupData) {
-                        $this->record->items()->create([
-                            'slot_id'    => $slot->id,
-                            'group'      => $groupLetter,
-                            'component'  => $sanitize($groupData['subject_id'] ?? null),
-                            'instructor' => $sanitize($groupData['teacher_id'] ?? null),
-                            'room'       => $sanitize($groupData['room_id'] ?? null),
-                        ]);
-                    }
+                    activity()->withoutLogs(function () use ($data, $slot, $sanitize) {
+                        foreach ($data['groups'] as $groupLetter => $groupData) {
+                            $this->record->items()->create([
+                                'slot_id'    => $slot->id,
+                                'group'      => $groupLetter,
+                                'component'  => $sanitize($groupData['subject_id'] ?? null),
+                                'instructor' => $sanitize($groupData['teacher_id'] ?? null),
+                                'room'       => $sanitize($groupData['room_id'] ?? null),
+                            ]);
+                        }
+                    });
+
+                    activity()
+                        ->performedOn(Schedule::find($scheduleId))
+                        ->causedBy(auth()->user())
+                        ->event('updated')
+                        ->log("Atualizou a grade do horário {$scheduleId}.");
                 }
             }
         });
@@ -140,6 +151,24 @@ class ManageSchedules extends Page
             ->title('Grade salva com sucesso!')
             ->success()
             ->send();
+    }
+
+    protected function getSanitizedScheduleData(): void
+    {
+        foreach ($this->scheduleData as $dayId => &$times) {
+            foreach ($times as $timeId => &$data) {
+                foreach ($data['groups'] as $groupLetter => &$groupData) {
+                    
+                    $subjectId = $groupData['subject_id'] ?? null;
+
+                    if (blank($subjectId) || $subjectId === 'null') {
+                        $groupData['teacher_id'] = '';
+                    }
+                }
+            }
+        }
+
+        unset($groupData, $data, $times);
     }
     
     public function makeSchedule(): array
