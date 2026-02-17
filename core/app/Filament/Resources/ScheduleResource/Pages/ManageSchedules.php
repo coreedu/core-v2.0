@@ -27,6 +27,7 @@ class ManageSchedules extends Page
     public array $days = [];
     public array $timeSlots = [];
     public $slots = [];
+    public $enabledSlots = [];
     public array $rooms = [];
 
     protected $listeners = ['subjectChanged' => 'onSubjectChanged'];
@@ -45,6 +46,10 @@ class ManageSchedules extends Page
             ->with(['day', 'lessonTime']) 
             ->get()
             ->sortBy(fn($slot) => $slot->lessonTime->start);
+
+        $this->enabledSlots = $this->slots->map(function ($slot) {
+            return "{$slot->day_id}-{$slot->lesson_time_id}";
+        })->toArray();
 
         $this->timeSlots = $this->slots->mapWithKeys(function ($slot) {
             $start = substr($slot->lessonTime->start, 0, 5);

@@ -22,6 +22,7 @@
 
                 @foreach($columns as $idDay => $day)
                     @php
+                        $isSlotEnabled = in_array("{$idDay}-{$idTime}", $this->enabledSlots);
                         $groups = $scheduleData[$idDay][$idTime]['groups'] ?? ['A' => null];
                     @endphp
                     <td class="border">
@@ -33,6 +34,7 @@
                                         <x-filament::input.select
                                             wire:model="scheduleData.{{ $idDay }}.{{ $idTime }}.groups.{{ $groupLetter }}.subject_id"
                                             wire:change="$dispatch('subjectChanged', { day: '{{ $idDay }}', timeId: '{{ $idTime }}', group: '{{ $groupLetter }}', subjectId: $event.target.value }).to($wire)"
+                                            :disabled="!$isSlotEnabled"
                                             class="w-full"
                                         >
                                             <option value="">Matéria</option>
@@ -44,7 +46,11 @@
                                     
                                     {{-- Professor --}}
                                     <x-filament::input.wrapper class="w-full">
-                                        <x-filament::input.select wire:model="scheduleData.{{ $idDay }}.{{ $idTime }}.groups.{{ $groupLetter }}.teacher_id" class="w-full">
+                                        <x-filament::input.select 
+                                            wire:model="scheduleData.{{ $idDay }}.{{ $idTime }}.groups.{{ $groupLetter }}.teacher_id" 
+                                            class="w-full" 
+                                            :disabled="!$isSlotEnabled"
+                                        >
                                             @if(!empty($scheduleData[$idDay][$idTime]['groups'][$groupLetter]['available_teachers']))
                                                 @foreach($scheduleData[$idDay][$idTime]['groups'][$groupLetter]['available_teachers'] as $idTeacher => $teacher)
                                                     <option value="{{ $idTeacher }}">{{ $teacher }}</option>
@@ -56,7 +62,11 @@
 
                                     {{-- Sala --}}
                                     <x-filament::input.wrapper class="w-full">
-                                        <x-filament::input.select wire:model="scheduleData.{{ $idDay }}.{{ $idTime }}.groups.{{ $groupLetter }}.room_id" class="w-full">
+                                        <x-filament::input.select 
+                                            wire:model="scheduleData.{{ $idDay }}.{{ $idTime }}.groups.{{ $groupLetter }}.room_id"
+                                            class="w-full"
+                                            :disabled="!$isSlotEnabled"
+                                        >
                                             <option value="">Sala</option>
                                             @foreach($rooms as $idRoom => $room)
                                                 <option value="{{ $idRoom }}">{{ $room['name'] ?? $room['type'] . ' '.  $room['number'] }}</option>
