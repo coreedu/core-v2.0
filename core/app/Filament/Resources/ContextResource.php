@@ -23,6 +23,8 @@ class ContextResource extends Resource
 
     protected static ?string $cluster = Time::class;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
     protected static ?string $navigationLabel = 'Contextos';

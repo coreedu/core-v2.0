@@ -69,6 +69,12 @@ class TimeConfigResource extends Resource
                     })
                     ->validationMessages([
                         'unique' => 'Esta modalidade já possui uma configuração de horários cadastrada.',
+                    ])
+                    ->createOptionForm([
+                        Forms\Components\TextInput::make('name')
+                            ->label('Nome')
+                            ->required()
+                            ->maxLength(50),
                     ]),
 
                 Tabs::make('Turnos')
