@@ -159,10 +159,8 @@ class ManageAvailability extends Page
 
         AvailabilityInstructor::where('user_id', $user->id)->delete();
 
-        // 1. Silenciamos os logs individuais para evitar poluição
         activity()->withoutLogs(function () use ($user, $data) {
             
-            // Deletamos as disponibilidades antigas
             AvailabilityInstructor::where('user_id', $user->id)->delete();
 
             foreach ($data as $dayId => $times) {
@@ -178,7 +176,6 @@ class ManageAvailability extends Page
             }
         });
 
-        // 2. Criamos um único log manual descrevendo a ação
         activity()
             ->performedOn($user)
             ->causedBy(auth()->user())
