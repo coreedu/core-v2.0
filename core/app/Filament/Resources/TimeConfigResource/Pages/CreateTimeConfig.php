@@ -5,6 +5,7 @@ namespace App\Filament\Resources\TimeConfigResource\Pages;
 use App\Filament\Resources\TimeConfigResource;
 use App\Models\Time\TimeConfig;
 use App\Models\Time\TimeSlots;
+use App\Models\Time\Context;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
@@ -25,7 +26,8 @@ class CreateTimeConfig extends CreateRecord
     protected function handleRecordCreation(array $data): Model
     {
         return DB::transaction(function () use ($data) {
-            $contextId = $data['context_id'];
+            $context = Context::find($data['context_id']);
+            $contextId = $context->id;
             $allTabsData = $data['slots'] ?? [];
             $mainRecord = null;
             
@@ -62,7 +64,7 @@ class CreateTimeConfig extends CreateRecord
                 ->performedOn($mainRecord?->context)
                 ->causedBy(auth()->user())
                 ->event('created')
-                ->log("Criou a configuração de horários para o contexto {$contextId}.");
+                ->log("Criou a configuração de horários para o contexto {$context->name}.");
             return $mainRecord;
         });
     }
