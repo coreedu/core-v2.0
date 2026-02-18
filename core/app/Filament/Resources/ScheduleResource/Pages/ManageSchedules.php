@@ -9,6 +9,7 @@ use App\Models\Curso;
 use App\Models\Room;
 use App\Models\User;
 use App\Models\ClassSchedule;
+use App\Models\Componente;
 use App\Models\Time\Day;
 use App\Models\Time\TimeSlots;
 use App\Models\TimeDay;
@@ -35,6 +36,7 @@ class ManageSchedules extends Page
     public array $scheduleData = [];
     public array $saturdayTimes = [];
     public array $subjects = [];
+    public $scheduleVersion = 0;
 
     public function mount(Schedule $record): void
     {
@@ -43,9 +45,12 @@ class ManageSchedules extends Page
         $config = $record->timeConfig;
 
         $this->slots = $config->slots()
-            ->with(['day', 'lessonTime']) 
-            ->get()
-            ->sortBy(fn($slot) => $slot->lessonTime->start);
+            ->join('lesson_time', 'time_slots.lesson_time_id', '=', 'lesson_time.id')
+            ->with(['day', 'lessonTime'])
+            ->orderBy('time_slots.day_id', 'asc')
+            ->orderBy('lesson_time.start', 'asc')
+            ->select('time_slots.*') // Garante que não sobrescreva o ID do slot com o ID do lesson_time
+            ->get();
 
         $this->enabledSlots = $this->slots->map(function ($slot) {
             return "{$slot->day_id}-{$slot->lesson_time_id}";
@@ -176,75 +181,95 @@ class ManageSchedules extends Page
         unset($groupData, $data, $times);
     }
     
-    public function makeSchedule(): array
+    public function makeSchedule(): void
     {
-
-        $course = $this->record->course_id;
-        $module = $this->record->module_id;
-
-        $config = $this->record->timeConfig;
-        $slots = $config->slots()
-            ->with(['day', 'lessonTime'])
-            ->join('day', 'time_slots.day_id', '=', 'day.id') // Join para garantir a ordenação pelo ID do dia
-            ->join('lesson_time', 'time_slots.lesson_time_id', '=', 'lesson_time.id') // Join para ordenar por hora
-            ->orderBy('day.id', 'asc') 
-            ->orderBy('lesson_time.start', 'asc')
-            ->select('time_slots.*')
-            ->get();
-
-        $componentes = Curso::find($course)
-            ->componentes()
-            ->wherePivot('module', $module)
-            ->get();
-
-        $instrutores = User::whereHas('components', function($q) use ($componentes) {
-                $q->whereIn('componentes.id', $componentes->pluck('id'));
-            })
-            ->with(['availabilities', 'components'])
-            ->get();
-
+        DB::transaction(function () {
+            $this->scheduleData = [];
+            $rooms = \App\Models\Room::where('active', true)->get();
             
-        $salas = Room::where('active', true)->get();
+            $subjectIds = array_keys($this->subjects);
+            $componentesBanco = Componente::whereIn('id', $subjectIds)->get();
 
-        $horarioGerado = [];
-        foreach ($slots as $slot) {
+            $pendingComponents = collect($this->subjects)->map(function ($subject, $id) use ($componentesBanco) {
+                $compData = $componentesBanco->firstWhere('id', $id);
 
-            $diaId = $slot->day_id;
-            $horaId = $slot->lesson_time_id;
-            $count = 0;
-            foreach ($componentes as $comp) {
-            $count++;
-                $aulasJaAtribuidas = $this->contarAulasAtribuidas($horarioGerado, $comp->id);
-                if ($aulasJaAtribuidas >= $comp->horasSemanais) continue;
+                return [
+                    'id' => $id,
+                    'name' => $subject['name'],
+                    'remaining_hours' => (int) ($compData->horasSemanais ?? 4),
+                    'instructors' => $subject['instructors'] ?? [],
+                ];
 
-                $instrutorElegivel = $instrutores->filter(function($professor) use ($comp, $diaId, $horaId) {
-                    $temComponente = $professor->components->contains('id', $comp->id);
+            })->sortByDesc('remaining_hours')->toArray();
 
-                    $estaDisponivel = $professor->availabilities
-                        ->where('id', $horaId)
-                        ->where('pivot.day_id', $diaId)
-                        ->isNotEmpty();
-                    
-                    return $temComponente && $estaDisponivel;
-                })->first();
+            // 3. Percorrer os Slots Disponíveis (Dias e Horários cadastrados na Config)
+            foreach ($this->slots as $slot) {
+                $dayId = $slot->day_id;
+                $timeId = $slot->lesson_time_id;
 
-        
-                if ($instrutorElegivel) {
-                    $horarioGerado[$diaId][$horaId]['groups']['A'] = [
-                        'subject_id' => $comp->id,
-                        'teacher_id' => $instrutorElegivel->id,
-                        'room_id' => $salas->first()->id ?? null,
-                        'slot_id' => $slot->id
-                    ];
+                // Tentar encaixar cada componente por ordem de prioridade
+                foreach ($pendingComponents as &$component) {
+                    if ($component['remaining_hours'] <= 0){
+                        unset($component);
+                        continue;
+                    }
 
-                    continue 2; 
+                    // 4. Validar Professor Disponível
+                    $selectedTeacher = null;
+                    foreach ($component['instructors'] as $teacherId => $teacherName) {
+                        // Verifica na tabela de disponibilidade se o professor pode nesse dia/hora
+                        $isAvailable = \DB::table('availability_instructor')
+                            ->where('user_id', $teacherId)
+                            ->where('day_id', $dayId)
+                            ->where('time_id', $timeId)
+                            ->exists();
+                        
+                        // Verificar se o professor já não foi alocado em outro curso no mesmo horário
+                        $isBusy = \App\Models\ClassSchedule::whereHas('timeSlots', function($q) use ($dayId, $timeId) {
+                                $q->where('day_id', $dayId)->where('lesson_time_id', $timeId);
+                            })
+                            ->where('instructor', $teacherId)
+                            ->exists();
+
+                        if ($isAvailable && !$isBusy) {
+                            $selectedTeacher = $teacherId;
+                            break;
+                        }
+                    }
+
+                    // 5. Atribuir se encontrou professor e tem sala livre
+                    if ($selectedTeacher) {
+                        // Pega a primeira sala que não esteja ocupada neste slot
+                        $occupiedRooms = \App\Models\ClassSchedule::whereHas('timeSlots', function($q) use ($dayId, $timeId) {
+                                $q->where('day_id', $dayId)->where('lesson_time_id', $timeId);
+                            })->pluck('room')->toArray();
+
+                        $availableRoom = $rooms->whereNotIn('id', $occupiedRooms)->first();
+
+                        if ($availableRoom) {
+                            $this->scheduleData[$dayId][$timeId]['groups']['A'] = [
+                                'subject_id' => $component['id'],
+                                'teacher_id' => $selectedTeacher,
+                                'room_id' => $availableRoom->id,
+                                'available_teachers' => $component['instructors'],
+                            ];
+
+                            $component['remaining_hours']--;
+
+                            continue 2; 
+                        }
+                    }
                 }
             }
-        }
+        });
 
-        $this->scheduleData = $horarioGerado;
-        return $this->scheduleData;
-        
+        $this->scheduleVersion++;
+
+        \Filament\Notifications\Notification::make()
+            ->title('Grade sugerida com sucesso!')
+            ->body('Lembre-se de revisar e clicar em Salvar.')
+            ->success()
+            ->send();
     }
 
     private function contarAulasAtribuidas($horario, $componenteId) {

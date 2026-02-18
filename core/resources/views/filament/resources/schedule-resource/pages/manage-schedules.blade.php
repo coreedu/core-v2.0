@@ -23,7 +23,7 @@
             </div>
         </div>
         <div class="flex justify-end">
-            <x-filament::button wire:click="makeSchedule" color="primary" class="mr-2">
+            <x-filament::button wire:click="makeSchedule" color="secondary" class="mr-2">
                 Gerar Grade
             </x-filament::button>
             <x-filament::button wire:click="saveSchedule" color="primary">

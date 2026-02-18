@@ -47,6 +47,7 @@
                                     {{-- Professor --}}
                                     <x-filament::input.wrapper class="w-full">
                                         <x-filament::input.select 
+                                            wire:key="select-teacher-{{ $scheduleVersion }}-{{ $idDay }}-{{ $idTime }}"
                                             wire:model="scheduleData.{{ $idDay }}.{{ $idTime }}.groups.{{ $groupLetter }}.teacher_id" 
                                             class="w-full" 
                                             :disabled="!$isSlotEnabled"
