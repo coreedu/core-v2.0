@@ -303,4 +303,15 @@ class Schedule extends Model
         // ];
         return [];
     }
+
+    protected static function booted()
+    {
+        static::deleting(function ($schedule) {
+            // Apaga todos os itens relacionados na tabela class_schedule
+            // Usamos delete() em vez de query->delete() para disparar observers dos filhos, se houver.
+            $schedule->items()->each(function ($item) {
+                $item->delete();
+            });
+        });
+    }
 }
