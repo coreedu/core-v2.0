@@ -22,8 +22,9 @@ class ComponentesRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('abreviacao_nome')
                     ->label('Nome')
                     ->getStateUsing(fn(Componente $record) => "{$record->abreviacao} - {$record->nome}"),
-                Tables\Columns\TextColumn::make('pivot.module')
+                Tables\Columns\TextColumn::make('module')
                     ->label('Módulo')
+                    ->sortable()
                     ->formatStateUsing(fn($state) => "{$state}º - Módulo"),
             ])
             ->headerActions([
