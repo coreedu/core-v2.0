@@ -2,7 +2,7 @@
     use Illuminate\Support\Str;
 @endphp
 
-@if($schedule['context'])
+@if(isset($schedule['context']))
     @foreach($schedule['context'] as $contextId => $context)
         @foreach($context['shifts'] as $shiftId => $shift)
             @foreach($shift['courses'] as $courseId => $sc)
