@@ -22,7 +22,8 @@ class ScheduleExport implements FromView, ShouldAutoSize
         return view('exports.schedule_excel', [
             'days'    => $this->data['days'],
             'times'   => $this->data['times'],
-            'courses' => $this->data['courses']
+            'context' => $this->data['context'],
+            'shifts' => $this->data['shifts'],
         ]);
     }
 
