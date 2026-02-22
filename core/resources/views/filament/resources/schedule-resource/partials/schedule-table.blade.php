@@ -37,7 +37,7 @@
                                             :disabled="!$isSlotEnabled"
                                             class="w-full"
                                         >
-                                            <option value="">Matéria</option>
+                                            <option value="">Sem matéria</option>
                                             @foreach ($subjects as $idSubject => $subject)
                                                 <option value="{{ $idSubject }}"selected="{{ isset($scheduleData[$idDay][$idTime]['groups'][$groupLetter]['subject_id']) }}">{{ $subject['name'] }}</option>
                                             @endforeach
@@ -57,7 +57,7 @@
                                                     <option value="{{ $idTeacher }}">{{ $teacher }}</option>
                                                 @endforeach
                                             @endif
-                                            <option value="">Professor</option>
+                                            <option value="">Sem professor</option>
                                         </x-filament::input.select>
                                     </x-filament::input.wrapper>
 
@@ -68,7 +68,7 @@
                                             class="w-full"
                                             :disabled="!$isSlotEnabled"
                                         >
-                                            <option value="">Sala</option>
+                                            <option value="">Sem sala</option>
                                             @foreach($rooms as $idRoom => $room)
                                                 <option value="{{ $idRoom }}">{{ $room['name'] ?? $room['type'] . ' '.  $room['number'] }}</option>
                                             @endforeach
