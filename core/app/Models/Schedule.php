@@ -43,6 +43,11 @@ class Schedule extends Model
         return $this->hasMany(ClassSchedule::class, 'schedule_id');
     }
 
+    public function shift()
+    {
+        return $this->belongsTo(Shift::class, 'shift_id', 'id');
+    }
+
     public function getActiveConfig()
     {
         $now = now()->format('H:i');
@@ -64,43 +69,44 @@ class Schedule extends Model
     public static function getPublished()
     {
         $now = now()->format('H:i');
-        $todayId = (now()->dayOfWeek % 7) + 1;
+        $dayOfWeek = (now()->dayOfWeek % 7) + 1; 
+        $todayId = $todayId = in_array($dayOfWeek, [6, 7]) ? 2 : $dayOfWeek; // converte sabado e domingo para segunda (2)
         
         $currentShiftId = TimeShift::getCurrentShiftCodByHour($now);
+        $shiftName = Shift::find($currentShiftId)?->name ?? '';
 
-        $query = TimeConfig::where('shift_id', $currentShiftId);
-
-        $configsAtivas = $query->whereHas('schedules', function ($q) use ($todayId){
+        $configsAtivas = TimeConfig::where('shift_id', $currentShiftId)
+            ->whereHas('schedules', function ($q) use ($todayId) {
                 $q->where('status', 1)
-                ->whereHas('items', function ($queryItem) use ($todayId) {
-                  // Filtra apenas se o item de aula estiver vinculado a um slot de hoje
-                  $queryItem->whereHas('timeSlots', function ($querySlot) use ($todayId) {
-                    $querySlot->where('day_id', $todayId);
-                  });
-                });
+                ->whereHas('items.timeSlots', fn($querySlot) => $querySlot->where('day_id', $todayId));
             })
             ->with(['context', 'shift', 'slots.lessonTime'])
             ->get();
-
-        $register = [
-            'courses' => [],
-            'weight' => 0,
-            'times' => [],
-            'days' => [$todayId => Day::find($todayId)?->name ?? '-']
-        ];
-
-        // Mapeamento dos horários do turno
-        $register['times'] = $configsAtivas->flatMap->slots
-            ->where('day_id', $todayId)
-            ->sortBy('lessonTime.start')
-            ->mapWithKeys(fn($slot) => [
-                $slot->lesson_time_id => substr($slot->lessonTime->start, 0, 5) . " - " . substr($slot->lessonTime->end, 0, 5)
-            ])->toArray();
+        $register = [];
 
         foreach ($configsAtivas as $config) {
-            $schedulesAtivos = $config->schedules()
-            ->where('status', 1)
-            ->get();
+            $category = $config->context?->id;
+            
+            if (!isset($register['context'][$category]['shifts'][$currentShiftId])) {
+                $register['context'][$category]['shifts'][$currentShiftId] = [
+                    'name' => $shiftName,
+                    'times' => [],
+                    'courses' => [],
+                    'days' => [$todayId => Day::find($todayId)?->name ?? '-']
+                ];
+                $register['context'][$category]['name'] = $config->context?->name ?? '';
+            }
+
+            $horarios = $config->slots
+                ->where('day_id', $todayId)
+                ->sortBy('lessonTime.start')
+                ->mapWithKeys(fn($slot) => [
+                    $slot->lesson_time_id => substr($slot->lessonTime->start, 0, 5) . " - " . substr($slot->lessonTime->end, 0, 5)
+                ])->toArray();
+
+            $register['context'][$category]['shifts'][$currentShiftId]['times'] = array_replace($register['context'][$category]['shifts'][$currentShiftId]['times'], $horarios);
+
+            $schedulesAtivos = $config->schedules()->where('status', 1)->get();
 
             foreach ($schedulesAtivos as $schedule) {
                 $existingItems = $schedule->items()
@@ -110,15 +116,13 @@ class Schedule extends Model
 
                 $scheduleCourse = self::mountScheduleArray($schedule->course_id, $schedule->module_id, $existingItems);
                 
-                if (isset($scheduleCourse['weight'])) {
-                    $register['weight'] += $scheduleCourse['weight'];
-                    unset($scheduleCourse['weight']);
-                }
-
-                $register['courses'] = array_replace_recursive($register['courses'], $scheduleCourse);
+                // Merge recursivo dentro da categoria e turno específicos
+                $register['context'][$category]['shifts'][$currentShiftId]['courses'] = array_replace_recursive(
+                    $register['context'][$category]['shifts'][$currentShiftId]['courses'], 
+                    $scheduleCourse
+                );
             }
         }
-
         return $register;
     }
 
@@ -137,25 +141,25 @@ class Schedule extends Model
             ->get();
     }
 
-    public static function mountScheduleArray($course, $module, $itens){
-        $scheduleData[$course] = [];
+    public static function mountScheduleArray($courseId, $moduleId, $itens)
+    {
+        $courseName = Curso::find($courseId)?->nome ?? '-';
+        $scheduleData[$courseId] = [
+            'name' => $courseName,
+            'days' => []
+        ];
 
         foreach ($itens as $item) {
             $day = $item->timeSlots->day_id;
             $time = $item->timeSlots->lesson_time_id;
-            
             $group = $item->group ?? 'A';
 
-            $scheduleData[$course]['days'][$day]['modules'][$module]['times'][$time]['groups'][$group] = [
-                'subject' => Componente::find($item->component)?->abreviacao ?? '-',
-                'teacher' => User::find($item->instructor)?->name ?? '-',
-                'room' => Room::find($item->room)?->number ?? '-',
+            // Estrutura interna: Dia > Modulo > Horario > Grupo
+            $scheduleData[$courseId]['days'][$day]['modules'][$moduleId]['times'][$time]['groups'][$group] = [
+                'subject' => $item->getRelation('component')?->abreviacao ?? '-', // Ideal usar o relacionamento carregado
+                'teacher' => $item->getRelation('instructor')?->name ?? '-',
+                'room'    => $item->room ?? '-',
             ];
-
-
-            if(!isset($scheduleData[$course]['name'])) $scheduleData[$course]['name'] = Curso::find($course)?->nome ?? '-';
-            // if(!isset($scheduleData[$course]['categoria'])) $scheduleData[$course]['categoria'] = Curso::find($course)?-> ?? '-';
-            // $scheduleData['weight'] = isset([$course]['days'][$day]['modules'][$module]) ? 0 : 1;
         }
 
         return $scheduleData;
