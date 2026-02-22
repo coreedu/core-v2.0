@@ -116,7 +116,7 @@ class EquipmentsRelationManager extends RelationManager
             ])
             ->headerActions([
                 Tables\Actions\Action::make('addEquipment')
-                    ->label('Adicionar Equipamento')
+                    ->label('Adicionar Equipamento ao Grupo')
                     ->icon('heroicon-o-plus')
                     ->form([
                         Forms\Components\Select::make('equipment_id')
