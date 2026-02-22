@@ -107,6 +107,9 @@
 
             .page-break {
                 page-break-after: always;
+                clear: both;
+                display: block;
+                height: 0;
             }
 
             #header {
@@ -183,28 +186,31 @@
                 </tr>
             </table>
         </div>
-        @foreach($schedule['courses'] as $sc)
-            @foreach($sc['shifts'] as $idxShift => $shift)
-                @foreach($shift['modules'] as $idxModule => $module)
-                    <div class="pdf-row">
-                        <div class="pdf-col">
-                            @include('filament.resources.schedule-resource.partials.pdf-table', [
-                                'schedule' => $schedule,
-                                'curso' => $sc,
-                                'cursoName' => $sc['name'],
-                                'times' => $schedule['times'][$idxShift],
-                                'days' => $schedule['days'],
-                                'module' => $module,
-                                'idxModule' => $idxModule,
-                                'shift' => $schedule['shifts'][$idxShift]
-                            ])
+        @foreach($schedule['context'] as $context)
+            @foreach($context['courses'] as $sc)
+                @foreach($sc['shifts'] as $idxShift => $shift)
+                    @foreach($shift['modules'] as $idxModule => $module)
+                        <div class="pdf-row">
+                            <div class="pdf-col">
+                                @include('filament.resources.schedule-resource.partials.pdf-table', [
+                                    'schedule' => $schedule,
+                                    'curso' => $sc,
+                                    'cursoName' => $sc['name'],
+                                    'times' => $schedule['times'][$idxShift],
+                                    'days' => $schedule['days'],
+                                    'module' => $module,
+                                    'idxModule' => $idxModule,
+                                    'shift' => $schedule['shifts'][$idxShift],
+                                    'context' => $context['name']
+                                ])
+                            </div>
                         </div>
-                    </div>
 
-                    {{-- Só quebra página se NÃO for o último item --}}
-                    @if(!($loop->parent->parent->last && $loop->parent->last && $loop->last))
-                        <div class="page-break"></div>
-                    @endif
+                        {{-- Verifica se NÃO é o último módulo do último turno do último curso do último contexto --}}
+                        @if (!$loop->last || !$loop->parent->last || !$loop->parent->parent->last || !$loop->parent->parent->parent->last)
+                            <div class="page-break"></div>
+                        @endif
+                    @endforeach
                 @endforeach
             @endforeach
         @endforeach

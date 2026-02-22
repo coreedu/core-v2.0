@@ -2,7 +2,7 @@
     <table class="text-sm text-center border-collapse bg-white tabelaHorario">
         <thead class="thead textBig">
             <tr>
-                <th class="px-3 py-2 border" colspan="{{count($days)+1}}">{{$idxModule}}° {{$cursoName ?? 'Nome Curso'}} - {{$shift}}</th>
+                <th class="px-3 py-2 border" colspan="{{count($days)+1}}">{{$idxModule}}° {{$cursoName ?? 'Nome Curso'}} - {{$shift}} - {{$context}}</th>
             </tr>
             <tr>
                 <th class="border">

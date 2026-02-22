@@ -165,33 +165,46 @@ class Schedule extends Model
         return $scheduleData;
     }
 
-    public static function mountSchedulePdf($schedules){
-        
-        // $satSlots = TimeDay::getTimesByDay(7); // sat times
-        $timeSlots = TimeShift::getTimesMap(); // mapear periodo -> horarios
-        $shifts = Shift::listCodAndName(); // nome dos turnos
-        $days = Day::getWeekDays(); // week days
+    public static function mountSchedulePdf($schedules) 
+    {
+        $timeSlots = TimeShift::getTimesMap(); 
+        $shifts = Shift::listCodAndName(); 
+        $days = Day::getWeekDays(); 
 
-        $register['courses'] = [];
+        $register = [
+            'context' => [],
+            'times' => $timeSlots,
+            'days' => $days,
+            'shifts' => $shifts
+        ];
 
-        foreach($schedules as $schedule){
+        foreach($schedules as $schedule) {
+            $context = $schedule->timeConfig->context?->id;
+            $shift = $schedule->timeConfig->shift->id;
+
             $existingItems = $schedule->items()
                 ->select('slot_id', 'component', 'instructor', 'room', 'group')
+                ->with(['timeSlots']) // Importante para pegar o day_id e lesson_time_id
                 ->get();
 
-            $scheduleCourse = self::mountScheduleArrayPdf($schedule->course_id, $schedule->module_id, $schedule->timeConfig->shift_id, $existingItems);
+            $scheduleCourse = self::mountScheduleArrayPdf(
+                $schedule->course_id, 
+                $schedule->module_id,
+                $shift,
+                $existingItems
+            );
             
-            $register['courses'] = array_replace_recursive(
-                $register['courses'],
+            if (!isset($register['context'][$context])) {
+                $register['context'][$context]['courses'] = [];
+                $register['context'][$context]['name'] = $schedule->timeConfig->context?->name ?? '';
+            }
+
+            $register['context'][$context]['courses'] = array_replace_recursive(
+                $register['context'][$context]['courses'],
                 $scheduleCourse
             );
         }
 
-        $register['times'] = $timeSlots;
-        $register['days'] = $days;
-        $register['shifts'] = $shifts;
-        // $register['satSlots'] = $satSlots;
-        
         return $register;
     }
 
