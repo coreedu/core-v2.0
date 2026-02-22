@@ -2,184 +2,158 @@
 
 namespace App\Filament\Resources\GroupEquipmentResource\RelationManagers;
 
+use App\Models\Inventory\Equipment;
+use App\Models\Inventory\Brand;
+use App\Models\Inventory\Type;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Grid;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Tables\Actions\Action;
-use App\Models\Inventory\Equipment;
+use Filament\Notifications\Notification;
 
 class EquipmentsRelationManager extends RelationManager
 {
     protected static string $relationship = 'equipments';
 
-    protected static ?string $title = 'Equipamentos do Grupo';
+    protected static ?string $title = 'Equipamentos';
 
-    public function form(Forms\Form $form): Forms\Form
+    protected function getEquipmentFormSchema(bool $isNested = false): array
     {
-        return $form->schema([
-            Forms\Components\TextInput::make('name')
-                ->label('Equipamento')
-                ->required(),
+        return [
+            Forms\Components\Grid::make(2)->schema([
+                Forms\Components\TextInput::make('name')
+                    ->label('Nome')
+                    ->placeholder('Ex.: Projetor Epson X400')
+                    ->required()
+                    ->maxLength(255),
 
-            Forms\Components\Select::make('brand_id')
-                ->relationship('brand', 'name')
-                ->label('Marca')
-                ->searchable()
-                ->preload(),
+                Forms\Components\TextInput::make('patrimony')
+                    ->label('Patrimônio')
+                    ->placeholder('Ex.: 12345')
+                    ->maxLength(255)
+                    ->required(function (Forms\Get $get): bool {
+                        $typeId = $get('type_id');
+                        if (!$typeId) return false;
+                        return Type::where('id', $typeId)->value('requires_asset_tag') === true;
+                    })
+                    ->validationMessages([
+                        'required' => 'O patrimônio é obrigatório para este tipo de equipamento.',
+                    ]),
+            ]),
 
-            Forms\Components\Select::make('type_id')
-                ->relationship('type', 'name')
-                ->label('Tipo')
-                ->searchable()
-                ->preload(),
+            Forms\Components\Grid::make(2)->schema([
+                Forms\Components\Select::make('brand_id')
+                    ->label('Marca')
+                    ->relationship(fn() => !$isNested ? 'brand' : null, 'name')
+                    ->options(fn() => $isNested ? Brand::pluck('name', 'id') : null)
+                    ->searchable()
+                    ->preload()
+                    ->required()
+                    ->createOptionForm([
+                        Forms\Components\TextInput::make('name')
+                            ->label('Nome da Marca')
+                            ->required()
+                            ->maxLength(255),
+                    ])
+                    ->createOptionUsing(fn(array $data) => Brand::create($data)->id),
 
-            Forms\Components\TextInput::make('patrimony')
-                ->label('Patrimônio'),
+                Forms\Components\Select::make('type_id')
+                    ->label('Tipo')
+                    ->relationship(fn() => !$isNested ? 'type' : null, 'name')
+                    ->options(fn() => $isNested ? Type::pluck('name', 'id') : null)
+                    ->searchable()
+                    ->preload()
+                    ->live()
+                    ->required()
+                    ->createOptionForm([
+                        Forms\Components\TextInput::make('name')
+                            ->label('Nome do Tipo')
+                            ->required()
+                            ->maxLength(255),
+                    ])
+                    ->createOptionUsing(fn(array $data) => Type::create($data)->id),
+            ]),
 
             Forms\Components\Toggle::make('status')
-                ->label('Ativo')
-                ->default(true),
-        ]);
+                ->label('Disponível')
+                ->onColor('success')
+                ->offColor('danger')
+                ->default(true)
+                ->live(),
+
+            Forms\Components\Textarea::make('observation')
+                ->label('Observações')
+                ->rows(3)
+                ->required(fn(Forms\Get $get): bool => ! $get('status'))
+                ->columnSpanFull(),
+
+            Forms\Components\FileUpload::make('photos')
+                ->label('Fotos do Equipamento')
+                ->image()
+                ->multiple()
+                ->disk('public')
+                ->directory('equipments')
+                ->columnSpanFull(),
+        ];
     }
 
-    public function table(Tables\Table $table): Tables\Table
+    public function form(Form $form): Form
+    {
+        return $form->schema($this->getEquipmentFormSchema());
+    }
+
+    public function table(Table $table): Table
     {
         return $table
+            ->recordTitleAttribute('name')
+            ->columns([
+                Tables\Columns\TextColumn::make('name')->label('Nome')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('patrimony')->label('Patrimônio')->searchable(),
+                Tables\Columns\TextColumn::make('brand.name')->label('Marca'),
+                Tables\Columns\TextColumn::make('type.name')->label('Tipo'),
+                Tables\Columns\ToggleColumn::make('status')->label('Ativo'),
+            ])
             ->headerActions([
-                Action::make('addEquipment')
-                    ->label('Adicionar equipamento')
+                Tables\Actions\Action::make('addEquipment')
+                    ->label('Adicionar Equipamento')
                     ->icon('heroicon-o-plus')
-                    ->modalHeading('Adicionar equipamento ao grupo')
-                    ->modalSubmitActionLabel('Salvar')
                     ->form([
-                        Forms\Components\Radio::make('mode')
-                            ->label('O que deseja fazer?')
-                            ->options([
-                                'existing' => 'Vincular equipamento existente',
-                                'new' => 'Criar novo equipamento',
-                            ])
-                            ->default('existing')
-                            ->reactive()
-                            ->required(),
-
-                        // ---- EXISTENTE ----
-                        Section::make('Equipamento existente')
-                            ->visible(fn($get) => $get('mode') === 'existing')
-                            ->schema([
-                                Forms\Components\Select::make('equipment_id')
-                                    ->label('Equipamento')
-                                    ->options(
-                                        fn() => Equipment::query()
-                                            ->whereNull('group_equipment_id')
-                                            ->pluck('name', 'id')
-                                    )
-                                    ->searchable()
-                                    ->required(),
-                            ]),
-                        // ---- NOVO ----
-                        Section::make('Novo equipamento')
-                            ->visible(fn($get) => $get('mode') === 'new')
-                            ->schema([
-                                Grid::make(3)->schema([
-                                    Forms\Components\TextInput::make('name')
-                                        ->label('Nome do equipamento')
-                                        ->required(),
-
-                                    Forms\Components\TextInput::make('patrimony')
-                                        ->label('Patrimônio')
-                                        ->placeholder('Ex.: 12345')
-                                        ->maxLength(255)
-                                        ->nullable(),
-
-                                    Forms\Components\Select::make('brand_id')
-                                        ->label('Marca')
-                                        ->relationship('brand', 'name')
-                                        ->searchable(),
-
-                                    Forms\Components\Select::make('type_id')
-                                        ->label('Tipo')
-                                        ->relationship('type', 'name')
-                                        ->searchable(),
-
-                                    Forms\Components\Toggle::make('status')
-                                        ->label('Disponível')
-                                        ->default(true),
-
-                                    Forms\Components\Textarea::make('observation')
-                                        ->label('Observações')
-                                        ->placeholder('Ex.: Equipamento com pequenos arranhões na lateral.')
-                                        ->rows(3)
-                                        ->nullable(),
-
-                                    // Forms\Components\FileUpload::make('photos')
-                                    //     ->label('Fotos do Equipamento')
-                                    //     ->image()
-                                    //     ->multiple()
-                                    //     ->reorderable()
-                                    //     ->disk('public')
-                                    //     ->directory('equipments')
-                                    //     ->nullable(),
-                                ]),
-                            ]),
+                        Forms\Components\Select::make('equipment_id')
+                            ->label('Equipamento')
+                            ->options(fn() => Equipment::whereNull('group_equipment_id')->pluck('name', 'id'))
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->createOptionForm($this->getEquipmentFormSchema(isNested: true))
+                            ->createOptionUsing(fn(array $data) => Equipment::create($data)->id),
                     ])
                     ->action(function (array $data) {
-                        if ($data['mode'] === 'existing') {
-                            Equipment::where('id', $data['equipment_id'])
-                                ->update([
-                                    'group_equipment_id' => $this->getOwnerRecord()->id,
-                                ]);
-                        }
+                        Equipment::where('id', $data['equipment_id'])
+                            ->update(['group_equipment_id' => $this->getOwnerRecord()->id]);
 
-                        if ($data['mode'] === 'new') {
-                            Equipment::create([
-                                'name' => $data['name'],
-                                'brand_id' => $data['brand_id'] ?? null,
-                                'type_id' => $data['type_id'] ?? null,
-                                'status' => $data['status'] ?? true,
-                                'group_equipment_id' => $this->getOwnerRecord()->id,
-                            ]);
-                        }
+                        Notification::make()
+                            ->title('Equipamento vinculado com sucesso')
+                            ->success()
+                            ->send();
                     }),
             ])
-            ->columns([
-                Tables\Columns\TextColumn::make('name')
-                    ->label('Equipamento')
-                    ->searchable(),
-
-                Tables\Columns\TextColumn::make('patrimony')
-                    ->label('Patrimônio'),
-
-                Tables\Columns\TextColumn::make('brand.name')
-                    ->label('Marca'),
-
-                Tables\Columns\TextColumn::make('type.name')
-                    ->label('Tipo'),
-
-                Tables\Columns\IconColumn::make('status')
-                    ->label('Status')
-                    ->boolean(),
-            ])
             ->actions([
-                Tables\Actions\EditAction::make()
-                    ->label('Editar')
-                    ->icon('heroicon-o-pencil-square')
-                    ->color('primary'),
-
-                Tables\Actions\Action::make('detach')
-                    ->label('Remover Equipamento')
-                    ->icon('heroicon-o-link-slash')
-                    ->color('warning')
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('desvincular')
+                    ->label('Remover')
+                    ->icon('heroicon-o-x-mark')
+                    ->color('danger')
                     ->requiresConfirmation()
-                    ->modalHeading('Remover equipamento do grupo')
-                    ->modalDescription('O equipamento será apenas desvinculado deste grupo.')
+                    ->modalHeading('Remover vínculo')
+                    ->modalDescription('O equipamento continuará existindo, mas não fará mais parte deste grupo.')
                     ->action(function ($record) {
                         $record->update(['group_equipment_id' => null]);
+
+                        Notification::make()
+                            ->title('Vínculo removido')
+                            ->success()
+                            ->send();
                     }),
             ]);
     }

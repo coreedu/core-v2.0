@@ -14,6 +14,8 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Pages\SubNavigationPosition;
+use Filament\Support\Enums\Alignment;
+use Filament\Tables\Filters\SelectFilter;
 
 class GroupEquipmentResource extends Resource
 {
@@ -61,21 +63,38 @@ class GroupEquipmentResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nome')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->weight('medium')
+                    ->alignment(Alignment::Start),
 
-                Tables\Columns\IconColumn::make('status')
-                    ->label('Status')
-                    ->boolean(),
+                Tables\Columns\ToggleColumn::make('status')
+                    ->label('Ativo')
+                    ->onColor('success')
+                    ->offColor('danger')
+                    ->alignment(Alignment::Center),
 
                 Tables\Columns\TextColumn::make('maintenance_date')
                     ->label('Manutenção')
                     ->date('d/m/Y')
-                    ->sortable(),
+                    ->sortable()
+                    ->placeholder('-')
+                    ->alignment(Alignment::Center),
 
                 Tables\Columns\TextColumn::make('equipments_count')
                     ->label('Equipamentos')
                     ->counts('equipments')
-                    ->sortable(),
+                    ->badge()
+                    ->color('primary')
+                    ->sortable()
+                    ->alignment(Alignment::Center),
+            ])
+            ->filters([
+                SelectFilter::make('status')
+                    ->label('Status')
+                    ->options([
+                        1 => 'Ativo',
+                        0 => 'Inativo',
+                    ]),
             ])
             ->defaultSort('name')
             ->actions([
