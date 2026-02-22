@@ -41,6 +41,13 @@ class CentralPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
+            ->userMenuItems([
+                'logout' => \Filament\Navigation\MenuItem::make()->label('Sair do Sistema'),
+                \Filament\Navigation\MenuItem::make()
+                    ->label('Ir para o Site')
+                    ->url('/')
+                    ->icon('heroicon-o-globe-alt'),
+            ])
             ->favicon(asset('images/favicon.ico'))
             ->brandLogo(url('images/logo.svg'))
             ->brandLogoHeight('2.5rem')
