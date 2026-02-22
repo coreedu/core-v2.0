@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Resources\RoomResource\RelationManagers;
 
 use Filament\Forms;
@@ -6,11 +7,8 @@ use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Grid;
-
-use Filament\Tables\Actions\Action;
 use App\Models\GroupEquipment;
+use Filament\Support\Enums\Alignment;
 
 class GroupEquipmentsRelationManager extends RelationManager
 {
@@ -22,9 +20,10 @@ class GroupEquipmentsRelationManager extends RelationManager
     {
         return $form->schema([
             Forms\Components\TextInput::make('name')
-                ->label('Nome do Grupo')
+                ->label('Nome')
                 ->required(),
-
+            Forms\Components\DatePicker::make('maintenance_date')
+                ->label('Manutenção'),
             Forms\Components\Toggle::make('status')
                 ->label('Ativo')
                 ->default(true),
@@ -37,97 +36,78 @@ class GroupEquipmentsRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Grupo')
-                    ->searchable(),
+                    ->label('Nome')
+                    ->searchable()
+                    ->sortable()
+                    ->weight('medium')
+                    ->alignment(Alignment::Start),
 
-                Tables\Columns\TextColumn::make('equipments_count')
-                    ->label('Equipamentos')
-                    ->counts('equipments')
-                    ->badge(),
+                Tables\Columns\ToggleColumn::make('status')
+                    ->label('Ativo')
+                    ->onColor('success')
+                    ->offColor('danger')
+                    ->alignment(Alignment::Center),
+
+                Tables\Columns\TextColumn::make('maintenance_date')
+                    ->label('Manutenção')
+                    ->date('d/m/Y')
+                    ->sortable()
+                    ->placeholder('-')
+                    ->alignment(Alignment::Center),
             ])
             ->headerActions([
-                Action::make('addGroup')
+                Tables\Actions\AttachAction::make()
                     ->label('Adicionar grupo')
-                    ->icon('heroicon-o-plus-circle')
+                    ->icon('heroicon-o-plus')
+                    ->color('primary')
                     ->modalHeading('Adicionar grupo de equipamentos')
                     ->modalSubmitActionLabel('Salvar')
-                    ->form([
-                        Forms\Components\Radio::make('mode')
-                            ->label('O que deseja fazer?')
-                            ->options([
-                                'existing' => 'Vincular grupo existente',
-                                'new' => 'Criar novo grupo',
+                    ->recordSelect(function (Forms\Components\Select $select) {
+                        return $select
+                            ->label('Grupos')
+                            ->placeholder('Selecione ou clique no +')
+                            ->options(
+                                GroupEquipment::query()
+                                    ->whereNull('room_id')
+                                    ->pluck('name', 'id')
+                            )
+                            ->searchable()
+                            ->preload()
+                            ->createOptionForm([
+                                Forms\Components\Grid::make(3)->schema([
+                                    Forms\Components\TextInput::make('name')
+                                        ->label('Nome do grupo')
+                                        ->required(),
+                                    Forms\Components\DatePicker::make('maintenance_date')
+                                        ->label('Data de Manutenção'),
+                                    Forms\Components\Toggle::make('status')
+                                        ->label('Ativo')
+                                        ->default(true)
+                                        ->inline(false)
+                                        ->extraAttributes([
+                                            'style' => 'margin-top: 32px;',
+                                        ]),
+                                ]),
                             ])
-                            ->default('existing')
-                            ->reactive()
-                            ->required(),
-
-                        // -------- EXISTENTE --------
-                        Section::make('Grupo existente')
-                            ->visible(fn ($get) => $get('mode') === 'existing')
-                            ->schema([
-                                Forms\Components\Select::make('group_equipment_id')
-                                    ->label('Grupos')
-                                    ->options(
-                                        fn () => GroupEquipment::query()
-                                            ->whereNull('room_id')
-                                            ->pluck('name', 'id')
-                                    )
-                                    ->searchable()
-                                    ->required()
-                        ]),
-                        
-
-                        // -------- NOVO --------
-                        Section::make('Novo grupo')
-                        ->visible(fn ($get) => $get('mode') === 'new')
-                        ->schema([
-                            Grid::make(3)->schema([
-                                Forms\Components\TextInput::make('name')
-                                    ->label('Nome do grupo')
-                                    ->required(),
-
-                                Forms\Components\Toggle::make('status')
-                                    ->label('Ativo')
-                                    ->default(true)
-                            ]),
-                        ]),
-                        
-                    ])
+                            ->createOptionUsing(function (array $data) {
+                                return GroupEquipment::create($data)->id;
+                            });
+                    })
                     ->action(function (array $data) {
-                        $record = $this->getOwnerRecord();
-
-                        if ($data['mode'] === 'existing') {
-                            GroupEquipment::where('id', $data['group_equipment_id'])
-                                ->update([
-                                    'room_id' => $record->id,
-                                ]);
-                        }
-
-                        if ($data['mode'] === 'new') {
-                            GroupEquipment::create([
-                                'name' => $data['name'],
-                                // 'patrimony' => $data['patrimony'] ?? null,
-                                // 'maintenance_date' => $data['maintenance_date'] ?? null,
-                                'status' => $data['status'] ?? true,
-                                'room_id' => $record->id,
-                            ]);
-                        }
+                        $recordId = $data['recordId'];
+                        GroupEquipment::where('id', $recordId)->update([
+                            'room_id' => $this->getOwnerRecord()->id,
+                        ]);
                     }),
             ])
             ->actions([
+                Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('detach')
-                    ->label('Remover grupo')
-                    ->icon('heroicon-o-link-slash')
-                    ->color('warning')
+                    ->label('Remover')
+                    ->icon('heroicon-o-x-mark')
+                    ->color('danger')
                     ->requiresConfirmation()
-                    ->modalHeading('Remover grupo da sala')
-                    ->modalDescription('O grupo será apenas desvinculado desta sala.')
-                    ->action(function ($record) {
-                        $record->update([
-                            'room_id' => null,
-                        ]);
-                    }),
+                    ->action(fn(GroupEquipment $record) => $record->update(['room_id' => null])),
             ]);
     }
 }
