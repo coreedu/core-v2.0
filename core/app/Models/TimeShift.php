@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Time\LessonTime;
+use App\Models\Time\Shift;
 use Carbon\Carbon;
 use App\Traits\Auditable;
 
@@ -21,7 +22,7 @@ class TimeShift extends Model
 
     public function shift()
     {
-        return $this->belongsTo(Shift::class, 'shift_cod', 'cod');
+        return $this->belongsTo(Shift::class, 'shift_cod', 'id');
     }
 
     public static function getTimesByShift($shiftCod)
