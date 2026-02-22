@@ -40,7 +40,8 @@ class CentralPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
-            ->brandLogo(url('images\logo.svg'))
+            ->favicon(asset('images/favicon.ico'))
+            ->brandLogo(url('images/logo.svg'))
             ->brandLogoHeight('2.5rem')
             ->sidebarCollapsibleOnDesktop()
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
