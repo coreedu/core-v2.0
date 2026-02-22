@@ -35,6 +35,7 @@ class CentralPanelProvider extends PanelProvider
             ->path('central')
             ->databaseNotifications()
             ->login()
+            ->font('Poppins')
             // ->passwordReset()
             ->profile(Profile::class)
             ->colors([
