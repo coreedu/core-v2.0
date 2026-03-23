@@ -23,6 +23,9 @@
                         @if(isset($module['days'][$idxDay]['times'][$idxTime]))
                             <td class="px-3 py-2 border textSmall">
                                 <div class="group-container">
+                                    @php
+                                        ksort($module['days'][$idxDay]['times'][$idxTime]['groups']);
+                                    @endphp
                                     @foreach($module['days'][$idxDay]['times'][$idxTime]['groups'] as $group)
                                         <div class="group block"> 
                                             <span>{{Str::limit($group['subject'], 14, '...')}}</span><br>

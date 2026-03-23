@@ -125,7 +125,14 @@
             }
 
             .group-container {
-                display: block;
+                display: flex;              /* 🔥 principal mudança */
+                justify-content: center;    
+                align-items: flex-start;
+                gap: 6px;
+            }
+
+            .group {
+                display: inline-block;
                 text-align: center; 
             }
 
