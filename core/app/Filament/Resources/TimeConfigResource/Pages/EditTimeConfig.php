@@ -123,9 +123,21 @@ class EditTimeConfig extends EditRecord
                         ->get()
                         ->each(function ($oldSlot) {
                             
-                            $hasClasses = \DB::table('class_schedule')->where('slot_id', $oldSlot->id)->exists();
-                            
+                            $hasClasses = \DB::table('class_schedule')
+                                ->where('slot_id', $oldSlot->id)
+                                ->where(function ($query) {
+                                    $query->whereNotNull('instructor')
+                                        ->orWhereNotNull('component')
+                                        ->orWhereNotNull('room');
+                                })
+                                ->exists();
+
                             if (!$hasClasses) {
+
+                                \DB::table('class_schedule')
+                                    ->where('slot_id', $oldSlot->id)
+                                    ->delete();
+
                                 $oldSlot->delete();
                             }
                         });
