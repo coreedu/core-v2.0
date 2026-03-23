@@ -219,7 +219,7 @@ class Schedule extends Model
             // $shift = TimeShift::getShiftCodById($item->time);
 
             $scheduleData[$course]['shifts'][$shift]['modules'][$module]['days'][$day]['times'][$time]['groups'][$group] = [
-                'subject' => Componente::find($item->component)?->nome ?? '-',
+                'subject' => Componente::find($item->component)?->abreviacao ?? '-',
                 'teacher' => User::find($item->instructor)?->name ?? '-',
                 'room' => Room::find($item->room)?->number ?? '-',
             ];
